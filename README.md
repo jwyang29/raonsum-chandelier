@@ -48,6 +48,7 @@ python3 -m http.server 5604 --directory web
 | `?fill=1` | 쌓인 상태로 시작한다. `?fill=60` 처럼 개수도 준다 |
 | `?desk=1` | 책상 시험용. 샹들리에를 마커 위 0.30~0.70m 로 줄인다 |
 | `?msize=0.062` | 마커 검은 사각형의 실제 한 변 (m) |
+| `?guide=1` | 마커 평면에 실측 윤곽과 1m 자를 그린다. 월드가 실물에 맞는지 본다 |
 | `?debug=1` | 마커 수, 크리스탈 수, 품질 단계, fps, 월드 원점, 실측값을 표시한다 |
 
 카메라는 HTTPS 또는 localhost 에서만 열린다. 폰으로 볼 때는 GitHub Pages 에 올려야 한다.
@@ -64,6 +65,21 @@ python3 -m http.server 5604 --directory web
 
 `msize` 를 안 주면 월드 전체가 그만큼 작아진다. AR.js 는 적어 놓은 마커 크기로
 거리를 풀기 때문이다. 화면의 CSS mm 는 실제 mm 가 아니다.
+
+### 인쇄
+
+🔴 **`markers/print/` 의 PDF 로 100% 배율로 찍을 것.** SVG 를 브라우저에서
+인쇄하면 여백에 맞춰 줄어든다. 찍고 나서 **자로 검은 사각형을 재서 100mm 인지
+확인한다.** 여기가 틀리면 월드 전체의 크기가 그 비율로 틀어진다.
+100mm 로 못 찍었으면 `web/config.js` 의 `markerSize` 를 실측값으로 고친다.
+
+| 파일 | 내용 |
+|---|---|
+| `RAONSUM_markers_floor_A4.pdf` | 바닥 4장. 검은 사각형 100mm, 흰 여백 포함 150mm |
+| `RAONSUM_marker_ceiling_large.pdf` | 천장 1장. 300mm, 470x490mm 용지 |
+| `RAONSUM_marker_ceiling_tiles_A4.pdf` | 천장용을 A4 9장으로 나눈 것 |
+
+무광으로, **흰 여백은 자르지 말 것.** 여백이 없으면 검출기가 사각형을 못 찾는다.
 
 ## Firebase 설정
 

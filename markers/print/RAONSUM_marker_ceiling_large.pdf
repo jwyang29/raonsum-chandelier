@@ -1,0 +1,53 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Count 1 /Kids [4 0 R] >>
+endobj
+3 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+4 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 1332.2835 1388.9764] /Resources << /Font << /F1 3 0 R >> >> /Contents 5 0 R >>
+endobj
+5 0 obj
+<< /Length 987 >>
+stream
+0.75 g 0.3 w
+22.6772 39.6850 m 34.0157 39.6850 l S
+28.3465 34.0157 m 28.3465 45.3543 l S
+1298.2677 39.6850 m 1309.6063 39.6850 l S
+1303.9370 34.0157 m 1303.9370 45.3543 l S
+22.6772 1315.2756 m 34.0157 1315.2756 l S
+28.3465 1309.6063 m 28.3465 1320.9449 l S
+1298.2677 1315.2756 m 1309.6063 1315.2756 l S
+1303.9370 1309.6063 m 1303.9370 1320.9449 l S
+0.2000 g 240.9449 252.2835 850.3937 850.3937 re f
+1 g
+580.4220 761.8394 171.4394 171.4394 re f
+580.4220 591.7606 171.4394 171.4394 re f
+580.4220 421.6819 171.4394 171.4394 re f
+750.5008 421.6819 171.4394 171.4394 re f
+BT /F1 10 Tf 0.15 g 561.1417 1337.9528 Td (CEILING   barcode 26   black square 300 mm) Tj ET
+0.2 g 0.35 w
+524.4094 5.6693 m 807.8740 5.6693 l S
+524.4094 0.0000 m 524.4094 11.3386 l S
+807.8740 0.0000 m 807.8740 11.3386 l S
+BT /F1 7.5 Tf 0.35 g 557.3917 -8.5039 Td (this line must measure 100 mm  \(print at 100%, no scaling\)) Tj ET
+BT /F1 7.5 Tf 0.5 g 591.1417 28.3465 Td (matte paper, do not cut the white margin) Tj ET
+endstream
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000185 00000 n 
+0000000323 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+1361
+%%EOF

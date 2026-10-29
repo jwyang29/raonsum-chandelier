@@ -7,6 +7,7 @@
 //   ?mock=1     Firebase 없이 가짜 크리스탈을 만든다
 //   ?fill=1     AR 모드에서도 쌓인 상태로 시작한다 (현장 점검용). ?fill=60 처럼 개수도
 //   ?msize=0.06 마커 검은 사각형의 실제 한 변 (m). 화면에 띄워 시험할 때 쓴다
+//   ?guide=1    마커 평면에 실측 윤곽과 1m 자를 그린다. 월드가 실물에 맞는지 본다
 //   ?debug=1    마커 수, 크리스탈 수, 품질 단계, fps, 월드 원점을 표시한다
 //   ?rate=1200  가짜 크리스탈 생성 간격 (ms)
 
@@ -26,6 +27,13 @@ const DEBUG = params.get("debug") === "1";
 // AR 모드는 평소 빈 상태로 시작한다. 쌓인 것은 Firebase 에서 받는다.
 // 그래서 마커만 비춰 보면 아무것도 안 떠 있어서 맞게 도는지 알 수가 없다.
 // 현장 점검 때는 ?fill=1 로 마지막 날 모습을 띄워 놓고 본다.
+// ?guide=1 : 월드가 실물에 맞는지 눈으로 보는 자리.
+// 마커 평면에 실제 치수의 윤곽을 그린다. 장치 40cm 네모가 실제 알루미늄
+// 프레임 위에 딱 겹치면 마커 크기와 배치가 맞은 것이다.
+// 작게 나오면 markerSize 가 실제 마커와 다른 것이고, 돌아가 있으면 마커를
+// 다른 방향으로 붙인 것이고, 비뚤면 마커 반지름(mring)이 다른 것이다.
+const GUIDE = params.get("guide") === "1";
+
 const FILL = params.get("fill");
 const WANT_FILL = FILL !== null && FILL !== "0";
 const PREVIEW = params.get("preview") === "1";
@@ -101,6 +109,61 @@ loadBlobs()
     console.warn("[crystal] blobs.json 을 못 불러왔습니다. 임시 도형으로 갑니다.", e);
     libReady = true; flush();
   });
+
+// 실측 윤곽. 마커 평면(y=0)이 좌대 상단면이다.
+function buildGuide() {
+  const g = new THREE.Object3D();
+  const mat = (c) => new THREE.LineBasicMaterial({ color: c, depthTest: false });
+  const line = (pts, c) => {
+    const l = new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), mat(c));
+    l.renderOrder = 999;
+    return l;
+  };
+  const V = (x, y, z) => new THREE.Vector3(x, y, z);
+  const rect = (s, y, c) => line([V(-s/2, y, -s/2), V(s/2, y, -s/2),
+                                  V(s/2, y, s/2), V(-s/2, y, s/2),
+                                  V(-s/2, y, -s/2)], c);
+  const circle = (r, y, c) => {
+    const pts = [];
+    for (let i = 0; i <= 72; i++) {
+      const a = (i / 72) * Math.PI * 2;
+      pts.push(V(Math.cos(a) * r, y, Math.sin(a) * r));
+    }
+    return line(pts, c);
+  };
+
+  g.add(rect(GEOMETRY.deviceSize, 0.002, 0x2bff88));            // 장치 40cm 각
+  g.add(rect(GEOMETRY.clothSize, GEOMETRY.deviceHeight, 0xffd23f));  // 천 (장치 위 20cm)
+  g.add(circle(PEDESTAL.diameter / 2, 0.001, 0x4aa8ff));        // 좌대 테두리
+  g.add(circle(GEOMETRY.markerRing, 0.003, 0xff4f8b));          // 마커 네 개가 놓인 원
+
+  // 마커 자리마다 실제 크기의 네모. 인쇄물 검은 사각형 위에 겹쳐야 한다.
+  for (const m of MARKERS) {
+    if (m.kind !== "floor") continue;
+    const q = rect(m.size, 0.004, 0xffffff);
+    q.position.set(m.pos[0], 0, m.pos[2]);
+    g.add(q);
+  }
+
+  // 세로 자 1m. 10cm 마다 눈금을 친다. 크기가 틀리면 여기서 바로 보인다.
+  const rod = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.004, 0.004, 1, 8),
+    new THREE.MeshBasicMaterial({ color: 0xffffff, depthTest: false }));
+  rod.position.y = 0.5;
+  rod.renderOrder = 999;
+  g.add(rod);
+  for (let i = 1; i <= 10; i++) {
+    const w = i % 5 === 0 ? 0.10 : 0.05;
+    const t = new THREE.Mesh(
+      new THREE.BoxGeometry(w, 0.006, 0.006),
+      new THREE.MeshBasicMaterial({ color: i % 5 === 0 ? 0xff4f8b : 0xffffff,
+                                    depthTest: false }));
+    t.position.set(w / 2, i * 0.1, 0);
+    t.renderOrder = 999;
+    g.add(t);
+  }
+  return g;
+}
 
 // 미리보기 카메라. 샹들리에를 세워 놓고 재서 화면에 꽉 차게 둔다.
 //
@@ -196,6 +259,7 @@ AFRAME.registerComponent("chandelier-driver", {
     this.anchor = this.el.components["world-anchor"];
     this.last = 0;
     this.el.object3D.add(chandelier.root);
+    if (GUIDE) this.el.object3D.add(buildGuide());
     sceneReady = true;
     flush();
 
