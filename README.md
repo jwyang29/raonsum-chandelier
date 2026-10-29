@@ -75,11 +75,23 @@ python3 -m http.server 5604 --directory web
 
 | 파일 | 내용 |
 |---|---|
+| `RAONSUM_marker_layout_A4.pdf` | **배치도 한 장.** 평면도, 옆면도, 큐브 면 번호 |
 | `RAONSUM_markers_floor_A4.pdf` | 바닥 4장. 검은 사각형 100mm, 흰 여백 포함 150mm |
 | `RAONSUM_marker_ceiling_large.pdf` | 천장 1장. 300mm, 470x490mm 용지 |
 | `RAONSUM_marker_ceiling_tiles_A4.pdf` | 천장용을 A4 9장으로 나눈 것 |
+| `RAONSUM_marker_cube1.pdf` ~ `cube3.pdf` | 매단 큐브. 큐브마다 옆면 4장, A4 |
 
 무광으로, **흰 여백은 자르지 말 것.** 여백이 없으면 검출기가 사각형을 못 찾는다.
+
+다시 뽑을 때. 배치도는 `config.js` 에서 치수를 읽어 오므로 좌대를 실측해서
+고치면 다시 돌려야 한다.
+
+```
+python3 markers/make_pdf.py markers/print            # 마커. --cube 160 으로 큐브 크기 변경
+python3 markers/make_layout.py markers/print         # 배치도 SVG
+```
+
+배치도 PDF 는 SVG 를 브라우저에서 인쇄하면 된다. 배율이 틀어져도 상관없는 참고용이다.
 
 ## Firebase 설정
 

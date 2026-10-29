@@ -18,6 +18,23 @@ GRIDS = {int(k): v for k, v in json.load(open(os.path.join(HERE, "grids.json")))
 FLOOR = [(0, "FLOOR 1"), (7, "FLOOR 2"), (44, "FLOOR 3"), (63, "FLOOR 4")]
 CEILING = (26, "CEILING")
 FLOOR_MM, CEIL_MM = 100.0, 300.0
+
+# 천장에서 낚싯줄로 매단 큐브. 옆면 넷에 서로 다른 번호를 붙인다.
+# 🔴 여기 CUBE_CODES 는 web/config.js 의 것과 같아야 한다. 64개 중에서
+#    회전까지 넣은 거리를 보고 고른 조합이다. 함부로 바꾸지 말 것.
+CUBE_CODES = [[13, 22, 25, 42], [21, 37, 50, 56], [28, 35, 38, 41]]
+
+# 면이 보는 방향과, 그 방향에 있는 바닥 마커. 붙일 때 이걸 보고 맞춘다.
+#   +Z 는 바닥 0번이 있는 쪽, +X 는 63번, -Z 는 44번, -X 는 7번
+CUBE_DIRS = [("+Z", 0), ("+X", 63), ("-Z", 44), ("-X", 7)]
+
+# 흰 여백까지 포함한 한 변 (mm). 큐브 한 변이 이 값이다.
+# 기본 130 은 중심축에 2.08m 로 매달 때 나온 값이다 (화면 가로 1/16 규칙).
+# 더 높이 매달거나 비켜 매달면 커져야 한다. --cube 160 으로 바꾼다.
+CUBE_FACE_MM = 130.0
+for _i, _a in enumerate(sys.argv):
+    if _a == "--cube":
+        CUBE_FACE_MM = float(sys.argv[_i + 1])
 QUIET = 0.25              # 여백은 마커 한 변의 25%. 셀 하나보다 넓어야 한다
 
 # 🔴 검은 칸의 밝기 (0 이 검정, 255 가 흰색). make_sheets.py 의 --ink 와 같은 값을 쓴다.
@@ -149,6 +166,28 @@ def write_pdf(pages, path):
     return len(out)
 
 
+def cube_page(cube_i, face_i, face_mm, page):
+    """큐브 한 면. 어느 큐브의 어느 면인지 크게 적는다. 열두 장이 섞이면 못 찾는다."""
+    pw, ph = page
+    code = CUBE_CODES[cube_i][face_i]
+    direction, floor_code = CUBE_DIRS[face_i]
+    black = face_mm / (1 + QUIET * 2)
+    quiet = black * QUIET
+    bx, by = (pw - face_mm) / 2, (ph - face_mm) / 2 - 10
+    ops = crop(bx, by, face_mm, face_mm)
+    ops += marker_ops(code, bx + quiet, by + quiet, black)
+    ops += text(f"CUBE {cube_i+1}   face {direction}   barcode {code}",
+                0, by + face_mm + 12, 12, 0.1, pw)
+    ops += text(f"this face must look toward FLOOR marker {floor_code}",
+                0, by + face_mm + 5, 9, 0.3, pw)
+    ops += text(f"cube edge {face_mm:.0f} mm   black square {black:.1f} mm   "
+                f"TOP of this sheet points to the ceiling",
+                0, by - 7, 8, 0.35, pw)
+    ops += ruler(pw, by - 16)
+    ops += text("matte paper, do not cut the white margin", 0, 10, 7.5, 0.5, pw)
+    return pw, ph, ops
+
+
 made = []
 p = os.path.join(OUT, "RAONSUM_markers_floor_A4.pdf")
 made.append((p, write_pdf([full_page(c, l, FLOOR_MM, A4) for c, l in FLOOR], p), "A4 4장"))
@@ -163,7 +202,18 @@ p = os.path.join(OUT, "RAONSUM_marker_ceiling_tiles_A4.pdf")
 tiles = [tile_page(ccode, clabel, CEIL_MM, 3, 3, r, c, A4) for r in range(3) for c in range(3)]
 made.append((p, write_pdf(tiles, p), "A4 9장 (3x3)"))
 
-print(f"검은 사각형: 바닥 {FLOOR_MM:.0f}mm, 천장 {CEIL_MM:.0f}mm")
-print(f"흰 여백 포함: 바닥 {FLOOR_MM*(1+QUIET*2):.0f}mm, 천장 {big:.0f}mm")
+# ⚠️ A4 로 찍는다. 종이 크기를 마커에 맞춰 잘라 놓으면 인쇄 대화상자가
+#    용지에 맞춰 줄여 버린다. 마커는 배율이 틀어지면 그대로 못 쓴다.
+CUBE_PAGE = A4
+for ci in range(len(CUBE_CODES)):
+    p = os.path.join(OUT, f"RAONSUM_marker_cube{ci+1}.pdf")
+    pages = [cube_page(ci, fi, CUBE_FACE_MM, CUBE_PAGE) for fi in range(4)]
+    made.append((p, write_pdf(pages, p),
+                 f"{CUBE_PAGE[0]:.0f}x{CUBE_PAGE[1]:.0f}mm 4장"))
+
+print(f"검은 사각형: 바닥 {FLOOR_MM:.0f}mm, 천장 {CEIL_MM:.0f}mm, "
+      f"큐브 {CUBE_FACE_MM/(1+QUIET*2):.1f}mm")
+print(f"흰 여백 포함: 바닥 {FLOOR_MM*(1+QUIET*2):.0f}mm, 천장 {big:.0f}mm, "
+      f"큐브 {CUBE_FACE_MM:.0f}mm")
 for path, size, note in made:
     print(f"  {os.path.basename(path)}  {size//1024}KB  {note}")
