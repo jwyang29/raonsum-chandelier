@@ -5,12 +5,14 @@
 // 쿼리
 //   ?preview=1  마커와 카메라 없이 샹들리에만 본다 (개발과 확인용)
 //   ?mock=1     Firebase 없이 가짜 크리스탈을 만든다
+//   ?fill=1     AR 모드에서도 쌓인 상태로 시작한다 (현장 점검용). ?fill=60 처럼 개수도
+//   ?msize=0.06 마커 검은 사각형의 실제 한 변 (m). 화면에 띄워 시험할 때 쓴다
 //   ?debug=1    마커 수, 크리스탈 수, 품질 단계, fps, 월드 원점을 표시한다
 //   ?rate=1200  가짜 크리스탈 생성 간격 (ms)
 
 import "./marker_anchor.js";
 import { MARKERS, GEOMETRY, PEDESTAL, SCHEDULE, CAL_KEY, AR_SOURCE, ANCHOR,
-         MAX_CRYSTALS, refreshPedestal, refreshMarkers } from "./config.js";
+         MAX_CRYSTALS, DESK, refreshPedestal, refreshMarkers } from "./config.js";
 import { Chandelier, RING_GAP, recomputeHeights, ringY } from "./chandelier.js";
 import { startFeed, mockData } from "./feed.js";
 import { Detector } from "./detect.js";
@@ -20,6 +22,12 @@ import { loadBlobs } from "./crystal.js";
 const VERSION = "web_v1";
 const params = new URLSearchParams(location.search);
 const DEBUG = params.get("debug") === "1";
+
+// AR 모드는 평소 빈 상태로 시작한다. 쌓인 것은 Firebase 에서 받는다.
+// 그래서 마커만 비춰 보면 아무것도 안 떠 있어서 맞게 도는지 알 수가 없다.
+// 현장 점검 때는 ?fill=1 로 마지막 날 모습을 띄워 놓고 본다.
+const FILL = params.get("fill");
+const WANT_FILL = FILL !== null && FILL !== "0";
 const PREVIEW = params.get("preview") === "1";
 // 보정 패널은 ?cal=1 이나 ?debug=1 에서만 뜬다. 관객이 여는 주소에는 둘 다 없다.
 const CAL = params.get("cal") === "1" || params.get("debug") === "1";
@@ -74,11 +82,14 @@ function flush() {
   if (!libReady || !sceneReady || !pending) return;
   pending.forEach((d) => chandelier.add(d));
   pending = null;
-  // 미리보기는 전시 마지막 날 모습으로 채운다. 48개로 띄우면 성글어서
-  // 폰이 실제로 버티는지도, 비례가 맞는지도 알 수 없다.
-  if (PREVIEW) {
+  // 전시 마지막 날 모습으로 채운다. 48개로 띄우면 성글어서 폰이 실제로
+  // 버티는지도, 비례가 맞는지도 알 수 없다.
+  if (PREVIEW || WANT_FILL) {
     const layers = SCHEDULE.maxRings;
-    chandelier.seed(Math.min(MAX_CRYSTALS, layers * 15), mockData, layers);
+    const n = Number(FILL) > 1 ? Number(FILL) : Math.min(MAX_CRYSTALS, layers * 15);
+    chandelier.seed(n, mockData, layers);
+  }
+  if (PREVIEW) {
     framePreview();
     setTimeout(framePreview, 2500);   // 올라오던 것들이 자리 잡은 뒤 한 번 더
   }
@@ -246,6 +257,8 @@ AFRAME.registerComponent("chandelier-driver", {
       (PREVIEW ? "" : `월드 원점    ${p ? `${p.x.toFixed(3)} ${p.y.toFixed(3)} ${p.z.toFixed(3)}` : "아직 없음"}\n`) +
       `겹           ${chandelier.rings.size}개 (그려진 ${SCHEDULE.periodHours}시간마다 1개)\n` +
       `좌대         지름 ${PEDESTAL.diameter.toFixed(2)} m / 높이 ${PEDESTAL.height.toFixed(2)} m\n` +
+      `마커 한 변   ${(GEOMETRY.markerSize * 100).toFixed(1)} cm` +
+      `${GEOMETRY.markerSize !== 0.10 ? "  (msize 로 바꾼 값)" : ""}\n` +
       `마커 반지름  ${GEOMETRY.markerRing.toFixed(3)} m\n` +
       `천장 높이    ${GEOMETRY.ceilingHeight.toFixed(2)} m (상단면) / ` +
       `${(GEOMETRY.ceilingHeight + PEDESTAL.height).toFixed(2)} m (바닥)\n` +
@@ -345,7 +358,9 @@ if (CAL) {
     location.reload();
   });
 
-  applyCal({
+  // ⚠️ 책상 모드에서는 돌리지 않는다. applyCal 의 천장 하한이 0.8m 라
+  //    책상용 0.70m 를 도로 밀어 올린다.
+  if (!DESK) applyCal({
     floorCeiling: clamp(GEOMETRY.ceilingHeight + PEDESTAL.height, 1.6, 8.0),
     pedH: PEDESTAL.height,
     pedD: PEDESTAL.diameter,

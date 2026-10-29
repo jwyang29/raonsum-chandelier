@@ -41,6 +41,22 @@ const num = (key, fallback) => {
 const fc = num("floorceiling", null);
 const floorCeiling = Number.isFinite(fc) ? fc : null;
 
+// ?desk=1 : 책상 위 시험용. 샹들리에를 마커 바로 위 30~70cm 에 두어 통째로
+// 화면에 들어오게 한다. 실제 전시는 마커에서 1.7~3.1m 위라, 책상에 마커를 놓고
+// 폰을 비추면 샹들리에가 화면 한참 위에 있어 아무것도 안 보인다.
+// 🔴 비례를 보는 자리가 아니다. 돌아가는지 보는 자리다.
+export const DESK = QS.get("desk") === "1";
+
+// 책상 모드 값은 이 기기에 남은 보정값보다 세다. 시험하려고 켠 플래그인데
+// 예전에 저장된 천장 높이 때문에 안 먹으면 더 헷갈린다.
+// URL 로 직접 준 값만 이보다 세다.
+const deskNum = (key, deskValue, fallback) => {
+  const q = parseFloat(QS.get(key));
+  if (Number.isFinite(q)) return q;
+  if (DESK) return deskValue;
+  return num(key, fallback);
+};
+
 // 마커 반지름을 손으로 못박았는지. 못박으면 좌대 지름을 바꿔도 따라가지 않는다.
 const mr = num("mring", null);
 const MRING_FIXED = Number.isFinite(mr) ? mr : null;
@@ -118,8 +134,14 @@ export const PEDESTAL = {
 // =============================================================
 
 export const GEOMETRY = {
-  // 바코드 마커 한 변 길이 (검은 테두리 포함).
-  markerSize: 0.10,
+  // 바코드 마커 한 변 길이 (검은 테두리 포함, 흰 여백은 뺀다).
+  // 🔴 이 값이 틀리면 월드 전체의 크기가 그만큼 틀어진다. AR.js 는 "이만한
+  //    마커가 화면에 이만큼 보인다" 로 거리를 푼다. 실제 마커가 적어 놓은 것보다
+  //    작으면 더 멀리 있다고 계산해서 샹들리에가 작고 멀게, 그리고 화면 위로
+  //    한참 벗어난 자리에 선다.
+  //    인쇄 전에 노트북 화면에 띄워 놓고 시험할 때는 자로 검은 사각형을 재서
+  //    ?msize=0.062 처럼 넣을 것. 화면의 CSS mm 는 실제 mm 가 아니다.
+  markerSize: num("msize", 0.10),
 
   // 센싱 장치 (알루미늄 프레임 + ESP32 + ToF). 좌대 한가운데에 놓인다.
   // 마커가 이 위로 올라오면 안 되므로 마커 반지름의 안쪽 한계를 정한다.
@@ -146,7 +168,7 @@ export const GEOMETRY = {
   // 링 간격이 이 값에서 자동으로 나오므로 확정되면 여기에 적어 넣을 것.
   // 기본값 3.08 은 바닥에서 천장 3.40m 에 좌대 0.32m 를 뺀 것이다.
   // 좌대 높이를 고치면 이 값도 같이 고쳐야 바닥 기준 높이가 유지된다.
-  ceilingHeight: num("ceiling", floorCeiling !== null
+  ceilingHeight: deskNum("ceiling", 0.70, floorCeiling !== null
     ? floorCeiling - PEDESTAL.height
     : 3.08),
 
@@ -172,7 +194,7 @@ export const GEOMETRY = {
   // 사방에서 보는 작품이라 관객이 좌대를 돌며 팔 길이 안으로 들어온다.
   // 마지막 날 링이 눈높이에 걸리면 크리스탈이 얼굴을 통과해 깨져 보인다.
   // 좌대가 높아지면 상단면 기준 ringMinY 는 그만큼 낮아진다.
-  headroom: num("headroom", 2.05),
+  headroom: deskNum("headroom", 0.32, 2.05),
   ringMinY: 0,        // headroom 과 좌대 높이에서 아래에서 채운다
 
   ringTube: 0.004,    // 가상 링의 두께 (m)
@@ -250,7 +272,9 @@ export const SCHEDULE = {
   // 겹의 최대 개수. 이보다 길어지면 마지막 겹에 모인다.
   // 겹은 그려진 주기에만 열리니, 운영 시간을 꽉 채워도 이 수를 넘지 않는다.
   // 이틀에 11시부터 19시, 한 시간에 한 겹이면 2 * 8 = 16 겹이다.
-  maxRings: num("layers", Math.max(2,
+  // 책상 시험은 높이가 40cm 뿐이라 16겹을 넣으면 겹 간격이 2.7cm 가 되어
+  // 크리스탈(4.5~14cm)끼리 뭉개진다. 겹 수를 줄여 간격을 8cm 로 둔다.
+  maxRings: deskNum("layers", 6, Math.max(2,
     Math.ceil(DEMO_DAYS * (OPEN[1] - OPEN[0]) / PERIOD))),
 
   showRings: true,    // 가상 링을 그릴지
