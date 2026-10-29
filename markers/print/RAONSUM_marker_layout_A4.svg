@@ -59,8 +59,8 @@
 <rect x="37.30" y="249.04" width="29.40" height="8.96" fill="#f4f6f8" stroke="#aab4bf" stroke-width="0.4"/>
 <rect x="46.40" y="243.44" width="11.20" height="5.60" fill="none" stroke="#2bff88" stroke-width="0.6"/>
 <line x1="18" y1="162.80" x2="130.0" y2="162.80" stroke="#aab4bf" stroke-width="0.5"/>
-<rect x="47.80" y="162.80" width="8.40" height="1.6" fill="#333"/>
-<text x="74.00" y="166.00" font-size="2.8" fill="#1b1f24" font-weight="600" text-anchor="start" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">천장 마커 26 / 30 cm / 아래를 보게</text>
+<rect x="50.14" y="162.80" width="3.72" height="1.6" fill="#333"/>
+<text x="74.00" y="166.00" font-size="2.8" fill="#1b1f24" font-weight="600" text-anchor="start" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">천장 마커 26 / 13 cm / 아래를 보게</text>
 <rect x="34.00" y="162.80" width="36" height="37.80" fill="#eef3fb" stroke="#9fb6d4" stroke-width="0.3" stroke-dasharray="1.6 1.2"/>
 <text x="52.00" y="181.70" font-size="3.0" fill="#5b7ca6" font-weight="600" text-anchor="middle" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">가상 샹들리에</text>
 <text x="52.00" y="185.70" font-size="2.7" fill="#5b7ca6" font-weight="400" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">2.05 ~ 3.40 m</text>
@@ -86,44 +86,50 @@
 <line x1="33.30" y1="162.80" x2="36.30" y2="162.80" stroke="#6b7784" stroke-width="0.3"/>
 <text x="32.30" y="163.80" font-size="2.6" fill="#6b7784" font-weight="400" text-anchor="end" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">천장 3.40 m</text>
 <text x="128.00" y="149.00" font-size="3.4" fill="#1b1f24" font-weight="700" text-anchor="start" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">매단 큐브 면 번호</text>
-<text x="128.00" y="153.50" font-size="2.7" fill="#6b7784" font-weight="400" text-anchor="start" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">옆면 넷에 붙인다. 윗면 아랫면은 비운다.</text>
-<text x="128.00" y="157.50" font-size="2.7" fill="#6b7784" font-weight="400" text-anchor="start" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">각 면이 바닥 마커 한 장을 바라보게 맞춘다.</text>
+<text x="128.00" y="153.50" font-size="2.7" fill="#6b7784" font-weight="400" text-anchor="start" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">옆면 넷 + 밑면 하나. 윗면만 비운다.</text>
+<text x="128.00" y="157.50" font-size="2.7" fill="#6b7784" font-weight="400" text-anchor="start" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">밑면이 있어야 좌대 바로 앞에서 올려다볼 때 잡힌다.</text>
 <text x="128.00" y="164.00" font-size="2.7" fill="#6b7784" font-weight="600" text-anchor="start" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">면</text>
 <text x="142.00" y="164.00" font-size="2.7" fill="#6b7784" font-weight="600" text-anchor="start" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">보는 쪽</text>
 <text x="164.00" y="164.00" font-size="2.7" fill="#6b7784" font-weight="600" text-anchor="start" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">큐브1</text>
 <text x="178.00" y="164.00" font-size="2.7" fill="#6b7784" font-weight="600" text-anchor="start" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">큐브2</text>
 <text x="192.00" y="164.00" font-size="2.7" fill="#6b7784" font-weight="600" text-anchor="start" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">큐브3</text>
 <line x1="128" y1="165.4" x2="200" y2="165.4" stroke="#d6dbe0" stroke-width="0.3"/>
-<text x="128.00" y="169.20" font-size="2.9" fill="#1b1f24" font-weight="600" text-anchor="start" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">+Z</text>
-<text x="142.00" y="169.20" font-size="2.8" fill="#1b1f24" font-weight="400" text-anchor="start" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">바닥 0</text>
+<text x="128.00" y="169.20" font-size="2.8" fill="#1b1f24" font-weight="600" text-anchor="start" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">+Z</text>
+<text x="142.00" y="169.20" font-size="2.7" fill="#1b1f24" font-weight="400" text-anchor="start" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">바닥 0</text>
 <text x="164.00" y="169.20" font-size="2.9" fill="#1b1f24" font-weight="600" text-anchor="start" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">13</text>
-<text x="178.00" y="169.20" font-size="2.9" fill="#1b1f24" font-weight="600" text-anchor="start" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">21</text>
-<text x="192.00" y="169.20" font-size="2.9" fill="#1b1f24" font-weight="600" text-anchor="start" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">28</text>
-<text x="128.00" y="173.80" font-size="2.9" fill="#1b1f24" font-weight="600" text-anchor="start" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">+X</text>
-<text x="142.00" y="173.80" font-size="2.8" fill="#1b1f24" font-weight="400" text-anchor="start" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">바닥 63</text>
-<text x="164.00" y="173.80" font-size="2.9" fill="#1b1f24" font-weight="600" text-anchor="start" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">22</text>
-<text x="178.00" y="173.80" font-size="2.9" fill="#1b1f24" font-weight="600" text-anchor="start" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">37</text>
-<text x="192.00" y="173.80" font-size="2.9" fill="#1b1f24" font-weight="600" text-anchor="start" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">35</text>
-<text x="128.00" y="178.40" font-size="2.9" fill="#1b1f24" font-weight="600" text-anchor="start" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">-Z</text>
-<text x="142.00" y="178.40" font-size="2.8" fill="#1b1f24" font-weight="400" text-anchor="start" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">바닥 44</text>
-<text x="164.00" y="178.40" font-size="2.9" fill="#1b1f24" font-weight="600" text-anchor="start" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">25</text>
-<text x="178.00" y="178.40" font-size="2.9" fill="#1b1f24" font-weight="600" text-anchor="start" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">50</text>
-<text x="192.00" y="178.40" font-size="2.9" fill="#1b1f24" font-weight="600" text-anchor="start" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">38</text>
-<text x="128.00" y="183.00" font-size="2.9" fill="#1b1f24" font-weight="600" text-anchor="start" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">-X</text>
-<text x="142.00" y="183.00" font-size="2.8" fill="#1b1f24" font-weight="400" text-anchor="start" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">바닥 7</text>
-<text x="164.00" y="183.00" font-size="2.9" fill="#1b1f24" font-weight="600" text-anchor="start" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">42</text>
-<text x="178.00" y="183.00" font-size="2.9" fill="#1b1f24" font-weight="600" text-anchor="start" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">56</text>
-<text x="192.00" y="183.00" font-size="2.9" fill="#1b1f24" font-weight="600" text-anchor="start" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">41</text>
-<text x="128.00" y="192.00" font-size="2.7" fill="#c2185b" font-weight="600" text-anchor="start" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">인쇄물 위쪽이 전부 천장을 향하게.</text>
-<text x="128.00" y="197.00" font-size="2.7" fill="#6b7784" font-weight="600" text-anchor="start" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">큐브1</text>
-<text x="142.00" y="197.00" font-size="2.7" fill="#1b1f24" font-weight="400" text-anchor="start" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">바닥 1.25 m</text>
-<text x="168.00" y="197.00" font-size="2.7" fill="#1b1f24" font-weight="600" text-anchor="start" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">한 변 16.5 cm</text>
-<text x="128.00" y="201.20" font-size="2.7" fill="#6b7784" font-weight="600" text-anchor="start" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">큐브2</text>
-<text x="142.00" y="201.20" font-size="2.7" fill="#1b1f24" font-weight="400" text-anchor="start" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">바닥 2.15 m</text>
-<text x="168.00" y="201.20" font-size="2.7" fill="#1b1f24" font-weight="600" text-anchor="start" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">한 변 17.0 cm</text>
-<text x="128.00" y="205.40" font-size="2.7" fill="#6b7784" font-weight="600" text-anchor="start" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">큐브3</text>
-<text x="142.00" y="205.40" font-size="2.7" fill="#1b1f24" font-weight="400" text-anchor="start" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">바닥 3.05 m</text>
-<text x="168.00" y="205.40" font-size="2.7" fill="#1b1f24" font-weight="600" text-anchor="start" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">한 변 20.5 cm</text>
+<text x="178.00" y="169.20" font-size="2.9" fill="#1b1f24" font-weight="600" text-anchor="start" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">19</text>
+<text x="192.00" y="169.20" font-size="2.9" fill="#1b1f24" font-weight="600" text-anchor="start" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">11</text>
+<text x="128.00" y="173.50" font-size="2.8" fill="#1b1f24" font-weight="600" text-anchor="start" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">+X</text>
+<text x="142.00" y="173.50" font-size="2.7" fill="#1b1f24" font-weight="400" text-anchor="start" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">바닥 63</text>
+<text x="164.00" y="173.50" font-size="2.9" fill="#1b1f24" font-weight="600" text-anchor="start" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">21</text>
+<text x="178.00" y="173.50" font-size="2.9" fill="#1b1f24" font-weight="600" text-anchor="start" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">25</text>
+<text x="192.00" y="173.50" font-size="2.9" fill="#1b1f24" font-weight="600" text-anchor="start" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">28</text>
+<text x="128.00" y="177.80" font-size="2.8" fill="#1b1f24" font-weight="600" text-anchor="start" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">-Z</text>
+<text x="142.00" y="177.80" font-size="2.7" fill="#1b1f24" font-weight="400" text-anchor="start" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">바닥 44</text>
+<text x="164.00" y="177.80" font-size="2.9" fill="#1b1f24" font-weight="600" text-anchor="start" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">22</text>
+<text x="178.00" y="177.80" font-size="2.9" fill="#1b1f24" font-weight="600" text-anchor="start" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">37</text>
+<text x="192.00" y="177.80" font-size="2.9" fill="#1b1f24" font-weight="600" text-anchor="start" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">38</text>
+<text x="128.00" y="182.10" font-size="2.8" fill="#1b1f24" font-weight="600" text-anchor="start" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">-X</text>
+<text x="142.00" y="182.10" font-size="2.7" fill="#1b1f24" font-weight="400" text-anchor="start" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">바닥 7</text>
+<text x="164.00" y="182.10" font-size="2.9" fill="#1b1f24" font-weight="600" text-anchor="start" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">35</text>
+<text x="178.00" y="182.10" font-size="2.9" fill="#1b1f24" font-weight="600" text-anchor="start" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">42</text>
+<text x="192.00" y="182.10" font-size="2.9" fill="#1b1f24" font-weight="600" text-anchor="start" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">41</text>
+<text x="128.00" y="186.40" font-size="2.8" fill="#1b1f24" font-weight="600" text-anchor="start" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">밑면</text>
+<text x="142.00" y="186.40" font-size="2.7" fill="#1b1f24" font-weight="400" text-anchor="start" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">똑바로 아래</text>
+<text x="164.00" y="186.40" font-size="2.9" fill="#1b1f24" font-weight="600" text-anchor="start" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">56</text>
+<text x="178.00" y="186.40" font-size="2.9" fill="#1b1f24" font-weight="600" text-anchor="start" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">52</text>
+<text x="192.00" y="186.40" font-size="2.9" fill="#1b1f24" font-weight="600" text-anchor="start" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">50</text>
+<text x="128.00" y="191.00" font-size="2.7" fill="#c2185b" font-weight="600" text-anchor="start" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">옆면 넷은 인쇄물 위쪽이 천장을 향하게.</text>
+<text x="128.00" y="194.60" font-size="2.7" fill="#c2185b" font-weight="600" text-anchor="start" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">밑면은 위쪽이 44번 반대쪽을 향하게.</text>
+<text x="128.00" y="199.50" font-size="2.7" fill="#6b7784" font-weight="600" text-anchor="start" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">큐브1</text>
+<text x="142.00" y="199.50" font-size="2.7" fill="#1b1f24" font-weight="400" text-anchor="start" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">바닥 1.25 m</text>
+<text x="168.00" y="199.50" font-size="2.7" fill="#1b1f24" font-weight="600" text-anchor="start" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">한 변 16.5 cm</text>
+<text x="128.00" y="203.70" font-size="2.7" fill="#6b7784" font-weight="600" text-anchor="start" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">큐브2</text>
+<text x="142.00" y="203.70" font-size="2.7" fill="#1b1f24" font-weight="400" text-anchor="start" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">바닥 2.15 m</text>
+<text x="168.00" y="203.70" font-size="2.7" fill="#1b1f24" font-weight="600" text-anchor="start" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">한 변 17.0 cm</text>
+<text x="128.00" y="207.90" font-size="2.7" fill="#6b7784" font-weight="600" text-anchor="start" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">큐브3</text>
+<text x="142.00" y="207.90" font-size="2.7" fill="#1b1f24" font-weight="400" text-anchor="start" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">바닥 3.05 m</text>
+<text x="168.00" y="207.90" font-size="2.7" fill="#1b1f24" font-weight="600" text-anchor="start" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">한 변 20.5 cm</text>
 <line x1="14" y1="268" x2="196.0" y2="268" stroke="#d6dbe0" stroke-width="0.3"/>
 <text x="14.00" y="276.00" font-size="3.6" fill="#1b1f24" font-weight="700" text-anchor="start" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">인쇄</text>
 <text x="26.00" y="276.00" font-size="3.0" fill="#1b1f24" font-weight="400" text-anchor="start" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">markers/print/ 의 PDF 를 100% 배율로. 무광. 흰 여백 자르지 말 것. 찍은 뒤 자로 검은 사각형을 재서 맞는지 확인.</text>

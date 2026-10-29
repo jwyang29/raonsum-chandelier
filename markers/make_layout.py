@@ -56,8 +56,10 @@ inner = DEVICE / 2 + half + 0.005
 MRING = math.floor(outer * 200) / 200 if outer >= inner else inner
 
 FLOOR_DIRS = [(0, 0, 1, "+Z"), (7, -1, 0, "-X"), (44, 0, -1, "-Z"), (63, 1, 0, "+X")]
-CUBE_CODES = [[13, 22, 25, 42], [21, 37, 50, 56], [28, 35, 38, 41]]
-CUBE_FACES = [("+Z", 0), ("+X", 63), ("-Z", 44), ("-X", 7)]
+CUBE_CODES = [[13, 21, 22, 35, 56], [19, 25, 37, 42, 52],
+              [11, 28, 38, 41, 50]]
+CUBE_FACES = [("+Z", "바닥 0"), ("+X", "바닥 63"), ("-Z", "바닥 44"),
+              ("-X", "바닥 7"), ("밑면", "똑바로 아래")]
 
 W, H = 210.0, 297.0
 INK = "#1b1f24"
@@ -245,8 +247,8 @@ for y, lab in [(PED_H, f"좌대 {PED_H*100:.0f} cm"),
 # 큐브 면 배치표
 bx2 = 128
 t(bx2, 149, "매단 큐브 면 번호", 3.4, INK, 700)
-t(bx2, 153.5, "옆면 넷에 붙인다. 윗면 아랫면은 비운다.", 2.7, MUTE)
-t(bx2, 157.5, "각 면이 바닥 마커 한 장을 바라보게 맞춘다.", 2.7, MUTE)
+t(bx2, 153.5, "옆면 넷 + 밑면 하나. 윗면만 비운다.", 2.7, MUTE)
+t(bx2, 157.5, "밑면이 있어야 좌대 바로 앞에서 올려다볼 때 잡힌다.", 2.7, MUTE)
 hy = 164
 t(bx2, hy, "면", 2.7, MUTE, 600)
 t(bx2 + 14, hy, "보는 쪽", 2.7, MUTE, 600)
@@ -255,14 +257,15 @@ t(bx2 + 50, hy, "큐브2", 2.7, MUTE, 600)
 t(bx2 + 64, hy, "큐브3", 2.7, MUTE, 600)
 a(f'<line x1="{bx2}" y1="{hy+1.4}" x2="{bx2+72}" y2="{hy+1.4}" '
   f'stroke="#d6dbe0" stroke-width="0.3"/>')
-for i, (name, floor_code) in enumerate(CUBE_FACES):
-    y = hy + 5.2 + i * 4.6
-    t(bx2, y, name, 2.9, INK, 600, "start", True)
-    t(bx2 + 14, y, f"바닥 {floor_code}", 2.8, INK)
+for i, (name, looks) in enumerate(CUBE_FACES):
+    y = hy + 5.2 + i * 4.3
+    t(bx2, y, name, 2.8, INK, 600, "start", i < 4)
+    t(bx2 + 14, y, looks, 2.7, INK)
     for ci in range(3):
         t(bx2 + 36 + ci * 14, y, str(CUBE_CODES[ci][i]), 2.9, INK, 600, "start", True)
-t(bx2, hy + 28, "인쇄물 위쪽이 전부 천장을 향하게.", 2.7, HOT, 600)
-yy2 = hy + 33
+t(bx2, hy + 27, "옆면 넷은 인쇄물 위쪽이 천장을 향하게.", 2.7, HOT, 600)
+t(bx2, hy + 30.6, "밑면은 위쪽이 44번 반대쪽을 향하게.", 2.7, HOT, 600)
+yy2 = hy + 35.5
 for i, (cy, cf) in enumerate(cube_plan()):
     t(bx2, yy2, f"큐브{i+1}", 2.7, MUTE, 600)
     t(bx2 + 14, yy2, f"바닥 {cy:.2f} m", 2.7, INK)

@@ -3,7 +3,7 @@
 << /Type /Catalog /Pages 2 0 R >>
 endobj
 2 0 obj
-<< /Type /Pages /Count 4 /Kids [4 0 R 6 0 R 8 0 R 10 0 R] >>
+<< /Type /Pages /Count 5 /Kids [4 0 R 6 0 R 8 0 R 10 0 R 12 0 R] >>
 endobj
 3 0 obj
 << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
@@ -27,9 +27,9 @@ stream
 1 g
 265.2548 424.4674 64.7660 64.7660 re f
 201.0028 360.2154 64.7660 64.7660 re f
-329.5068 360.2154 64.7660 64.7660 re f
+265.2548 360.2154 64.7660 64.7660 re f
 329.5068 295.9635 64.7660 64.7660 re f
-BT /F1 12 Tf 0.1 g 210.6378 667.5591 Td (CUBE 2   face +Z   barcode 21) Tj ET
+BT /F1 12 Tf 0.1 g 210.6378 667.5591 Td (CUBE 2   face +Z   barcode 19) Tj ET
 BT /F1 9 Tf 0.3 g 205.3878 647.7165 Td (this face must look toward FLOOR marker 0) Tj ET
 BT /F1 8 Tf 0.35 g 133.6378 131.8110 Td (cube edge 170 mm   black square 113.3 mm   TOP of this sheet points to the ceiling) Tj ET
 0.2 g 0.35 w
@@ -57,11 +57,11 @@ stream
 538.5827 627.8740 m 538.5827 639.2126 l S
 0.2000 g 137.0079 231.9685 321.2598 321.2598 re f
 1 g
-329.5068 424.4674 64.7660 64.7660 re f
-201.0028 360.2154 64.7660 64.7660 re f
+265.2548 424.4674 64.7660 64.7660 re f
+265.2548 360.2154 64.7660 64.7660 re f
 329.5068 360.2154 64.7660 64.7660 re f
 329.5068 295.9635 64.7660 64.7660 re f
-BT /F1 12 Tf 0.1 g 210.6378 667.5591 Td (CUBE 2   face +X   barcode 37) Tj ET
+BT /F1 12 Tf 0.1 g 210.6378 667.5591 Td (CUBE 2   face +X   barcode 25) Tj ET
 BT /F1 9 Tf 0.3 g 203.1378 647.7165 Td (this face must look toward FLOOR marker 63) Tj ET
 BT /F1 8 Tf 0.35 g 133.6378 131.8110 Td (cube edge 170 mm   black square 113.3 mm   TOP of this sheet points to the ceiling) Tj ET
 0.2 g 0.35 w
@@ -89,11 +89,11 @@ stream
 538.5827 627.8740 m 538.5827 639.2126 l S
 0.2000 g 137.0079 231.9685 321.2598 321.2598 re f
 1 g
+329.5068 424.4674 64.7660 64.7660 re f
 201.0028 360.2154 64.7660 64.7660 re f
-265.2548 360.2154 64.7660 64.7660 re f
-265.2548 295.9635 64.7660 64.7660 re f
+329.5068 360.2154 64.7660 64.7660 re f
 329.5068 295.9635 64.7660 64.7660 re f
-BT /F1 12 Tf 0.1 g 210.6378 667.5591 Td (CUBE 2   face -Z   barcode 50) Tj ET
+BT /F1 12 Tf 0.1 g 210.6378 667.5591 Td (CUBE 2   face -Z   barcode 37) Tj ET
 BT /F1 9 Tf 0.3 g 203.1378 647.7165 Td (this face must look toward FLOOR marker 44) Tj ET
 BT /F1 8 Tf 0.35 g 133.6378 131.8110 Td (cube edge 170 mm   black square 113.3 mm   TOP of this sheet points to the ceiling) Tj ET
 0.2 g 0.35 w
@@ -121,11 +121,11 @@ stream
 538.5827 627.8740 m 538.5827 639.2126 l S
 0.2000 g 137.0079 231.9685 321.2598 321.2598 re f
 1 g
+329.5068 424.4674 64.7660 64.7660 re f
 265.2548 360.2154 64.7660 64.7660 re f
-329.5068 360.2154 64.7660 64.7660 re f
 265.2548 295.9635 64.7660 64.7660 re f
 329.5068 295.9635 64.7660 64.7660 re f
-BT /F1 12 Tf 0.1 g 210.6378 667.5591 Td (CUBE 2   face -X   barcode 56) Tj ET
+BT /F1 12 Tf 0.1 g 210.6378 667.5591 Td (CUBE 2   face -X   barcode 42) Tj ET
 BT /F1 9 Tf 0.3 g 205.3878 647.7165 Td (this face must look toward FLOOR marker 7) Tj ET
 BT /F1 8 Tf 0.35 g 133.6378 131.8110 Td (cube edge 170 mm   black square 113.3 mm   TOP of this sheet points to the ceiling) Tj ET
 0.2 g 0.35 w
@@ -136,22 +136,56 @@ BT /F1 7.5 Tf 0.35 g 188.8878 92.1260 Td (this line must measure 100 mm  \(print
 BT /F1 7.5 Tf 0.5 g 222.6378 28.3465 Td (matte paper, do not cut the white margin) Tj ET
 endstream
 endobj
+12 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.2756 841.8898] /Resources << /Font << /F1 3 0 R >> >> /Contents 13 0 R >>
+endobj
+13 0 obj
+<< /Length 1219 >>
+stream
+0.75 g 0.3 w
+51.0236 151.6535 m 62.3622 151.6535 l S
+56.6929 145.9843 m 56.6929 157.3228 l S
+532.9134 151.6535 m 544.2520 151.6535 l S
+538.5827 145.9843 m 538.5827 157.3228 l S
+51.0236 633.5433 m 62.3622 633.5433 l S
+56.6929 627.8740 m 56.6929 639.2126 l S
+532.9134 633.5433 m 544.2520 633.5433 l S
+538.5827 627.8740 m 538.5827 639.2126 l S
+0.2000 g 137.0079 231.9685 321.2598 321.2598 re f
+1 g
+201.0028 360.2154 64.7660 64.7660 re f
+329.5068 360.2154 64.7660 64.7660 re f
+265.2548 295.9635 64.7660 64.7660 re f
+329.5068 295.9635 64.7660 64.7660 re f
+BT /F1 12 Tf 0.1 g 198.6378 667.5591 Td (CUBE 2   face BOTTOM   barcode 52) Tj ET
+BT /F1 9 Tf 0.3 g 169.3878 647.7165 Td (this face looks straight DOWN \(the underside of the cube\)) Tj ET
+BT /F1 8 Tf 0.35 g 111.6378 131.8110 Td (cube edge 170 mm   black square 113.3 mm   TOP of this sheet points AWAY from floor marker 44) Tj ET
+0.2 g 0.35 w
+155.9055 106.2992 m 439.3701 106.2992 l S
+155.9055 100.6299 m 155.9055 111.9685 l S
+439.3701 100.6299 m 439.3701 111.9685 l S
+BT /F1 7.5 Tf 0.35 g 188.8878 92.1260 Td (this line must measure 100 mm  \(print at 100%, no scaling\)) Tj ET
+BT /F1 7.5 Tf 0.5 g 222.6378 28.3465 Td (matte paper, do not cut the white margin) Tj ET
+endstream
+endobj
 xref
-0 12
+0 14
 0000000000 65535 f 
 0000000009 00000 n 
 0000000058 00000 n 
-0000000134 00000 n 
-0000000204 00000 n 
-0000000340 00000 n 
-0000001578 00000 n 
-0000001714 00000 n 
-0000002953 00000 n 
-0000003089 00000 n 
-0000004328 00000 n 
-0000004466 00000 n 
+0000000141 00000 n 
+0000000211 00000 n 
+0000000347 00000 n 
+0000001585 00000 n 
+0000001721 00000 n 
+0000002960 00000 n 
+0000003096 00000 n 
+0000004335 00000 n 
+0000004473 00000 n 
+0000005712 00000 n 
+0000005850 00000 n 
 trailer
-<< /Size 12 /Root 1 0 R >>
+<< /Size 14 /Root 1 0 R >>
 startxref
-5705
+7122
 %%EOF

@@ -302,9 +302,10 @@ function buildCubes() {
     const y = cubeFloorY(c);
     const mat = (v) => new THREE.MeshBasicMaterial({ map: markerTexture(v) });
     // BoxGeometry 면 순서는 +X, -X, +Y, -Y, +Z, -Z 다.
-    // codes 는 [+Z, +X, -Z, -X] 순서다 (바닥 0/63/44/7 을 바라보는 쪽).
+    // codes 는 [+Z, +X, -Z, -X, 밑면] 순서다 (바닥 0/63/44/7 을 바라보는 쪽).
+    // 윗면만 비운다. 아무도 위에서 내려다보지 않는다.
     const box = new THREE.Mesh(new THREE.BoxGeometry(face, face, face),
-      [mat(c.codes[1]), mat(c.codes[3]), white, white,
+      [mat(c.codes[1]), mat(c.codes[3]), white, mat(c.codes[4]),
        mat(c.codes[0]), mat(c.codes[2])]);
     box.position.set(cx, y, cz);
     cubeGroup.add(box);

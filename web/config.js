@@ -159,8 +159,9 @@ export const GEOMETRY = {
   //    변 쪽으로 돌려도 좌대는 66cm 이상이어야 한다.
   markerRing: 0,
 
-  // TODO: 천장 마커 한 변 길이. 약 30cm 권장.
-  ceilingMarkerSize: 0.30,
+  // 천장 마커 검은 사각형 한 변. 이제 선택이라 A4 한 장에 들어가는 크기로 둔다.
+  // 바닥 3.40m 에 달면 관객이 1.6m 뒤까지 읽힌다. 그 바깥은 큐브가 맡는다.
+  ceilingMarkerSize: 0.133,
 
   // 🔴 좌대 상단면에서 매단 천장 뼈대까지의 높이. 현장에서 재야 한다.
   // 줄자로 재면 바닥 기준이 나오므로 ?floorceiling= 으로 넣는 쪽이 편하다.
@@ -289,9 +290,10 @@ export const SCHEDULE = {
 //     현장에서 ?debug=1 로 계산된 포즈를 보면서 맞추세요.
 // =============================================================
 
-// 천장에 마커를 달 수 있는지. 현장에서 확인한다.
-// ?ceilingmarker=0 으로도 끌 수 있어서 현장에서 바로 비교해 볼 수 있다.
-export const HAS_CEILING_MARKER = QS.get("ceilingmarker") !== "0";
+// 천장 마커는 이제 없어도 된다. 큐브 밑면이 그 자리를 맡는다 (2026-10-29).
+// 달 수 있으면 덤으로 하나 더 잡히므로 ?ceilingmarker=1 로 켠다.
+// 번호 26 은 다른 데 쓰지 않고 이 자리로 비워 두었다.
+export const HAS_CEILING_MARKER = QS.get("ceilingmarker") === "1";
 
 const R = GEOMETRY.markerRing;
 
@@ -329,7 +331,9 @@ const R = GEOMETRY.markerRing;
 //    버려지기만 한다. 두 칸이 같이 틀려야 뒤바뀐다.
 //    같은 큐브 안에서 뒤바뀌면 샹들리에가 90도 돌아버리므로 큐브 안쪽 거리를
 //    먼저 키워 잡았다 (대부분 4, 큐브마다 한 쌍만 2).
-export const CUBE_CODES = [[13, 22, 25, 42], [21, 37, 50, 56], [28, 35, 38, 41]];
+//    다섯 면을 쓴다. 옆면 넷 + 밑면 하나. 윗면은 아무도 못 보므로 비운다.
+export const CUBE_CODES = [[13, 21, 22, 35, 56], [19, 25, 37, 42, 52],
+                           [11, 28, 38, 41, 50]];
 // 🔴 매단 큐브 셋. [바닥 기준 높이(m), 흰 여백 포함 한 변(m)]
 //
 // 왜 셋인가, 왜 이 높이인가:
@@ -380,17 +384,31 @@ export const CUBE_FOV = 65;
 export const cubeFaceFor = (d, frameW = 1280) =>
   d * Math.tan(CUBE_FOV * Math.PI / 360) * 80 / (frameW / 2);
 
-// 큐브 하나를 옆면 네 장의 마커로 편다. 면은 중심에서 face/2 만큼 바깥이다.
+// 큐브 하나를 다섯 장의 마커로 편다. 면은 중심에서 face/2 만큼 바깥이다.
 // [면 법선 x, 면 법선 z, yaw]. yaw 0 이 +Z 를 본다.
 const CUBE_DIRS = [[0, 1, 0], [1, 0, 90], [0, -1, 180], [-1, 0, 270]];
 const cubeMarkers = () => CUBES.flatMap((c) => {
   const [cx, , cz] = cubeCenter(c);
-  return CUBE_DIRS.map(([dx, dz, yaw], i) => ({
+  const faces = CUBE_DIRS.map(([dx, dz, yaw], i) => ({
     value: c.codes[i],
     size: c.face / 1.5,                 // 검은 사각형. 흰 여백이 25% 씩이다
     pos: [cx + dx * c.face / 2, c.y, cz + dz * c.face / 2],
     yaw, tilt: 90, kind: "cube",
   }));
+
+  // 🔴 밑면. 이게 없으면 좌대 바로 앞에 선 관객이 올려다볼 때 기준이 없다.
+  //    옆면은 세워져 있어서 가파르게 올려다보면 모서리로 보여 안 읽힌다.
+  //    (모서리 쪽에서 보면 두 면이 각각 방위 45도 틀어지므로, 고도가 45도만
+  //     넘어가도 법선과의 각이 60도를 넘는다. 60도가 실측 한계다.)
+  //    밑면은 법선이 아래라 그 자세에서 가장 정면으로 보인다. 큐브가 가장
+  //    약한 자세를 큐브 자신이 메운다. 윗면은 아무도 못 보므로 비운다.
+  faces.push({
+    value: c.codes[4],
+    size: c.face / 1.5,
+    pos: [cx, c.y - c.face / 2, cz],
+    yaw: 0, tilt: 180, kind: "cube",
+  });
+  return faces;
 });
 
 export const MARKERS = [
