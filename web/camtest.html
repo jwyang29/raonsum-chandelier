@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>카메라 격리 테스트</title>
+<style>
+  /* body 에 배경을 주면 z-index:-2 인 카메라 비디오를 덮는다. 배경은 html 에만. */
+  html { background: #0e1116; }
+  html, body { margin: 0; height: 100%; overflow: hidden; }
+  body { background: transparent; }
+  .a-enter-vr, .a-enter-ar { display: none !important; }
+  #pick {
+    position: fixed; inset: 0; z-index: 99998; display: none;
+    background: #0e1116; color: #d8e0ea; padding: 28px;
+    font: 14px/1.6 system-ui, sans-serif; overflow: auto;
+  }
+  #pick h1 { font-size: 16px; margin: 0 0 6px; }
+  #pick p { color: #8b97a6; font-size: 12.5px; margin: 0 0 16px; }
+  #pick button {
+    display: block; width: 100%; max-width: 460px; text-align: left;
+    margin-bottom: 8px; padding: 12px 14px; border-radius: 6px;
+    background: #1f2630; color: #d8e0ea; border: 1px solid #2a323d;
+    font: 13px/1.4 system-ui, sans-serif; cursor: pointer;
+  }
+  #pick button:hover { background: #2a323d; }
+  #pick small { color: #7f8b99; }
+</style>
+<script src="./camerafix.js"></script>
+<script src="./vendor/aframe.min.js"></script>
+<script src="./vendor/aframe-ar.js"></script>
+</head>
+<body>
+<div id="pick"></div>
+<script>
+// AR.js 는 getUserMedia 에 facingMode:"environment" 를 넣는다. 맥 내장 카메라는
+// 전면이라 이 조건에 안 맞고, 연속성 카메라가 붙었다 떨어지면 스트림이 갈아끼워진다.
+// 그래서 어떤 카메라를 쓸지 직접 지정할 수 있게 한다.  ?cam=<deviceId>
+const CAM = new URLSearchParams(location.search).get("cam");
+if (CAM) {
+  // 씬은 파싱 중에 써야 A-Frame 이 초기화 전에 속성을 본다
+  document.write(
+    '<a-scene embedded vr-mode-ui="enabled: false" renderer="antialias: true"' +
+    ' arjs="sourceType: webcam; detectionMode: mono_and_matrix; matrixCodeType: 3x3;' +
+    ' cameraParametersUrl: ./vendor/camera_para.dat;' +
+    ' deviceId: ' + CAM + ';">' +
+    '<a-entity camera></a-entity>' +
+    '<a-marker type="barcode" value="0">' +
+    '<a-box position="0 0.5 0" material="color: #7fd4c1"></a-box></a-marker>' +
+    '</a-scene>');
+}
+</script>
+<script>
+if (!CAM) {
+  const box = document.getElementById("pick");
+  box.style.display = "block";
+  box.innerHTML = "<h1>카메라 고르기</h1><p>권한을 허용하면 목록이 나옵니다...</p>";
+  navigator.mediaDevices.getUserMedia({ video: true })
+    .then((s) => { s.getTracks().forEach((t) => t.stop()); return navigator.mediaDevices.enumerateDevices(); })
+    .then((list) => {
+      const cams = list.filter((d) => d.kind === "videoinput");
+      box.innerHTML = "<h1>카메라 고르기</h1><p>테스트에 쓸 카메라를 누르세요. " +
+        "아이폰을 연속성 카메라로 연결했다면 목록에 같이 나옵니다.</p>";
+      cams.forEach((c, i) => {
+        const b = document.createElement("button");
+        b.innerHTML = (c.label || `카메라 ${i + 1}`) + "<br><small>" + c.deviceId.slice(0, 24) + "...</small>";
+        b.onclick = () => { location.search = "?cam=" + encodeURIComponent(c.deviceId); };
+        box.appendChild(b);
+      });
+      if (!cams.length) box.innerHTML += "<p>카메라를 못 찾았습니다.</p>";
+    })
+    .catch((e) => { box.innerHTML = "<h1>카메라 권한 실패</h1><p>" + e.name + ": " + e.message + "</p>"; });
+}
+</script>
+<script src="./videodiag.js"></script>
+</body>
+</html>

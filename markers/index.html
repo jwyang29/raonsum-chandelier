@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="utf-8"><title>마커 인쇄 시트</title>
+<style>
+ body{margin:0;padding:24px;background:#12161c;color:#d8e0ea;font:14px/1.6 system-ui,sans-serif}
+ h1{font-size:17px;margin:0 0 4px} h2{font-size:13px;color:#8b97a6;font-weight:500;margin:28px 0 10px}
+ .g{display:flex;flex-wrap:wrap;gap:16px}
+ .c{background:#fff;border-radius:4px;padding:8px}
+ .c img{display:block;width:172px}
+ .c p{margin:6px 0 0;color:#333;font-size:11px;text-align:center}
+ .n{max-width:760px;color:#8b97a6;font-size:12.5px}
+ .n b{color:#d8e0ea;font-weight:600} code{color:#7fd4c1}
+</style></head><body>
+<h1>마커 인쇄 시트</h1>
+<p class="n">ARToolKit 3x3 matrix code. 원본은 artoolkit-barcode-markers-collection 에서 받아 흰 여백만 붙였다.
+<b>100% 배율, 무광 용지</b>로 인쇄하고 <b>흰 여백은 자르지 말 것.</b> 여백이 없으면 사각형을 못 찾는다.</p>
+
+<h2>바닥 4개 · 검은 사각형 100mm · A4</h2>
+<div class="g">
+ <div class="c"><img src="floor_1_barcode0_100mm.svg"><p>바닥 1 · barcode 0</p></div>
+ <div class="c"><img src="floor_2_barcode7_100mm.svg"><p>바닥 2 · barcode 7</p></div>
+ <div class="c"><img src="floor_3_barcode44_100mm.svg"><p>바닥 3 · barcode 44</p></div>
+ <div class="c"><img src="floor_4_barcode63_100mm.svg"><p>바닥 4 · barcode 63</p></div>
+</div>
+
+<h2>천장 1개 · 검은 사각형 300mm</h2>
+<div class="g">
+ <div class="c"><img src="ceiling_barcode26_300mm.svg"><p>천장 · barcode 26 · 대형 출력용 한 장</p></div>
+ <div class="c"><img src="ceiling_tile_11.svg"><p>타일 1행1열</p></div>
+ <div class="c"><img src="ceiling_tile_12.svg"><p>타일 1행2열</p></div>
+ <div class="c"><img src="ceiling_tile_21.svg"><p>타일 2행1열</p></div>
+ <div class="c"><img src="ceiling_tile_22.svg"><p>타일 2행2열</p></div>
+</div>
+<p class="n">천장용은 흰 여백까지 450mm 라 A4 나 A3 에 한 장으로 안 들어간다.
+대형 출력이 가능하면 한 장짜리를, 아니면 <b>A4 네 장 타일</b>을 100% 로 찍어 점선끼리 맞대어 붙인다.</p>
+
+<h2>번호를 0~4 로 쓰지 않은 이유</h2>
+<p class="n">0~4 는 3x3 격자가 서로 한 칸밖에 안 달라서(회전 포함 최소 거리 1)
+멀리서 한 칸만 잘못 읽혀도 다른 마커가 된다. <code>0, 7, 44, 63, 26</code> 은 최소 거리가 3 이다.
+다시 고르려면 <code>pick_ids.py</code> 로 거리를 재고 <code>web/config.js</code> 의 MARKERS 를 맞출 것.</p>
+</body></html>

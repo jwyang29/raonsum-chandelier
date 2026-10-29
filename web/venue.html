@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>전시된 모습 미리보기</title>
+  <style>
+    html, body { margin: 0; height: 100%; overflow: hidden; background: #0e1116; }
+    #app, #app > a-scene { position: fixed; inset: 0; width: 100%; height: 100%; }
+    .a-enter-vr, .a-enter-ar { display: none !important; }
+
+    #ui {
+      position: fixed; left: 12px; top: 12px; z-index: 10; width: 232px;
+      padding: 12px 14px; border-radius: 10px; background: rgba(12,16,22,.88);
+      max-height: calc(100vh - 24px); overflow-y: auto;
+      color: #d8e0ea; font: 13px/1.5 system-ui, sans-serif;
+      backdrop-filter: blur(6px);
+    }
+    #ui h1 { margin: 0 0 2px; font-size: 13px; font-weight: 600; }
+    #ui .sub { color: #7f8b99; font-size: 11.5px; margin-bottom: 11px; }
+    #ui .f { margin-bottom: 9px; }
+    #ui label { display: flex; justify-content: space-between; font-size: 11.5px;
+                color: #8b97a6; margin-bottom: 3px; }
+    #ui label span { color: #d8e0ea; font-variant-numeric: tabular-nums; }
+    #ui input[type=range] { width: 100%; accent-color: #7fd4c1; }
+    #ui .btns { display: flex; gap: 5px; margin: 11px 0 9px; }
+    #ui button {
+      flex: 1; padding: 7px 0; border-radius: 6px; cursor: pointer; font-size: 11.5px;
+      background: #1f2630; color: #d8e0ea; border: 1px solid #2a323d;
+    }
+    #ui button:active { background: #2a323d; }
+    #info { font-size: 11.5px; color: #8b97a6; line-height: 1.6;
+            border-top: 1px solid #222b36; padding-top: 9px; }
+    #info b { color: #7fd4c1; }
+    #hint { position: fixed; bottom: 14px; left: 0; right: 0; text-align: center;
+            color: #6b7784; font: 11.5px system-ui, sans-serif; z-index: 10; }
+    #load { position: fixed; inset: 0; display: grid; place-items: center; z-index: 20;
+            background: #0e1116; color: #7f8b99; font: 13px system-ui, sans-serif; }
+  </style>
+  <script src="./vendor/aframe.min.js"></script>
+</head>
+<body>
+  <div id="app"></div>
+
+  <div id="ui">
+    <h1>전시된 모습</h1>
+    <div class="sub">드래그로 돌리고 휠로 다가갑니다</div>
+
+    <div class="f">
+      <label>좌대 지름 <span id="ped-v"></span></label>
+      <input id="ped" type="range" min="0.66" max="1.60" step="0.01">
+    </div>
+    <div class="f">
+      <label>좌대 높이 <span id="pedh-v"></span></label>
+      <input id="pedh" type="range" min="0.15" max="1.10" step="0.01">
+    </div>
+    <div class="f">
+      <label>바닥에서 천장까지 <span id="ceil-v"></span></label>
+      <input id="ceil" type="range" min="2.40" max="5.00" step="0.05">
+    </div>
+    <div class="f">
+      <label>쌓인 겹 <span id="layer-v"></span></label>
+      <input id="layer" type="range" min="1" max="48" step="1">
+    </div>
+    <div class="f">
+      <label>한 겹에 걸리는 수 <span id="per-v"></span></label>
+      <input id="per" type="range" min="1" max="30" step="1">
+    </div>
+
+    <div class="f">
+      <label>유리 세기 <span id="glass-v"></span></label>
+      <input id="glass" type="range" min="0.06" max="0.45" step="0.01">
+    </div>
+
+    <div class="f">
+      <label>매단 큐브 <span id="cuben-v"></span></label>
+      <input id="cuben" type="range" min="0" max="3" step="1">
+    </div>
+    <div class="f">
+      <label>큐브 높이 <span id="cubey-v"></span></label>
+      <input id="cubey" type="range" min="1.80" max="3.20" step="0.02">
+    </div>
+    <div class="f">
+      <label>매단 자리 <span id="cuber-v"></span></label>
+      <input id="cuber" type="range" min="0" max="1.40" step="0.02">
+    </div>
+
+    <div class="btns">
+      <button id="v-whole">전체</button>
+      <button id="v-eye">눈높이</button>
+      <button id="v-shadow">그림자</button>
+    </div>
+    <div id="info"></div>
+  </div>
+
+  <div id="hint">사람 모형은 키 1.73m 입니다</div>
+  <div id="load">불러오는 중</div>
+  <script type="module" src="./venue.js"></script>
+</body>
+</html>

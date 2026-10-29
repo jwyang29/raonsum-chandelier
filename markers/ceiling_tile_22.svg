@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="210mm" height="297mm"
+     viewBox="0 0 210 297">
+  <rect width="210" height="297" fill="#fff"/>
+  <clipPath id="c"><rect x="-7.5" y="36.0" width="225.0" height="225.0"/></clipPath>
+  <g clip-path="url(#c)">
+    <filter id="ink" color-interpolation-filters="sRGB"><feComponentTransfer><feFuncR type="linear" slope="0.8000" intercept="0.2000"/><feFuncG type="linear" slope="0.8000" intercept="0.2000"/><feFuncB type="linear" slope="0.8000" intercept="0.2000"/></feComponentTransfer></filter>
+    <rect x="-232.5" y="-189.0" width="450.0" height="450.0" fill="#fff"/>
+    <image x="-157.5" y="-114.0" width="300.0" height="300.0"
+           image-rendering="pixelated" style="image-rendering:pixelated;image-rendering:crisp-edges"
+           href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAOIAAADiCAIAAADccoyAAAAACXBIWXMAAA7EAAAOxAGVKw4bAAABrElEQVR4nO3UwQlDMQwFQSv996w0EMgp8V+YacAPtPgcAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADhze8Bz7e6fX5xxjs9etwfAdzIlQKYEyJQAmRIgUwJkSoBMCZApATIlQKYEyJQAmRIgUwJkSoBMCZApATIlQKYEyJQAmRIgUwJkSoBMCZApATIlQKYEyJQAmRIgUwJkSoBMCZApATIlQKYEyJQAmRIgUwJkSoBMCZApATIlQKYEyJQAmRIgUwJkSoBMCZApATIlQKYEyJQAmRIgUwJkSoBMCZApATIlQKYEyJQAmRIgUwJkSoBMCZApATIlQKYEyJQAmRIgUwJkSoBMCZApATIlYG4PeK7dvT3h52YaAfhNCZApATIlQKYEyJQAmRIgUwJkSoBMCZApATIlQKYEyJQAmRIgUwJkSoBMCZApATIlQKYEyJQAmRIgUwJkSoBMCZApATIlQKYEyJQAmRIgUwJkSoBMCZApATIlQKYEyBQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAc84bxhsG4Rc+haIAAAAASUVORK5CYII=" filter="url(#ink)"/>
+  </g>
+  <rect x="-7.5" y="36.0" width="225.0" height="225.0"
+        fill="none" stroke="#ccc" stroke-width="0.2" stroke-dasharray="2 2"/>
+  <text x="105.0" y="31.0" font-size="4.5" fill="#333" text-anchor="middle"
+        font-family="sans-serif">천장 barcode 26 · 2행 2열 / 2x2</text>
+  <text x="105.0" y="289" font-size="3" fill="#888" text-anchor="middle"
+        font-family="sans-serif">점선끼리 맞대어 붙이면 300mm 마커가 됩니다. 100% 배율 인쇄.</text>
+</svg>

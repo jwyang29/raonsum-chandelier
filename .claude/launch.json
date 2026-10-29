@@ -1,0 +1,35 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "chandelier",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": [
+        "web/devserver.py",
+        "5604",
+        "web"
+      ],
+      "port": 5604
+    },
+    {
+      "name": "deco",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": [
+        "web/devserver.py",
+        "5605",
+        "deco"
+      ],
+      "port": 5605
+    },
+    {
+      "name": "markers",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": [
+        "web/devserver.py",
+        "5606",
+        "markers"
+      ],
+      "port": 5606
+    }
+  ]
+}

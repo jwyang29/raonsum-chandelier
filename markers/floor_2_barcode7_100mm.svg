@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="210mm" height="297mm"
+     viewBox="0 0 210 297">
+  <rect width="210" height="297" fill="#fff"/>
+  <filter id="ink" color-interpolation-filters="sRGB"><feComponentTransfer><feFuncR type="linear" slope="0.8000" intercept="0.2000"/><feFuncG type="linear" slope="0.8000" intercept="0.2000"/><feFuncB type="linear" slope="0.8000" intercept="0.2000"/></feComponentTransfer></filter>
+  <rect x="30.0" y="65.5" width="150.0" height="150.0" fill="#fff"/>
+  <image x="55.0" y="90.5" width="100.0" height="100.0"
+         image-rendering="pixelated" style="image-rendering:pixelated;image-rendering:crisp-edges"
+         href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAOIAAADiCAIAAADccoyAAAAACXBIWXMAAA7EAAAOxAGVKw4bAAABtUlEQVR4nO3dsRHDMAwEQdD990wHKsCRRd1otwIEN0h/BgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABmnT7gufbep0/4u7UaAXxOHwC/yZQAmRIgUwJkSoBMCZApATIlQKYEyJQAmRIgUwJkSoBMCZApATIlQKYEyJQAmRIgUwJkSoBMCZApATIlQKYEyJQAmRIgUwJkSoBMCZApATIlQKYEyJQAmRIgUwIaCwGXmzcbKvMJb+CbEiBTAmRKgEwJkCkBMiVApgTIlACZEiBTAmRKgEwJkCkBMiVApgTIlACZEiBTAmRKgEwJkCkBMiVApgTIlACZEiBTAmRKgEwJkCkBMiVApgTIlACZEiBTAmRKgEwJkCkBxjoe5OaplumstfimBMiUAJkSIFMCZEqATAmQKQEyJUCmBMiUAJkSIFMCZEqATAmQKQEyJUCmBMiUAJkSIFMCZEqATAmQKQEyJUCmBMiUAJkSIFMCZEqATAmQKQEyJUCmBMiUAJkSIFMCZAoAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADAzHwBmvwJ4Ct/eQkAAAAASUVORK5CYII=" filter="url(#ink)"/>
+  <path d="M24.0 65.5H36.0M30.0 59.5V71.5" stroke="#bbb" stroke-width="0.2"/><path d="M174.0 65.5H186.0M180.0 59.5V71.5" stroke="#bbb" stroke-width="0.2"/><path d="M24.0 215.5H36.0M30.0 209.5V221.5" stroke="#bbb" stroke-width="0.2"/><path d="M174.0 215.5H186.0M180.0 209.5V221.5" stroke="#bbb" stroke-width="0.2"/>
+  <text x="105.0" y="59.5" font-size="5" fill="#333" text-anchor="middle"
+        font-family="sans-serif">바닥 2  ·  barcode 7  ·  검은 사각형 100mm</text>
+  <g stroke="#333" stroke-width="0.3" fill="none"><path d="M55.0 231.5h100M55.0 229.0v5M155.0 229.0v5"/></g><text x="105.0" y="237.5" font-size="3.4" fill="#333" text-anchor="middle" font-family="sans-serif">이 선이 정확히 100mm 여야 합니다 (인쇄 배율 100%)</text>
+  <text x="105.0" y="289" font-size="3" fill="#888" text-anchor="middle"
+        font-family="sans-serif">무광 용지에 100% 배율로 인쇄. 흰 여백을 자르지 말 것.</text>
+</svg>

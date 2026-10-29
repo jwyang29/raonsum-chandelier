@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="utf-8"><title>그림자 배치</title>
+<style>
+ body{margin:0;padding:22px 24px 40px;background:#12161c;color:#d8e0ea;
+      font:13px/1.6 system-ui,sans-serif}
+ h1{font-size:16px;margin:0 0 4px} h2{font-size:14px;margin:28px 0 4px}
+ p{color:#8b97a6;font-size:12.5px;margin:0 0 12px;max-width:720px}
+ .wrap{background:#fff;border-radius:6px;padding:10px;display:inline-block}
+ .wrap img{display:block}
+ #map img{width:min(74vh,820px)}
+ #nest img,#key img{width:min(96vw,820px)}
+ code{color:#7fd4c1} b{color:#d8e0ea;font-weight:600}
+ .note{color:#e8b36b}
+</style></head><body>
+
+<h1>그림자 시트지</h1>
+<p>샹들리에 오브젝트를 위에서 본 실루엣입니다. 좌대 위에는 붙이지 않고,
+좌대 둘레 바깥 바닥에서 시작해 사방으로 퍼집니다.
+관객이 좌대를 돌면서 보기 때문에 앞뒤 없이 고르게 잡았습니다.</p>
+
+<h2>1. 어디에 붙이는지 (도면)</h2>
+<p>가운데 실선이 좌대 둘레, 흰 사각형 넷이 마커 자리, 바깥 가는 점선이 전체 범위입니다.
+숫자는 커팅 한 장의 조각 번호입니다. 돌려 가며 붙였으므로 <b>번호 찾기</b>에서
+그 번호를 찾아 같은 각도로 떼어 붙입니다. 이 파일은 보는 용도이고 커팅에 넣지 않습니다.</p>
+<div class="wrap" id="map"><img src="shadows.svg"></div>
+
+<h2>2. 커팅 한 장 <code>shadows_nest.svg</code></h2>
+<p>바닥 조각 전부를 롤 폭 안에 모았습니다. 이것 하나만 커팅하면 됩니다.
+자투리를 줄이려고 조각마다 각도를 돌리고 갈고리 안쪽까지 끼워 넣었습니다.
+<span class="note">칼금이 되지 않도록 글자도 안내선도 넣지 않았습니다.</span>
+어느 게 몇 번인지는 바로 아래 번호 찾기에서 봅니다.</p>
+<div class="wrap" id="nest"><img src="shadows_nest.svg"></div>
+<h2>2-1. 번호 찾기 <code>shadows_nest_key.svg</code></h2>
+<p>위 커팅 한 장과 같은 자리입니다. 돌려 가며 붙였기 때문에 읽는 순서로는 번호를 알 수 없어
+따로 냅니다. <span class="note">이 파일은 커팅에 넣지 않습니다.</span></p>
+<div class="wrap" id="key"><img src="shadows_nest_key.svg"></div>
+
+<h2>그 밖에</h2>
+<p><code>shadows_cut.svg</code> 는 같은 조각을 <b>실제 놓이는 자리 그대로</b> 둔 것입니다.
+3m 가 넘어 보통 커터에는 안 들어갑니다. 대형 커터가 있을 때만 씁니다.<br>
+<code>shadows.json</code> 은 <code>web/venue.html</code> 이 바닥에 깔아 보는 좌표입니다.</p>
+
+</body></html>

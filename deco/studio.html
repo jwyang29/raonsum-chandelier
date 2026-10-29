@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>오브제 스튜디오</title>
+<style>
+  :root { --bg:#0e1116; --panel:#161b22; --line:#2a323d; --ink:#d8e0ea; --dim:#8b97a6; --accent:#7fd4c1; }
+  * { box-sizing: border-box; }
+  html, body { margin:0; height:100%; background:var(--bg); color:var(--ink);
+               font:13px/1.5 system-ui, -apple-system, sans-serif; overflow:hidden; }
+  #wrap { display:flex; height:100%; }
+  #panel { width:280px; flex:none; background:var(--panel); border-right:1px solid var(--line);
+           padding:16px; overflow-y:auto; }
+  #view { flex:1; position:relative; }
+  canvas { display:block; }
+  h1 { font-size:14px; margin:0 0 14px; letter-spacing:.02em; }
+  .kinds { display:flex; gap:6px; margin-bottom:16px; }
+  .kinds button { flex:1; padding:7px 0; background:#1f2630; color:var(--dim);
+                  border:1px solid var(--line); border-radius:5px; cursor:pointer; font-size:12px; }
+  .kinds button.on { background:var(--accent); color:#0e1116; border-color:var(--accent); font-weight:600; }
+  .row { margin-bottom:13px; }
+  .row label { display:flex; justify-content:space-between; color:var(--dim);
+               font-size:11.5px; margin-bottom:5px; }
+  .row label b { color:var(--ink); font-weight:500; font-variant-numeric:tabular-nums; }
+  input[type=range] { width:100%; accent-color:var(--accent); }
+  .btns { display:flex; gap:6px; margin:16px 0 10px; }
+  .btns button { flex:1; padding:9px 0; border-radius:5px; cursor:pointer; font-size:12px;
+                 background:#1f2630; color:var(--ink); border:1px solid var(--line); }
+  #export { background:var(--accent); color:#0e1116; border-color:var(--accent); font-weight:600; }
+  #info { color:var(--dim); font-size:11px; line-height:1.6; border-top:1px solid var(--line);
+          padding-top:10px; white-space:pre-line; }
+  .sw { display:flex; align-items:center; gap:7px; color:var(--dim); font-size:11.5px; margin-bottom:13px; }
+</style>
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"
+} }
+</script>
+</head>
+<body>
+<div id="wrap">
+  <div id="panel">
+    <h1>오브제 스튜디오</h1>
+    <div class="kinds">
+      <button data-kind="arc" class="on">arc</button>
+      <button data-kind="loop">loop</button>
+      <button data-kind="ribbon">ribbon</button>
+    </div>
+    <div id="sliders"></div>
+    <label class="sw"><input type="checkbox" id="glass"> 유리처럼 보기</label>
+    <div class="btns">
+      <button id="reroll">새로 뽑기</button>
+      <button id="export">STL 내보내기</button>
+    </div>
+    <div id="info">준비 중</div>
+  </div>
+  <div id="view"></div>
+</div>
+
+<script type="module">
+import * as THREE from "three";
+import { MarchingCubes } from "three/addons/objects/MarchingCubes.js";
+import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import { STLExporter } from "three/addons/exporters/STLExporter.js";
+import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
+
+const SUBTRACT = 12;
+// three.js MarchingCubes 의 장은 val = strength/d^2 - subtract 이고
+// 표면은 합이 isolation(기본 80)일 때다. 따라서 반지름 R 을 내려면
+//   strength = R^2 * (isolation + subtract)
+// 538행의 sqrt(strength/subtract) 는 계산 범위를 줄이려는 영향 반경일 뿐
+// 표면 반지름이 아니다. 이걸 표면으로 착각하면 공이 36% 크기로 나와 끊어진다.
+const strengthFor = (R, iso) => R * R * (iso + SUBTRACT);
+
+// ── 파라미터 정의. 여기 적은 대로 슬라이더가 만들어진다 ──
+const DEFS = [
+  { k:"seed",     label:"씨앗",        min:1,   max:9999, step:1,    v:7 },
+  { k:"base",     label:"굵기",        min:0.10, max:0.55, step:0.01, v:0.34 },
+  { k:"bulge",    label:"굵기 변화",   min:0,    max:1.0,  step:0.02, v:0.40 },
+  { k:"taper",    label:"끝 가늘기",   min:0,    max:1.5,  step:0.05, v:0.40 },
+  { k:"wob",      label:"구부러짐",    min:0,    max:1.2,  step:0.02, v:0.25 },
+  { k:"flatten",  label:"납작하게",    min:0.12, max:1.0,  step:0.02, v:1.00 },
+  { k:"steps",    label:"요소 수",     min:20,   max:120,  step:2,    v:70 },
+  { k:"res",      label:"미리보기 해상도", min:28, max:80,  step:4,    v:48 },
+  { k:"expRes",   label:"내보내기 해상도", min:48, max:140, step:4,    v:104 },
+  { k:"mm",       label:"크기 (mm)",   min:20,   max:200,  step:5,    v:80 },
+];
+const P = Object.fromEntries(DEFS.map(d => [d.k, d.v]));
+let KIND = "arc";
+
+// ── 난수와 흐르는 곡선 ──
+function rngFrom(seed) {
+  let a = seed >>> 0;
+  return () => { a |= 0; a = a + 0x6D2B79F5 | 0;
+    let t = Math.imul(a ^ a >>> 15, 1 | a);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+}
+function wobble(r, n = 3) {
+  const T = Array.from({length:n}, () => [r()*0.9+0.4, r()*Math.PI*2, r()*2+1]);
+  return t => T.reduce((s,[a,p,w]) => s + a*Math.sin(t*w*Math.PI*2+p), 0);
+}
+
+const PATHS = {
+  arc(r, w) {
+    const fx = wobble(r), fy = wobble(r), fz = wobble(r), bend = r()*0.9+0.9;
+    return t => { const a = (t-0.5)*Math.PI*bend;
+      return [Math.sin(a)*1.6 + w*fx(t), -Math.cos(a)*1.1 + w*fz(t), w*fy(t)*0.5]; };
+  },
+  loop(r, w) {
+    const fr = wobble(r), fy = wobble(r), sq = r()*0.4+0.55;
+    return t => { const a = t*Math.PI*2, rad = 1.25 + 0.3*fr(t)*(w/0.25||1);
+      return [Math.cos(a)*rad, 0.38*fy(t)*(w/0.25||1), Math.sin(a)*rad*sq]; };
+  },
+  ribbon(r, w) {
+    const fx = wobble(r), fz = wobble(r);
+    return t => [(t-0.5)*3.0 + w*2*fx(t), 0, w*3.6*fz(t)];
+  },
+};
+
+// ── 장면 ──
+const view = document.getElementById("view");
+const renderer = new THREE.WebGLRenderer({ antialias:true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+view.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x0e1116);
+const camera = new THREE.PerspectiveCamera(42, 1, 0.1, 100);
+camera.position.set(0, 1.1, 5.2);
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+
+scene.add(new THREE.HemisphereLight(0xdfeaff, 0x20262e, 1.5));
+const key = new THREE.DirectionalLight(0xffffff, 2.0); key.position.set(3,5,2); scene.add(key);
+const env = new THREE.PMREMGenerator(renderer).fromScene(new RoomEnvironment(), 0.04).texture;
+
+const matSolid = new THREE.MeshStandardMaterial({ color:0xc3d2e2, roughness:0.32, metalness:0.0 });
+const matGlass = new THREE.MeshPhysicalMaterial({ color:0xffffff, roughness:0.06, transmission:1.0,
+  thickness:0.6, ior:1.45, iridescence:0.7, iridescenceIOR:1.3, envMap:env, envMapIntensity:1.2 });
+
+let mc = null;
+function makeMC(res) {
+  if (mc) { scene.remove(mc); mc.geometry.dispose(); }
+  mc = new MarchingCubes(res, matSolid, false, false, 300000);
+  mc.scale.setScalar(2.2);
+  scene.add(mc);
+  return mc;
+}
+
+// 경로 위에 공을 늘어놓고, 전체가 필드 상자 안에 들어오도록 정규화한다
+function fill(target) {
+  const r = rngFrom(P.seed);
+  const path = PATHS[KIND](r, P.wob);
+  const bulge = wobble(r, 2);
+  const n = Math.round(P.steps);
+  const pts = [];
+  for (let i = 0; i < n; i++) {
+    const t = i/(n-1);
+    const p = path(t);
+    const taper = Math.pow(Math.sin(Math.PI*t), P.taper);
+    let rad = P.base * (0.40 + 0.60*taper) * (1 - P.bulge/2 + P.bulge*bulge(t)/2);
+    rad = Math.max(rad, P.base*0.30);
+    pts.push([p[0], p[1]*P.flatten, p[2], rad]);
+  }
+  // 겹친 공들의 장이 합쳐지며 표면이 개별 반지름보다 부푼다. 넉넉히 잡는다.
+  const BULGE_PAD = 1.45;
+  let lo = [ 1e9, 1e9, 1e9], hi = [-1e9,-1e9,-1e9];
+  for (const [x,y,z,rad] of pts) for (let a = 0; a < 3; a++) {
+    const v = [x,y,z][a], e = rad*BULGE_PAD;
+    lo[a] = Math.min(lo[a], v-e); hi[a] = Math.max(hi[a], v+e);
+  }
+  const span = Math.max(hi[0]-lo[0], hi[1]-lo[1], hi[2]-lo[2]);
+  const k = 0.86/span;
+  const mid = [0,1,2].map(a => (lo[a]+hi[a])/2);
+
+  target.reset();
+  const iso = target.isolation;
+  for (const [x,y,z,rad] of pts) {
+    const R = rad*k;
+    target.addBall(0.5+(x-mid[0])*k, 0.5+(y-mid[1])*k, 0.5+(z-mid[2])*k, strengthFor(R, iso), SUBTRACT);
+  }
+  if (typeof target.update === "function") target.update();
+
+  // 실제로 만들어진 표면의 경계를 잰다. 카메라를 여기에 맞춘다.
+  const arr = target.geometry.attributes.position.array;
+  const b = new THREE.Box3();
+  const v = new THREE.Vector3();
+  for (let i = 0; i < target.count*3; i += 3) b.expandByPoint(v.set(arr[i], arr[i+1], arr[i+2]));
+  target.userData.bounds = b;
+  return pts.length;
+}
+
+function rebuild() {
+  makeMC(Math.round(P.res));
+  mc.material = document.getElementById("glass").checked ? matGlass : matSolid;
+  const n = fill(mc);
+  fitCamera();
+  document.getElementById("info").textContent =
+    `${KIND}  씨앗 ${P.seed}\n요소 ${n}개, 삼각형 약 ${Math.round(mc.count/3).toLocaleString()}개\n` +
+    `내보내면 ${P.mm}mm 크기, 해상도 ${P.expRes}`;
+}
+
+// ── STL 내보내기 ──
+function exportSTL() {
+  const hi = new MarchingCubes(Math.round(P.expRes), matSolid, false, false, 2000000);
+  fill(hi);
+  const src = hi.geometry.attributes.position.array;
+  const pos = new Float32Array(src.buffer.slice(0, hi.count*3*4));
+
+  const g = new THREE.BufferGeometry();
+  g.setAttribute("position", new THREE.BufferAttribute(pos, 3));
+  g.rotateX(-Math.PI/2);                       // 미리보기의 위쪽을 STL 의 +Z 로
+  g.computeBoundingBox();
+  const size = new THREE.Vector3(); g.boundingBox.getSize(size);
+  g.scale(...Array(3).fill(P.mm/Math.max(size.x, size.y, size.z)));
+  g.computeBoundingBox();
+  g.translate(0, 0, -g.boundingBox.min.z);     // 바닥을 Z=0 에
+  g.computeVertexNormals();
+
+  const stl = new STLExporter().parse(new THREE.Mesh(g, matSolid), { binary:true });
+  const url = URL.createObjectURL(new Blob([stl], { type:"model/stl" }));
+  const a = document.createElement("a");
+  a.href = url; a.download = `${KIND}_${P.seed}_${P.mm}mm.stl`; a.click();
+  URL.revokeObjectURL(url);
+
+  const d = new THREE.Vector3(); g.computeBoundingBox(); g.boundingBox.getSize(d);
+  document.getElementById("info").textContent =
+    `내보냈습니다\n${a.download}\n${d.x.toFixed(1)} x ${d.y.toFixed(1)} x ${d.z.toFixed(1)} mm\n` +
+    `삼각형 ${Math.round(hi.count/3).toLocaleString()}개`;
+  hi.geometry.dispose();
+}
+
+// ── UI ──
+const box = document.getElementById("sliders");
+for (const d of DEFS) {
+  const row = document.createElement("div");
+  row.className = "row";
+  row.innerHTML = `<label>${d.label}<b id="v-${d.k}">${d.v}</b></label>
+    <input type="range" id="s-${d.k}" min="${d.min}" max="${d.max}" step="${d.step}" value="${d.v}">`;
+  box.appendChild(row);
+  row.querySelector("input").addEventListener("input", (e) => {
+    P[d.k] = parseFloat(e.target.value);
+    document.getElementById(`v-${d.k}`).textContent = P[d.k];
+    if (d.k !== "expRes" && d.k !== "mm") rebuild();
+    else document.getElementById("info").textContent =
+      `내보내면 ${P.mm}mm 크기, 해상도 ${P.expRes}`;
+  });
+}
+function setSlider(k, v) {
+  P[k] = v;
+  const s = document.getElementById(`s-${k}`); if (s) s.value = v;
+  const b = document.getElementById(`v-${k}`); if (b) b.textContent = v;
+}
+document.querySelectorAll(".kinds button").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".kinds button").forEach(b => b.classList.remove("on"));
+    btn.classList.add("on");
+    KIND = btn.dataset.kind;
+    setSlider("flatten", KIND === "ribbon" ? 0.28 : 1.0);
+    rebuild();
+  });
+});
+document.getElementById("reroll").addEventListener("click", () => {
+  setSlider("seed", Math.floor(Math.random()*9999)+1); rebuild();
+});
+document.getElementById("glass").addEventListener("change", rebuild);
+document.getElementById("export").addEventListener("click", exportSTL);
+
+function shapeRadius() {
+  const b = mc && mc.userData.bounds;
+  if (!b || b.isEmpty()) return 2.2;
+  const s = new THREE.Vector3(); b.getSize(s);
+  s.multiplyScalar(mc.scale.x);            // 로컬 경계를 월드 크기로
+  return Math.max(s.length()/2, 0.4) * 1.12;
+}
+
+function fitCamera() {
+  const fovV = THREE.MathUtils.degToRad(camera.fov);
+  const fovH = 2 * Math.atan(Math.tan(fovV/2) * camera.aspect);
+  const d = shapeRadius() / Math.sin(Math.min(fovV, fovH) / 2);
+  const dir = camera.position.clone().sub(controls.target);
+  if (dir.lengthSq() < 1e-6) dir.set(0, 0.35, 1);
+  camera.position.copy(controls.target).add(dir.normalize().multiplyScalar(d));
+  camera.near = d/100; camera.far = d*10;
+  camera.updateProjectionMatrix();
+  controls.update();
+}
+
+function resize() {
+  const w = view.clientWidth, h = view.clientHeight;
+  renderer.setSize(w, h); camera.aspect = w/h; camera.updateProjectionMatrix();
+  fitCamera();
+}
+addEventListener("resize", resize);
+rebuild();
+resize();
+(function loop(){ requestAnimationFrame(loop); controls.update(); renderer.render(scene, camera); })();
+</script>
+</body>
+</html>

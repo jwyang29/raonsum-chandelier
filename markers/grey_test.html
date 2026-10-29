@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="utf-8"><title>마커 회색 한계</title>
+<style>
+ body{margin:0;padding:18px;background:#12161c;color:#d8e0ea;font:13px/1.6 system-ui,sans-serif}
+ h1{font-size:15px;margin:0 0 6px} p{color:#8b97a6;font-size:12px;margin:0 0 12px;max-width:760px}
+ table{border-collapse:collapse;font:12px ui-monospace,monospace}
+ td,th{border:1px solid #2a323d;padding:4px 8px;text-align:center}
+ th{color:#8b97a6;font-weight:500}
+ .ok{color:#7fd4c1} .no{color:#e8736b}
+ #log{white-space:pre;color:#7f8b99;font:11.5px ui-monospace,monospace;margin-top:10px}
+ canvas{image-rendering:pixelated;border:1px solid #2a323d;margin:2px}
+</style>
+<script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js@3.4.5/aframe/build/aframe-ar.js"></script>
+</head><body>
+<h1>마커를 회색으로 해도 읽히나</h1>
+<p>AR.js 3.4.5 가 쓰는 ARToolKit 검출기에 그대로 넣어 본다. 카메라 없이, 만든 그림을 바로 물린다.
+검은 칸의 밝기를 0 부터 올려 가며 바코드 번호가 나오는지 본다.
+ARToolKit 은 영상을 흑백 두 값으로 먼저 자르므로, 그 문턱보다 밝아지면 마커가 통째로 사라진다.</p>
+<div id="out">불러오는 중</div>
+<div id="log"></div>
+<script>
+const CODES = [0, 7, 44, 63];
+const GREYS = [0, 20, 40, 60, 80, 90, 100, 110, 120, 140, 160, 180];
+const THRESHOLDS = [100, "AUTO_MEDIAN"];
+const log = (s) => document.getElementById("log").textContent += s + "\n";
+
+function drawMarker(img, grey, size, canvasW, canvasH, blur, gain) {
+  gain = gain || 1;
+  // 흰 여백 포함 블록을 가운데 놓는다. 여백은 마커 한 변의 25%.
+  const c = document.createElement("canvas");
+  c.width = canvasW; c.height = canvasH;
+  const g = c.getContext("2d");
+  g.fillStyle = "#808080"; g.fillRect(0, 0, canvasW, canvasH);   // 바닥은 중간 회색
+  const quiet = size * 0.25, block = size + quiet * 2;
+  const bx = (canvasW - block) / 2, by = (canvasH - block) / 2;
+  g.fillStyle = "#fff"; g.fillRect(bx, by, block, block);
+
+  // 마커 픽셀을 읽어 검은 칸만 grey 로 바꾼다
+  const t = document.createElement("canvas");
+  t.width = img.width; t.height = img.height;
+  const tg = t.getContext("2d");
+  tg.drawImage(img, 0, 0);
+  const d = tg.getImageData(0, 0, t.width, t.height);
+  for (let i = 0; i < d.data.length; i += 4) {
+    if (d.data[i] < 128) { d.data[i] = d.data[i+1] = d.data[i+2] = grey; }
+  }
+  tg.putImageData(d, 0, 0);
+  g.imageSmoothingEnabled = false;
+  if (blur) g.filter = `blur(${blur}px)`;
+  g.drawImage(t, bx + quiet, by + quiet, size, size);
+  g.filter = "none";
+  if (gain !== 1) {                      // 카메라가 밝게 찍은 경우
+    const d2 = g.getImageData(0, 0, canvasW, canvasH);
+    for (let i = 0; i < d2.data.length; i += 4) {
+      d2.data[i] = Math.min(255, d2.data[i] * gain);
+      d2.data[i+1] = Math.min(255, d2.data[i+1] * gain);
+      d2.data[i+2] = Math.min(255, d2.data[i+2] * gain);
+    }
+    g.putImageData(d2, 0, 0);
+  }
+  return c;
+}
+
+function load(src) {
+  return new Promise((res, rej) => {
+    const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = src;
+  });
+}
+
+(async () => {
+  const W = 640, H = 480;
+  const imgs = {};
+  for (const c of CODES) imgs[c] = await load(`src/${c}.png`);
+  log("마커 그림 " + CODES.length + "장 불러옴 " + imgs[0].width + "x" + imgs[0].height);
+
+  // AR.js 내부의 ARController 를 꺼내 쓴다. 앱이 쓰는 바로 그 검출기다.
+  // sourceType: image 로 한 장을 물려 띄운 뒤, 그 컨트롤러에 내 그림을 넣는다.
+  // ⚠️ data URL 을 쓰면 안 된다. A-Frame 은 컴포넌트 속성을 세미콜론으로 끊는데
+  //    data:image/png;base64,... 안에 세미콜론이 들어 있어 거기서 잘린다.
+  const blob = await new Promise(r => drawMarker(imgs[0], 0, 200, W, H, 0).toBlob(r));
+  const blank = URL.createObjectURL(blob);
+  const sc = document.createElement("a-scene");
+  sc.setAttribute("embedded", "");
+  sc.setAttribute("vr-mode-ui", "enabled: false");
+  sc.setAttribute("arjs", "sourceType: image; sourceUrl: " + blank +
+    "; detectionMode: mono_and_matrix; matrixCodeType: 3x3; trackingMethod: best;" +
+    " sourceWidth: " + W + "; sourceHeight: " + H);
+  sc.style.cssText = "position:fixed;left:-9999px;width:2px;height:2px";
+  const m = document.createElement("a-marker");
+  m.setAttribute("type", "barcode"); m.setAttribute("value", "0");
+  sc.appendChild(m);
+  sc.appendChild(document.createElement("a-entity"));
+  document.body.appendChild(sc);
+
+  const ctrl = await new Promise((res, rej) => {
+    const t0 = Date.now();
+    const tick = () => {
+      const sys = sc.systems && sc.systems.arjs;
+      const c = sys && sys._arSession && sys._arSession.arContext
+                && sys._arSession.arContext.arController;
+      if (c) return res(c);
+      if (Date.now() - t0 > 25000) return rej(new Error("ARController 를 못 찾음"));
+      setTimeout(tick, 200);
+    };
+    tick();
+  });
+  log("검출기 확보");
+  window.__default = { mode: ctrl.getThresholdMode(), thresh: ctrl.getThreshold(),
+    MANUAL: artoolkit.AR_LABELING_THRESH_MODE_MANUAL,
+    AUTO_MEDIAN: artoolkit.AR_LABELING_THRESH_MODE_AUTO_MEDIAN,
+    AUTO_OTSU: artoolkit.AR_LABELING_THRESH_MODE_AUTO_OTSU,
+    AUTO_ADAPTIVE: artoolkit.AR_LABELING_THRESH_MODE_AUTO_ADAPTIVE };
+  log("기본 문턱 모드 " + ctrl.getThresholdMode() + " 값 " + ctrl.getThreshold());
+
+  let seen = [];
+  ctrl.addEventListener("getMarker", (ev) => {
+    const id = ev.data.marker.idMatrix;
+    if (id >= 0) seen.push(id);
+  });
+
+  const rows = [];
+  for (const mode of THRESHOLDS) {
+    if (mode === "AUTO_MEDIAN") {
+      ctrl.setThresholdMode(artoolkit.AR_LABELING_THRESH_MODE_AUTO_MEDIAN);
+    } else {
+      ctrl.setThresholdMode(artoolkit.AR_LABELING_THRESH_MODE_MANUAL);
+      ctrl.setThreshold(mode);
+    }
+    for (const grey of GREYS) {
+      let hit = 0, tot = 0;
+      for (const code of CODES) {
+        for (const size of [120, 200]) {
+          for (const blur of [0, 1.2]) {
+            seen = [];
+            ctrl.process(drawMarker(imgs[code], grey, size, W, H, blur));
+            tot++;
+            if (seen.includes(code)) hit++;
+          }
+        }
+      }
+      rows.push({ mode, grey, hit, tot });
+      log(`문턱 ${mode}  밝기 ${grey}  읽힘 ${hit}/${tot}`);
+    }
+  }
+
+  // 두 번째 표: 앱의 기본 설정 그대로 두고 카메라가 밝게 찍은 경우
+  ctrl.setThresholdMode(artoolkit.AR_LABELING_THRESH_MODE_MANUAL);
+  ctrl.setThreshold(100);
+  const GAINS = [1.0, 1.2, 1.4, 1.6, 1.8, 2.0];
+  const grid = [];
+  for (const grey of [0, 40, 60, 80, 90]) {
+    const line = [];
+    for (const gain of GAINS) {
+      let hit = 0, tot = 0;
+      for (const code of CODES) {
+        for (const size of [120, 200]) {
+          for (const blur of [0, 1.2]) {
+            seen = [];
+            ctrl.process(drawMarker(imgs[code], grey, size, W, H, blur, gain));
+            tot++;
+            if (seen.includes(code)) hit++;
+          }
+        }
+      }
+      line.push(`${hit}/${tot}`);
+    }
+    grid.push({ grey, line });
+    log(`밝기 ${grey}  노출 ${GAINS.join("/")} -> ${line.join("  ")}`);
+  }
+  window.__grid = { gains: GAINS, grid };
+
+  let html = "<table><tr><th>검은 칸 밝기</th>" +
+    THRESHOLDS.map(x => `<th>문턱 ${x}</th>`).join("") + "</tr>";
+  for (const grey of GREYS) {
+    html += `<tr><td>${grey} (${Math.round(grey/255*100)}%)</td>`;
+    for (const x of THRESHOLDS) {
+      const r = rows.find(r => r.mode === x && r.grey === grey);
+      html += `<td class="${r.hit === r.tot ? 'ok' : 'no'}">${r.hit}/${r.tot}</td>`;
+    }
+    html += "</tr>";
+  }
+  document.getElementById("out").innerHTML = html + "</table>";
+  window.__rows = rows;
+  window.__done = true;
+})().catch(e => { document.getElementById("out").textContent = "실패: " + e;
+  log(String(e && e.stack || e)); window.__done = "err"; });
+</script>
+</body></html>

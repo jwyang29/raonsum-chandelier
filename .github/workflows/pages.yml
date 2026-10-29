@@ -1,0 +1,33 @@
+# web/ 만 GitHub Pages 로 올린다.
+# 저장소 루트를 통째로 올리면 주소가 .../web/index.html 이 되어 QR 이 지저분해진다.
+# deco 와 markers 는 작업용 도구라 관객이 볼 필요가 없다.
+name: Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: web
+      - id: deployment
+        uses: actions/deploy-pages@v4

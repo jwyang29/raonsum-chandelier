@@ -1,0 +1,6 @@
+# 🔴 Firebase 쓰기 권한. 절대 올리지 말 것
+hub/secrets.env
+
+.DS_Store
+__pycache__/
+*.pyc

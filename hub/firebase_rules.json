@@ -1,0 +1,27 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+
+    "crystals": {
+      ".read": true,
+      ".write": "auth != null",
+
+      "$id": {
+        ".validate": "newData.hasChildren(['t','press','speed','dur','elong','wind','curl','dir','n','feeling','conf'])",
+        "t":       { ".validate": "newData.isNumber()" },
+        "press":   { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 1" },
+        "speed":   { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 1" },
+        "dur":     { ".validate": "newData.isNumber()" },
+        "elong":   { ".validate": "newData.isNumber()" },
+        "wind":    { ".validate": "newData.isNumber()" },
+        "curl":    { ".validate": "newData.isNumber() && newData.val() >= -1 && newData.val() <= 1" },
+        "dir":     { ".validate": "newData.isNumber()" },
+        "n":       { ".validate": "newData.isNumber()" },
+        "feeling": { ".validate": "newData.isString() && newData.val().length < 32" },
+        "conf":    { ".validate": "newData.isNumber()" },
+        "$other":  { ".validate": false }
+      }
+    }
+  }
+}
