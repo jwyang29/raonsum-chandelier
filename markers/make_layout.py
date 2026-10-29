@@ -15,7 +15,14 @@ CONFIG = os.path.join(HERE, "..", "web", "config.js")
 _pos = [a for a in sys.argv[1:] if not a.startswith("--")]
 OUT = _pos[0] if _pos else os.path.join(HERE, "print")
 
-CUBE_FACE_MM = 130.0      # markers/make_pdf.py 의 CUBE_FACE_MM 과 같아야 한다
+def cube_plan():
+    """config.js 의 CUBE_PLAN 을 그대로 읽는다. [바닥 높이 m, 한 변 m]"""
+    src = open(CONFIG, encoding="utf-8").read()
+    m = re.search(r"const CUBE_PLAN = \[(.*?)\];", src, re.S)
+    if not m:
+        return []
+    return [(float(a), float(b))
+            for a, b in re.findall(r"\[\s*([\d.]+)\s*,\s*([\d.]+)\s*\]", m.group(1))]
 
 
 def cfg(pattern, default=None):
@@ -207,21 +214,24 @@ t(SX + 2.5, SY - (void_top + void_bot) / 2 * SK,
 t(SX + 2.5, SY - (void_top + void_bot) / 2 * SK + 3.4,
   "천 위에서 샹들리에 아래까지", 2.5, MUTE)
 
-# 매단 큐브
-cube_y = 2.08
-cs = CUBE_FACE_MM / 1000 * SK
-a(f'<line x1="{SX+34:.2f}" y1="{SY-FLOOR_CEIL*SK:.2f}" x2="{SX+34:.2f}" '
-  f'y2="{SY-cube_y*SK:.2f}" stroke="{MUTE}" stroke-width="0.25"/>')
-a(f'<line x1="{SX+37:.2f}" y1="{SY-FLOOR_CEIL*SK:.2f}" x2="{SX+37:.2f}" '
-  f'y2="{SY-cube_y*SK:.2f}" stroke="{MUTE}" stroke-width="0.25"/>')
-for i in range(2):
-    yy = SY - (cube_y + i * (CUBE_FACE_MM / 1000 + 0.10)) * SK
-    a(f'<rect x="{SX+35.5-cs/2:.2f}" y="{yy-cs/2:.2f}" width="{cs:.2f}" '
-      f'height="{cs:.2f}" fill="#fff" stroke="{INK}" stroke-width="0.35"/>')
-t(SX + 35.5 + cs / 2 + 2.5, SY - cube_y * SK,
-  f"매단 큐브 / 한 변 {CUBE_FACE_MM:.0f} cm", 2.8, INK, 600)
-t(SX + 35.5 + cs / 2 + 2.5, SY - cube_y * SK + 3.6,
-  "낚싯줄 두 줄 (한 줄이면 돈다)", 2.7, HOT, 600)
+# 매단 큐브. 천 위부터 천장까지 고르게 건다.
+PLAN = cube_plan()
+CBX = SX + 36.0                      # 줄이 내려오는 자리
+low = min(y - f / 2 for y, f in PLAN) if PLAN else FLOOR_CEIL
+for dx in (-1.6, 1.6):
+    a(f'<line x1="{CBX+dx:.2f}" y1="{SY-FLOOR_CEIL*SK:.2f}" x2="{CBX+dx:.2f}" '
+      f'y2="{SY-low*SK:.2f}" stroke="{MUTE}" stroke-width="0.25"/>')
+for i, (cy, cf) in enumerate(PLAN):
+    cs = cf * SK
+    yy = SY - cy * SK
+    a(f'<rect x="{CBX-cs/2:.2f}" y="{yy-cs/2:.2f}" width="{cs:.2f}" '
+      f'height="{cs:.2f}" fill="#fff" stroke="{INK}" stroke-width="0.4"/>')
+    # 크기는 오른쪽 표에 있다. 여기서 또 적으면 표를 덮는다.
+    t(CBX + cs / 2 + 2, yy + 1, f"큐브{i+1}", 2.8, INK, 600)
+t(CBX - 6, SY - low * SK + 5.5, "낚싯줄 두 줄 (한 줄이면 큐브가 돈다)", 2.7, HOT, 600)
+t(CBX - 6, SY - low * SK + 9,
+  "바닥 마커는 1.2 m 위를 겨누면 화면에서 빠진다. 그 위는 큐브가 맡는다",
+  2.5, MUTE)
 
 # 높이 치수
 for y, lab in [(PED_H, f"좌대 {PED_H*100:.0f} cm"),
@@ -252,6 +262,12 @@ for i, (name, floor_code) in enumerate(CUBE_FACES):
     for ci in range(3):
         t(bx2 + 36 + ci * 14, y, str(CUBE_CODES[ci][i]), 2.9, INK, 600, "start", True)
 t(bx2, hy + 28, "인쇄물 위쪽이 전부 천장을 향하게.", 2.7, HOT, 600)
+yy2 = hy + 33
+for i, (cy, cf) in enumerate(cube_plan()):
+    t(bx2, yy2, f"큐브{i+1}", 2.7, MUTE, 600)
+    t(bx2 + 14, yy2, f"바닥 {cy:.2f} m", 2.7, INK)
+    t(bx2 + 40, yy2, f"한 변 {cf*100:.1f} cm", 2.7, INK, 600)
+    yy2 += 4.2
 
 rule(268)
 

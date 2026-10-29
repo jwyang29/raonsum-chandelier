@@ -67,12 +67,16 @@
 <line x1="52.00" y1="200.60" x2="52.00" y2="243.44" stroke="#6b7784" stroke-width="0.25" stroke-dasharray="1.2 1.2"/>
 <text x="54.50" y="222.02" font-size="2.7" fill="#6b7784" font-weight="400" text-anchor="start" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">빈 공간 1.53 m</text>
 <text x="54.50" y="225.42" font-size="2.5" fill="#6b7784" font-weight="400" text-anchor="start" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">천 위에서 샹들리에 아래까지</text>
-<line x1="86.00" y1="162.80" x2="86.00" y2="199.76" stroke="#6b7784" stroke-width="0.25"/>
-<line x1="89.00" y1="162.80" x2="89.00" y2="199.76" stroke="#6b7784" stroke-width="0.25"/>
-<rect x="85.68" y="197.94" width="3.64" height="3.64" fill="#fff" stroke="#1b1f24" stroke-width="0.35"/>
-<rect x="85.68" y="191.50" width="3.64" height="3.64" fill="#fff" stroke="#1b1f24" stroke-width="0.35"/>
-<text x="91.82" y="199.76" font-size="2.8" fill="#1b1f24" font-weight="600" text-anchor="start" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">매단 큐브 / 한 변 130 cm</text>
-<text x="91.82" y="203.36" font-size="2.7" fill="#c2185b" font-weight="600" text-anchor="start" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">낚싯줄 두 줄 (한 줄이면 돈다)</text>
+<line x1="86.40" y1="162.80" x2="86.40" y2="225.31" stroke="#6b7784" stroke-width="0.25"/>
+<line x1="89.60" y1="162.80" x2="89.60" y2="225.31" stroke="#6b7784" stroke-width="0.25"/>
+<rect x="85.69" y="220.69" width="4.62" height="4.62" fill="#fff" stroke="#1b1f24" stroke-width="0.4"/>
+<text x="92.31" y="224.00" font-size="2.8" fill="#1b1f24" font-weight="600" text-anchor="start" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">큐브1</text>
+<rect x="85.62" y="195.42" width="4.76" height="4.76" fill="#fff" stroke="#1b1f24" stroke-width="0.4"/>
+<text x="92.38" y="198.80" font-size="2.8" fill="#1b1f24" font-weight="600" text-anchor="start" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">큐브2</text>
+<rect x="85.13" y="169.73" width="5.74" height="5.74" fill="#fff" stroke="#1b1f24" stroke-width="0.4"/>
+<text x="92.87" y="173.60" font-size="2.8" fill="#1b1f24" font-weight="600" text-anchor="start" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">큐브3</text>
+<text x="82.00" y="230.81" font-size="2.7" fill="#c2185b" font-weight="600" text-anchor="start" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">낚싯줄 두 줄 (한 줄이면 큐브가 돈다)</text>
+<text x="82.00" y="234.31" font-size="2.5" fill="#6b7784" font-weight="400" text-anchor="start" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">바닥 마커는 1.2 m 위를 겨누면 화면에서 빠진다. 그 위는 큐브가 맡는다</text>
 <line x1="33.30" y1="249.04" x2="36.30" y2="249.04" stroke="#6b7784" stroke-width="0.3"/>
 <text x="32.30" y="250.04" font-size="2.6" fill="#6b7784" font-weight="400" text-anchor="end" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">좌대 32 cm</text>
 <line x1="33.30" y1="243.44" x2="36.30" y2="243.44" stroke="#6b7784" stroke-width="0.3"/>
@@ -111,6 +115,15 @@
 <text x="178.00" y="183.00" font-size="2.9" fill="#1b1f24" font-weight="600" text-anchor="start" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">56</text>
 <text x="192.00" y="183.00" font-size="2.9" fill="#1b1f24" font-weight="600" text-anchor="start" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">41</text>
 <text x="128.00" y="192.00" font-size="2.7" fill="#c2185b" font-weight="600" text-anchor="start" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">인쇄물 위쪽이 전부 천장을 향하게.</text>
+<text x="128.00" y="197.00" font-size="2.7" fill="#6b7784" font-weight="600" text-anchor="start" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">큐브1</text>
+<text x="142.00" y="197.00" font-size="2.7" fill="#1b1f24" font-weight="400" text-anchor="start" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">바닥 1.25 m</text>
+<text x="168.00" y="197.00" font-size="2.7" fill="#1b1f24" font-weight="600" text-anchor="start" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">한 변 16.5 cm</text>
+<text x="128.00" y="201.20" font-size="2.7" fill="#6b7784" font-weight="600" text-anchor="start" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">큐브2</text>
+<text x="142.00" y="201.20" font-size="2.7" fill="#1b1f24" font-weight="400" text-anchor="start" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">바닥 2.15 m</text>
+<text x="168.00" y="201.20" font-size="2.7" fill="#1b1f24" font-weight="600" text-anchor="start" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">한 변 17.0 cm</text>
+<text x="128.00" y="205.40" font-size="2.7" fill="#6b7784" font-weight="600" text-anchor="start" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">큐브3</text>
+<text x="142.00" y="205.40" font-size="2.7" fill="#1b1f24" font-weight="400" text-anchor="start" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">바닥 3.05 m</text>
+<text x="168.00" y="205.40" font-size="2.7" fill="#1b1f24" font-weight="600" text-anchor="start" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">한 변 20.5 cm</text>
 <line x1="14" y1="268" x2="196.0" y2="268" stroke="#d6dbe0" stroke-width="0.3"/>
 <text x="14.00" y="276.00" font-size="3.6" fill="#1b1f24" font-weight="700" text-anchor="start" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">인쇄</text>
 <text x="26.00" y="276.00" font-size="3.0" fill="#1b1f24" font-weight="400" text-anchor="start" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">markers/print/ 의 PDF 를 100% 배율로. 무광. 흰 여백 자르지 말 것. 찍은 뒤 자로 검은 사각형을 재서 맞는지 확인.</text>

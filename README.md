@@ -75,11 +75,11 @@ python3 -m http.server 5604 --directory web
 
 | 파일 | 내용 |
 |---|---|
-| `RAONSUM_marker_layout_A4.pdf` | **배치도 한 장.** 평면도, 옆면도, 큐브 면 번호 |
+| `RAONSUM_marker_layout_A4.svg` | **배치도 한 장.** 평면도, 옆면도, 큐브 자리와 면 번호. 브라우저에서 인쇄 |
 | `RAONSUM_markers_floor_A4.pdf` | 바닥 4장. 검은 사각형 100mm, 흰 여백 포함 150mm |
 | `RAONSUM_marker_ceiling_large.pdf` | 천장 1장. 300mm, 470x490mm 용지 |
 | `RAONSUM_marker_ceiling_tiles_A4.pdf` | 천장용을 A4 9장으로 나눈 것 |
-| `RAONSUM_marker_cube1.pdf` ~ `cube3.pdf` | 매단 큐브. 큐브마다 옆면 4장, A4 |
+| `RAONSUM_marker_cube1.pdf` ~ `cube3.pdf` | 매단 큐브 옆면 4장씩. 한 변 165 / 170 / 205mm |
 
 무광으로, **흰 여백은 자르지 말 것.** 여백이 없으면 검출기가 사각형을 못 찾는다.
 
@@ -91,7 +91,19 @@ python3 markers/make_pdf.py markers/print            # 마커. --cube 160 으로
 python3 markers/make_layout.py markers/print         # 배치도 SVG
 ```
 
-배치도 PDF 는 SVG 를 브라우저에서 인쇄하면 된다. 배율이 틀어져도 상관없는 참고용이다.
+배치도는 브라우저에서 열어 인쇄하면 된다. 배율이 틀어져도 상관없는 참고용이다.
+
+### 매단 큐브를 왜 셋으로 나누는가
+
+바닥 마커는 좌대에 깔려 있는데 관객은 위를 본다. 폰을 1.2m 쯤 위로 겨누는
+순간 네 장이 전부 화면에서 빠진다 (세로 화각 65도, 폰 높이 1.5m 기준).
+크리스탈이 60초 동안 천(0.52m)에서 샹들리에(2.05m)까지 올라가는 장면이
+작품의 핵심인데 그 구간에 기준이 없었다.
+
+그래서 바닥 1.25 / 2.15 / 3.05m 에 하나씩 건다. 관객이 1.0~2.0m 뒤 어디에
+서서 어느 높이를 겨누든 최소 하나가 화면에 남는다. 한 변은 2.0m 에서도
+읽히는 최소값이라 높이 매달수록 커진다. `?arw=1920&arh=1440` 으로 올리면
+2/3 로 줄어든다 (대신 프레임이 떨어진다).
 
 ## Firebase 설정
 

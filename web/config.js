@@ -330,6 +330,27 @@ const R = GEOMETRY.markerRing;
 //    같은 큐브 안에서 뒤바뀌면 샹들리에가 90도 돌아버리므로 큐브 안쪽 거리를
 //    먼저 키워 잡았다 (대부분 4, 큐브마다 한 쌍만 2).
 export const CUBE_CODES = [[13, 22, 25, 42], [21, 37, 50, 56], [28, 35, 38, 41]];
+// 🔴 매단 큐브 셋. [바닥 기준 높이(m), 흰 여백 포함 한 변(m)]
+//
+// 왜 셋인가, 왜 이 높이인가:
+//   바닥 마커는 관객이 1.2m 쯤 위를 겨누는 순간 화면에서 빠진다. 좌대에 깔려
+//   있는데 관객은 위를 보기 때문이다 (세로 화각 65도, 폰 높이 1.5m 기준).
+//   크리스탈은 60초에 걸쳐 천(0.52m)에서 샹들리에(2.05m)까지 올라간다.
+//   그 장면이 작품의 핵심인데 그 구간에 기준이 없었다. 그래서 1.25m 부터
+//   천장까지 0.9m 간격으로 셋을 건다. 모든 높이에서 최소 하나가 화면에 남는다.
+//
+// 왜 이 크기인가:
+//   관객이 2.0m 뒤에서도 읽히는 최소값이다 (실측 1/16 규칙). 높이 매달수록
+//   멀어지므로 커진다. ?arw=1920&arh=1440 으로 올리면 2/3 로 줄어든다.
+//
+// 높이는 바닥 기준으로 적는다. 줄자가 그렇고, 천장에서 내려 매다는 것이라
+// 좌대 높이와 상관이 없다. 코드가 쓰는 y 는 좌대 상단면 기준이라 여기서 뺀다.
+const CUBE_PLAN = [
+  [1.25, 0.165],
+  [2.15, 0.170],
+  [3.05, 0.205],
+];
+
 const cubeParam = (QS.get("cube") || "").trim();
 export const CUBES = cubeParam
   ? cubeParam.split(";").map((t, i) => {
@@ -337,9 +358,11 @@ export const CUBES = cubeParam
       return { y, face, r: r || 0, az: az || 0,
                codes: CUBE_CODES[i % CUBE_CODES.length] };
     }).filter((c) => Number.isFinite(c.y) && Number.isFinite(c.face))
-  : [
-      // { y: 2.08, face: 0.20, r: 0.80, az: 45, codes: [1, 2, 4, 8] },
-    ];
+  : CUBE_PLAN.map(([floorY, face], i) => ({
+      y: floorY - PEDESTAL.height,   // 좌대 상단면 기준으로 바꾼다
+      floorY, face, r: 0, az: 0,
+      codes: CUBE_CODES[i % CUBE_CODES.length],
+    }));
 
 // 매단 자리. 비켜 매달아도 큐브는 돌리지 않는다. 면은 바닥 마커와 같은 네 방향을 본다.
 export const cubeCenter = (c) => [

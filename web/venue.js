@@ -7,7 +7,7 @@
 // 여기서만 쓰는 수치를 따로 들고 있지 않아야 미리보기와 실물이 어긋나지 않는다.
 
 import { GEOMETRY, PEDESTAL, SCHEDULE, MARKERS, GLASS, MAX_CRYSTALS,
-         CUBE_CODES, cubeFaceFor, refreshPedestal, refreshMarkers } from "./config.js";
+         CUBES, cubeFaceFor, refreshPedestal, refreshMarkers } from "./config.js";
 import { Chandelier, recomputeHeights, ringY, RING_GAP, ringRadius } from "./chandelier.js";
 import { mockData } from "./feed.js";
 import { loadBlobs } from "./crystal.js";
@@ -31,11 +31,9 @@ const state = {
   // 거의 안 보인다. 여기서 바로 비교하라고 슬라이더로 뺐다.
   glass: parseFloat(params.get("glass")) || GLASS.alphaCore,
 
-  // 천장에서 낚싯줄로 내려 매단 마커 큐브. 전부 바닥 기준이다 (줄자가 그렇다).
-  cubeN: parseInt(params.get("cuben") || "2", 10),
-  cubeY: numP("cubey", 2.08),      // 맨 아래 큐브 중심 높이
-  cubeR: numP("cuber", 0),         // 좌대 중심축에서 비켜난 거리. 0 이 축이다
-  cubeAz: numP("cubeaz", 45),      // 비켜난 방향 (도)
+  // 천장에서 낚싯줄로 내려 매단 마커 큐브. 자리와 크기는 config.js 의
+  // CUBE_PLAN 이 정한다. 여기서는 몇 개까지 보일지만 고른다.
+  cubeN: parseInt(params.get("cuben") || String(CUBES.length), 10),
   cubeFrame: parseInt(params.get("arw") || "1280", 10),
 };
 
@@ -275,57 +273,54 @@ function buildPedestal() {
 
 const PHONE_Y = 1.50;     // 폰을 들어 올려다볼 때의 렌즈 높이
 
-// 가장 멀리서 올려다보는 거리. 큐브 반대편, 좌대에서 한 걸음 물러난 자리다.
-// 더 멀어지면 폰을 들어도 바닥 마커가 화면에 같이 들어와서 큐브가 필요 없다.
-function cubeViewDist() {
-  const horiz = state.pedD / 2 + 0.9 + state.cubeR;
-  return Math.hypot(horiz, Math.max(0.2, state.cubeY - PHONE_Y));
-}
+// 큐브가 바닥에서 몇 미터에 걸리는지. 천장에서 내려 매다는 것이라 좌대 높이와
+// 상관이 없다. config.js 는 좌대 상단면 기준으로 들고 있으므로 되돌린다.
+const cubeFloorY = (c) =>
+  Number.isFinite(c.floorY) ? c.floorY : c.y + PEDESTAL.height;
 
-// 그 거리에서 읽히는 가장 작은 한 변. 5mm 단위로 올려 잡는다.
-function cubeFace() {
-  return Math.ceil(cubeFaceFor(cubeViewDist(), state.cubeFrame) * 200) / 200;
-}
+// 그 자리에서 관객이 R 만큼 떨어져 올려다볼 때 읽히는 최소 한 변.
+const cubeNeeds = (c, R = 2.0) =>
+  cubeFaceFor(Math.hypot(R, Math.abs(cubeFloorY(c) - PHONE_Y)), state.cubeFrame);
 
 function buildCubes() {
   cubeGroup.clear();
-  const n = Math.max(0, Math.min(3, state.cubeN));
+  const n = Math.max(0, Math.min(CUBES.length, state.cubeN));
   if (!n) return;
 
-  const face = cubeFace();
-  const pitch = face + 0.10;              // 중심 간격. 큐브끼리 닿지 않을 만큼
-  const a = state.cubeAz * Math.PI / 180;
-  const cx = Math.sin(a) * state.cubeR, cz = Math.cos(a) * state.cubeR;
-
   const white = new THREE.MeshStandardMaterial({ color: 0xf7f7f5, roughness: 0.75 });
-  const top = state.cubeY + (n - 1) * pitch;
-
-  for (let i = 0; i < n; i++) {
-    const codes = CUBE_CODES[i % CUBE_CODES.length];
-    const mat = (v) => new THREE.MeshBasicMaterial({ map: markerTexture(v) });
-    // BoxGeometry 면 순서는 +X, -X, +Y, -Y, +Z, -Z 다.
-    // codes 는 [+Z, +X, -Z, -X] 순서다 (바닥 0/7/44/63 을 바라보는 쪽).
-    const box = new THREE.Mesh(new THREE.BoxGeometry(face, face, face),
-      [mat(codes[1]), mat(codes[3]), white, white, mat(codes[0]), mat(codes[2])]);
-    box.position.set(cx, state.cubeY + i * pitch, cz);
-    cubeGroup.add(box);
-  }
-
-  // 낚싯줄 두 줄. 윗면 양 끝에 뚫은 구멍을 지나 아래 큐브까지 꿰인다.
-  // 실제 낚싯줄은 0.3~0.5mm 로 여기서는 한 픽셀보다 얇아 안 보인다. 1.5mm 로 그린다.
-  const lineTop = state.floorCeiling;
-  const lineBot = state.cubeY - face / 2;
-  const off = Math.max(0.015, face / 2 - 0.015);
+  // 낚싯줄은 천장에서 맨 아래 큐브까지 한 번에 내려온다. 큐브는 거기 꿰인다.
+  // 실제 낚싯줄은 0.3~0.5mm 로 한 픽셀보다 얇아 안 보인다. 굵게 그린다.
   const lineMat = new THREE.MeshBasicMaterial({
     color: 0xd7dbe0, transparent: true, opacity: 0.75 });
+
+  let lowest = Infinity, widest = 0;
+  for (let i = 0; i < n; i++) {
+    const c = CUBES[i];
+    const face = c.face;
+    const a = (c.az || 0) * Math.PI / 180;
+    const cx = Math.sin(a) * (c.r || 0), cz = Math.cos(a) * (c.r || 0);
+    const y = cubeFloorY(c);
+    const mat = (v) => new THREE.MeshBasicMaterial({ map: markerTexture(v) });
+    // BoxGeometry 면 순서는 +X, -X, +Y, -Y, +Z, -Z 다.
+    // codes 는 [+Z, +X, -Z, -X] 순서다 (바닥 0/63/44/7 을 바라보는 쪽).
+    const box = new THREE.Mesh(new THREE.BoxGeometry(face, face, face),
+      [mat(c.codes[1]), mat(c.codes[3]), white, white,
+       mat(c.codes[0]), mat(c.codes[2])]);
+    box.position.set(cx, y, cz);
+    cubeGroup.add(box);
+    lowest = Math.min(lowest, y - face / 2);
+    widest = Math.max(widest, face);
+  }
+
+  // 줄 둘. 맨 아래 큐브 바닥까지 내려온다.
+  const off = Math.max(0.015, widest / 2 - 0.015);
   for (const sx of [-1, 1]) {
-    const h = lineTop - lineBot;
+    const h = Math.max(0.05, state.floorCeiling - lowest);
     const l = new THREE.Mesh(new THREE.CylinderGeometry(0.0008, 0.0008, h, 6), lineMat);
-    // 줄 두 개는 비켜난 방향과 직각으로 벌린다. 어디서 봐도 두 줄로 보인다.
-    l.position.set(cx + Math.cos(a) * sx * off, lineBot + h / 2, cz - Math.sin(a) * sx * off);
+    l.position.set(sx * off, lowest + h / 2, 0);
     cubeGroup.add(l);
   }
-  cubeGroup.userData = { face, n, pitch, top, dist: cubeViewDist() };
+  cubeGroup.userData = { n, lowest };
 }
 
 // 관객 비례. 샹들리에 맨 아래가 머리 위를 지나는지 보려고 둔다.
@@ -425,35 +420,30 @@ function report() {
     (state.glass < 0.15
       ? `<br><span style="color:#e8b36b">흰 벽에서는 이 값이면 크리스탈이 거의 안 보입니다</span>`
       : "") +
-    cubeReport(Math.max(...rs), last + state.pedH);
+    cubeReport();
 }
 
-// 매단 큐브. 크기는 고른 값이 아니라 거리에서 나온 값이라 같이 적어 준다.
-function cubeReport(ringR, chTop) {
+// 매단 큐브. 크기는 고른 값이 아니라 그 높이에서 나온 값이라 같이 적어 준다.
+function cubeReport() {
   const u = cubeGroup.userData;
   if (!u || !u.n) return "";
-  const face = u.face;
-  // 좌대 상단면 기준으로 적어야 config.js 에 그대로 들어간다
-  const yTop = (state.cubeY - state.pedH).toFixed(2);
-  const warn = [];
-  let note = "";
-  // 가상 크리스탈은 깊이와 무관하게 늘 위에 그려진다. 부피 안에 들면 큐브가 가려진다.
-  if (state.cubeR < ringR + 0.08 + face / 2 &&
-      u.top + face / 2 > GEOMETRY.headroom && state.cubeY - face / 2 < chTop) {
-    note = "샹들리에 부피 안이라 가상 크리스탈에 가려 보입니다 (읽히는 데는 지장 없음)";
+  let out = `<br><br><b>매단 큐브 ${u.n}개</b> (중심축, 낚싯줄 두 줄)`;
+  for (let i = 0; i < u.n; i++) {
+    const c = CUBES[i];
+    const y = cubeFloorY(c);
+    const need = cubeNeeds(c);
+    const tight = c.face < need - 0.001;
+    out += `<br>바닥 ${y.toFixed(2)}m / 한 변 ${(c.face * 100).toFixed(1)}cm ` +
+           `(검은 ${(c.face / 1.5 * 100).toFixed(1)}cm)` +
+           (tight ? `<span style="color:#e8b36b"> 2m 에서 읽히려면 ` +
+                    `${(need * 100).toFixed(1)}cm 필요</span>` : "");
   }
-  if (state.cubeY - face / 2 < 1.95) warn.push("키 큰 관객이 머리를 부딪힙니다");
-  if (u.top + face / 2 > state.floorCeiling - 0.1) warn.push("천장에 닿습니다");
-
-  return `<br><br><b>매단 큐브 ${u.n}개</b> 한 변 ${(face * 100).toFixed(0)}cm ` +
-    `(검은 사각형 ${(face / 1.5 * 100).toFixed(1)}cm)<br>` +
-    `가장 먼 시선 ${u.dist.toFixed(2)}m 에서 화면 가로 1/16 규칙으로 나온 크기<br>` +
-    `바닥 ${state.cubeY.toFixed(2)}m` +
-    (u.n > 1 ? `~${u.top.toFixed(2)}m` : "") +
-    ` / 축에서 ${state.cubeR.toFixed(2)}m<br>` +
-    `config.js 에 넣을 y 는 좌대 상단 기준 ${yTop}m` +
-    (note ? `<br><span style="color:#7f8b99">${note}</span>` : "") +
-    warn.map((w) => `<br><span style="color:#e8b36b">${w}</span>`).join("");
+  const bottom = cubeFloorY(CUBES[0]) - CUBES[0].face / 2;
+  if (bottom < 1.15) {
+    out += `<br><span style="color:#e8b36b">맨 아래 큐브가 ${bottom.toFixed(2)}m 라 ` +
+           `그리는 사람 머리에 닿을 수 있습니다</span>`;
+  }
+  return out;
 }
 
 // ── 공전 카메라 ─────────────────────────────────────────────
@@ -611,10 +601,9 @@ scene.addEventListener("loaded", () => {
   bind("ped", "pedD", (v) => v.toFixed(2) + "m");
   bind("pedh", "pedH", (v) => v.toFixed(2) + "m");
   bind("ceil", "floorCeiling", (v) => v.toFixed(2) + "m");
-  // 큐브 크기는 슬라이더가 없다. 높이와 자리에서 나오는 값이라 리포트에만 적힌다.
+  // 높이와 크기는 슬라이더가 없다. config.js 의 CUBE_PLAN 이 정하고
+  // 여기서는 몇 개까지 걸지만 본다.
   bind("cuben", "cubeN", (v) => (v ? `${v}개` : "없음"));
-  bind("cubey", "cubeY", (v) => "바닥 " + v.toFixed(2) + "m");
-  bind("cuber", "cubeR", (v) => (v ? "축에서 " + v.toFixed(2) + "m" : "중심축"));
 
   // 겹 수와 겹당 개수. 둘 다 바뀌면 쌓인 모습이 달라지므로 비우고 다시 채운다.
   const refill = () => {

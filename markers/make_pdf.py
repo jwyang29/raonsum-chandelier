@@ -28,13 +28,16 @@ CUBE_CODES = [[13, 22, 25, 42], [21, 37, 50, 56], [28, 35, 38, 41]]
 #   +Z 는 바닥 0번이 있는 쪽, +X 는 63번, -Z 는 44번, -X 는 7번
 CUBE_DIRS = [("+Z", 0), ("+X", 63), ("-Z", 44), ("-X", 7)]
 
-# 흰 여백까지 포함한 한 변 (mm). 큐브 한 변이 이 값이다.
-# 기본 130 은 중심축에 2.08m 로 매달 때 나온 값이다 (화면 가로 1/16 규칙).
-# 더 높이 매달거나 비켜 매달면 커져야 한다. --cube 160 으로 바꾼다.
-CUBE_FACE_MM = 130.0
+# 큐브마다 흰 여백 포함 한 변 (mm). web/config.js 의 CUBE_PLAN 과 같아야 한다.
+# 높이 매달수록 멀어지므로 커진다. 관객이 2.0m 뒤에서도 읽히는 최소값이다.
+#   바닥 1.25m -> 165    2.15m -> 170    3.05m -> 205
+# --cube 165,170,205 으로 한꺼번에 바꾼다.
+CUBE_FACE_MM = [165.0, 170.0, 205.0]
 for _i, _a in enumerate(sys.argv):
     if _a == "--cube":
-        CUBE_FACE_MM = float(sys.argv[_i + 1])
+        CUBE_FACE_MM = [float(v) for v in sys.argv[_i + 1].split(",")]
+while len(CUBE_FACE_MM) < 3:
+    CUBE_FACE_MM.append(CUBE_FACE_MM[-1])
 QUIET = 0.25              # 여백은 마커 한 변의 25%. 셀 하나보다 넓어야 한다
 
 # 🔴 검은 칸의 밝기 (0 이 검정, 255 가 흰색). make_sheets.py 의 --ink 와 같은 값을 쓴다.
@@ -206,14 +209,14 @@ made.append((p, write_pdf(tiles, p), "A4 9장 (3x3)"))
 #    용지에 맞춰 줄여 버린다. 마커는 배율이 틀어지면 그대로 못 쓴다.
 CUBE_PAGE = A4
 for ci in range(len(CUBE_CODES)):
+    face = CUBE_FACE_MM[ci]
     p = os.path.join(OUT, f"RAONSUM_marker_cube{ci+1}.pdf")
-    pages = [cube_page(ci, fi, CUBE_FACE_MM, CUBE_PAGE) for fi in range(4)]
-    made.append((p, write_pdf(pages, p),
-                 f"{CUBE_PAGE[0]:.0f}x{CUBE_PAGE[1]:.0f}mm 4장"))
+    pages = [cube_page(ci, fi, face, CUBE_PAGE) for fi in range(4)]
+    made.append((p, write_pdf(pages, p), f"A4 4장, 한 변 {face:.0f}mm"))
 
-print(f"검은 사각형: 바닥 {FLOOR_MM:.0f}mm, 천장 {CEIL_MM:.0f}mm, "
-      f"큐브 {CUBE_FACE_MM/(1+QUIET*2):.1f}mm")
+cb = ", ".join(f"{v/(1+QUIET*2):.1f}" for v in CUBE_FACE_MM)
+print(f"검은 사각형: 바닥 {FLOOR_MM:.0f}mm, 천장 {CEIL_MM:.0f}mm, 큐브 {cb}mm")
 print(f"흰 여백 포함: 바닥 {FLOOR_MM*(1+QUIET*2):.0f}mm, 천장 {big:.0f}mm, "
-      f"큐브 {CUBE_FACE_MM:.0f}mm")
+      f"큐브 {', '.join(f'{v:.0f}' for v in CUBE_FACE_MM)}mm")
 for path, size, note in made:
     print(f"  {os.path.basename(path)}  {size//1024}KB  {note}")
