@@ -10,7 +10,7 @@
 
 import "./marker_anchor.js";
 import { MARKERS, GEOMETRY, PEDESTAL, SCHEDULE, CAL_KEY, AR_SOURCE, ANCHOR,
-         refreshPedestal, refreshMarkers } from "./config.js";
+         MAX_CRYSTALS, refreshPedestal, refreshMarkers } from "./config.js";
 import { Chandelier, RING_GAP, recomputeHeights, ringY } from "./chandelier.js";
 import { startFeed, mockData } from "./feed.js";
 import { Detector } from "./detect.js";
@@ -38,6 +38,26 @@ if (!PREVIEW && !CAM && isDesktop()) {
 }
 const CAM_PARAM = CAM ? ` deviceId: ${CAM};` : "";
 
+// 🔴 AR.js 는 AR 모드일 때만 불러온다. <script> 로 머리에 박으면 안 된다.
+//
+//    A-Frame 시스템은 씬에 그 속성이 없어도 반드시 init 된다. 그래서 AR.js 가
+//    로드되어 있기만 하면 ?preview=1 에서도 제 기본값으로 세션을 연다. 카메라를
+//    켜 버리고(권한 창이 뜬다) 렌더러를 640x480 으로 바꾼다.
+//    preview 씬은 embedded 가 아니라서 A-Frame 이 html.a-fullscreen 을 붙이고,
+//    그 CSS 가 캔버스를 화면 전체로 !important 로 못박는다. 결국 4:3 으로 그린
+//    그림이 폰 비율(0.46)로 늘어난다. 세로 1.69배, 가로 0.59배. 2.9배 왜곡이다.
+//    폰에서 "멀고 작고 위로 늘어나 보인다" 가 이것이었다 (2026-10-29).
+function loadScript(src) {
+  return new Promise((ok, no) => {
+    const s = document.createElement("script");
+    s.src = src;
+    s.onload = ok;
+    s.onerror = () => no(new Error(`${src} 를 못 불러왔습니다`));
+    document.head.appendChild(s);
+  });
+}
+if (!PREVIEW) await loadScript("./vendor/aframe-ar.js");
+
 // 🔴 cameraParametersUrl 을 안 주면 AR.js 가 ar-js-org.github.io 에서 직접 받아 온다.
 //    못 받으면 ARToolKit 이 초기화되지 않아 마커가 하나도 안 잡힌다. 이틀 동안
 //    사람 없이 도는 전시라 바깥에 기대면 안 된다. web/vendor 에 받아 두었다.
@@ -54,7 +74,14 @@ function flush() {
   if (!libReady || !sceneReady || !pending) return;
   pending.forEach((d) => chandelier.add(d));
   pending = null;
-  if (PREVIEW) chandelier.seed(48, mockData, 6);
+  // 미리보기는 전시 마지막 날 모습으로 채운다. 48개로 띄우면 성글어서
+  // 폰이 실제로 버티는지도, 비례가 맞는지도 알 수 없다.
+  if (PREVIEW) {
+    const layers = SCHEDULE.maxRings;
+    chandelier.seed(Math.min(MAX_CRYSTALS, layers * 15), mockData, layers);
+    framePreview();
+    setTimeout(framePreview, 2500);   // 올라오던 것들이 자리 잡은 뒤 한 번 더
+  }
 }
 
 loadBlobs()
@@ -63,6 +90,44 @@ loadBlobs()
     console.warn("[crystal] blobs.json 을 못 불러왔습니다. 임시 도형으로 갑니다.", e);
     libReady = true; flush();
   });
+
+// 미리보기 카메라. 샹들리에를 세워 놓고 재서 화면에 꽉 차게 둔다.
+//
+// ⚠️ 이론상 최대 링 반지름(0.60m)으로 잡으면 안 된다. 실제 링은 그 겹에 걸린
+//    개수에서 나오므로 0.10~0.35m 쯤이다. 최대치로 잡으면 실물보다 두 배 멀어져
+//    아주 작게 보인다.
+// ⚠️ fov 는 세로 기준이다. 세로로 긴 폰에서는 가로 화각이
+//    tan(fov/2) * (가로/세로) 로 확 좁아진다. 그쪽이 거리를 지배한다.
+const PREVIEW_FOV = 55;
+
+function framePreview() {
+  const camEl = document.querySelector("[camera]");
+  if (!camEl || !chandelier.rings.size) return;
+
+  // ⚠️ Box3.setFromObject 으로 재면 안 된다. 크리스탈은 셰이더에서 부풀리므로
+  //    geometry 의 bounding box 가 실제로 보이는 크기보다 작다. 실제로 재 보니
+  //    링 위치만 잡혀서 (높이 1.36m) 가로로 돌렸을 때 위아래가 잘렸다.
+  //    링 높이와 반지름은 아는 값이다. 거기에 크리스탈이 삐져나오는 만큼만 더한다.
+  const PAD = 0.20;
+  let rmax = GEOMETRY.ringRadiusMin, top = -Infinity, bot = Infinity;
+  for (const [layer, ring] of chandelier.rings) {
+    rmax = Math.max(rmax, ring.radius || 0);
+    const y = ringY(layer);
+    top = Math.max(top, y);
+    bot = Math.min(bot, y);
+  }
+  const H = (top + PAD) - (bot - PAD);
+  const W = rmax * 2 + PAD * 2;
+  const tanV = Math.tan(PREVIEW_FOV * Math.PI / 360);
+  const aspect = Math.max(0.3, window.innerWidth / window.innerHeight);
+  // 여유 10%. 미리보기는 가짜 크리스탈이 계속 붙어서 링이 조금씩 넓어진다.
+  const dist = Math.max(H / 2 / tanV, W / 2 / (tanV * aspect)) * 1.1;
+  camEl.setAttribute("position", { x: 0, y: (top + bot) / 2, z: dist });
+}
+
+
+// 폰을 돌리면 비율이 뒤집힌다. 그때 다시 잡는다.
+if (PREVIEW) window.addEventListener("resize", () => setTimeout(framePreview, 120));
 
 const lights = `
       <a-entity light="type: ambient; intensity: 0.75"></a-entity>
@@ -74,13 +139,20 @@ if (PREVIEW) {
       <a-plane position="0 0 0" rotation="-90 0 0" width="0.33" height="0.33"
                material="color: #16202c; opacity: 0.7"></a-plane>`;
 
+  // 거리는 띄워 놓고 재서 맞춘다 (framePreview). 여기 값은 첫 프레임용 어림이다.
+  const midY = (GEOMETRY.ringMinY + GEOMETRY.ceilingHeight) / 2;
+
   document.getElementById("app").innerHTML = `
   <a-scene background="color: #0b0f14" vr-mode-ui="enabled: false"
            renderer="antialias: true; logarithmicDepthBuffer: true">
-    <a-entity camera="fov: 55" position="0 ${(GEOMETRY.ceilingHeight / 2).toFixed(2)} 4.2"
+    <a-entity camera="fov: ${PREVIEW_FOV}" position="0 ${midY.toFixed(2)} 3.5"
               look-controls wasd-controls="fly: true; acceleration: 25"></a-entity>
     <a-entity id="world">${lights}${guides}</a-entity>
   </a-scene>`;
+  // 미리보기는 카메라를 안 쓴다. 기본 문구를 그대로 두면 폰에서 한참 동안
+  // 카메라를 기다리는 것처럼 보인다.
+  document.getElementById("status").textContent =
+    "미리보기입니다. 폰을 돌리면 같이 돕니다";
 } else {
   const markerTags = MARKERS.map((m) => `
     <a-marker id="marker-${m.value}" type="barcode" value="${m.value}"
