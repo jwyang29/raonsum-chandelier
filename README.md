@@ -7,6 +7,19 @@ Playground 파생작. 천 위에 손가락으로 그리면 크리스탈 하나�
 천 + ToF 9개 -> ESP32 -> (USB) -> 허브 -> Firebase -> 관객 폰 웹 AR
 ```
 
+## 관객이 여는 주소
+
+**https://jwyang29.github.io/raonsum-chandelier/**
+
+| 주소 | 무엇 |
+|---|---|
+| `/` | 관객이 보는 AR. QR 은 이 주소로 만든다 |
+| `/venue.html` | 전시장에 놓인 모습 미리보기. AR 없이 비례를 본다 |
+| `/camtest.html` | 현장에서 카메라와 마커 검출만 확인 |
+
+`main` 에 올리면 `.github/workflows/pages.yml` 이 `web/` 만 자동으로 배포한다.
+저장소 루트가 아니라 `web/` 이라서 주소에 `/web/` 이 안 붙는다.
+
 ## 파일
 
 | 파일 | 역할 |
@@ -35,21 +48,30 @@ python3 -m http.server 5604 --directory web
 
 ## Firebase 설정
 
-1. 콘솔에서 Realtime Database 를 만든다.
-2. 규칙을 이렇게 둔다. 쓰기를 전부 막아도 허브는 비밀키로 규칙을 우회해서 쓴다.
+**끝났다 (2026-10-29).** 다시 만들 일이 있을 때만 보면 된다.
 
-```json
-{ "rules": { "crystals": { ".read": true, ".write": false } } }
+1. 콘솔에서 **Realtime Database** 를 만든다. Firestore 가 아니다.
+   위치는 `asia-southeast1` (싱가포르). 셋 중 한국에서 제일 가깝고 나중에 못 바꾼다.
+2. 규칙 탭에 [`hub/firebase_rules.json`](hub/firebase_rules.json) 을 통째로 붙여넣는다.
+   crystals 만 읽기가 열리고 그 바깥은 막힌다. 쓰기는 권한 없이는 안 된다.
+3. 주소를 `web/config.js` 의 `databaseURL` 에 넣는다. 허브도 이 값을 읽으므로
+   주소를 적는 곳은 여기 하나뿐이다.
+   SDK 를 안 쓰고 REST 스트리밍을 직접 읽으므로 `apiKey` 도 `projectId` 도 필요 없다.
+4. 허브 쓰기 권한은 `hub/secrets.env` 에 넣는다 (`.gitignore` 에 있다).
+
+```
+cp hub/secrets.env.example hub/secrets.env
 ```
 
-3. 웹 앱을 추가해서 나오는 `apiKey` 와 `databaseURL` 을 `web/config.js` 에 넣는다.
-   apiKey 는 비밀이 아니라 공개되도록 설계된 값이다.
-4. 허브용 비밀키는 환경변수로 넣는다. **저장소에 넣지 말 것.**
+5. 확인한다. ESP32 없이 읽기, 쓰기, 지우기를 해 보고 시험용 한 개는 지운다.
 
 ```
-export RAONSUM_FIREBASE_URL=https://프로젝트.firebaseio.com
-export RAONSUM_FIREBASE_SECRET=비밀키
+python3 hub/hub_v1.py --check
 ```
+
+🔴 데이터베이스 비밀번호는 모든 규칙을 무시하는 관리자 열쇠다. 콘솔에서 사라졌으면
+Authentication 에 허브 계정을 만들어 `RAONSUM_FIREBASE_APIKEY` / `_EMAIL` /
+`_PASSWORD` 를 쓰면 된다. 허브가 알아서 토큰을 받고 갱신한다.
 
 ## 허브 실행
 
