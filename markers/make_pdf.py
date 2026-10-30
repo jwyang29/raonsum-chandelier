@@ -7,7 +7,7 @@ SVG를 변환기로 돌리면 인쇄 배율이 틀어질 위험이 있어서, �
 
     python3 make_pdf.py [출력폴더]
 """
-import json, os, sys
+import json, math, os, re, sys
 
 MM = 72 / 25.4            # mm -> PDF 포인트
 _pos = [a for a in sys.argv[1:] if not a.startswith("--") and not a.isdigit()]
@@ -61,6 +61,29 @@ for _i, _a in enumerate(sys.argv):
 if INK > 60:
     print(f"⚠️ 검은 칸 밝기 {INK} 는 여유가 거의 없습니다. 60 이하를 권합니다")
 INK_G = INK / 255.0
+def marker_ring_mm():
+    """바닥 마커 네 장을 놓을 반지름. config.js 의 refreshPedestal 과 같은 계산이다.
+
+    숫자를 두 군데 적지 않는다. 좌대를 실측해서 config.js 를 고치면 이 종이의
+    안내도 같이 바뀐다. 🔴 검은 사각형이 아니라 흰 여백 포함 한 변으로 잰다.
+    """
+    src = open(os.path.join(HERE, "..", "web", "config.js"), encoding="utf-8").read()
+
+    def num(pat, dflt):
+        m = re.search(pat, src)
+        return float(m.group(1)) if m else dflt
+
+    ped = num(r'diameter:\s*num\("ped",\s*([\d.]+)\)', 1.05)
+    rim = num(r'rimMargin:\s*([\d.]+)', 0.02)
+    dev = num(r'deviceSize:\s*([\d.]+)', 0.40)
+    half = FLOOR_MM / 1000 * (1 + QUIET * 2) / 2
+    pedR = ped / 2 - rim
+    outer = math.sqrt(max(0.0, pedR * pedR - half * half)) - half
+    inner = dev / 2 + half + 0.005
+    return (math.floor(outer * 200) / 200 if outer >= inner else inner) * 1000
+
+
+MRING_MM = marker_ring_mm()
 A4 = (210.0, 297.0)
 A3 = (297.0, 420.0)
 
@@ -336,28 +359,92 @@ def cube_sheet(face_mm):
     return A4 if need <= A4[0] else A3
 
 
-made = []
-p = os.path.join(OUT, "RAONSUM_markers_floor_A4.pdf")
-made.append((p, write_pdf([full_page(c, l, FLOOR_MM, A4) for c, l in FLOOR], p), "A4 4장"))
+def index_page(items, page):
+    """맨 앞 차례. 스물세 장이 다 비슷하게 생겨서 이게 없으면 못 찾는다.
 
-ccode, clabel = CEILING
-big = CEIL_MM * (1 + QUIET * 2)
-p = os.path.join(OUT, "RAONSUM_marker_ceiling_A4.pdf")
-made.append((p, write_pdf([full_page(ccode, clabel, CEIL_MM, A4)], p),
-             f"A4 1장 (선택), 흰 여백 포함 {big:.0f}mm"))
+    ⚠️ 본문 글꼴이 Helvetica 라 한글이 안 들어간다. 영문으로 적는다.
+       배치도(make_layout.py)가 한글로 된 종이라 그쪽을 같이 들고 보면 된다.
+    """
+    pw, ph = page
+    ops = []
+    y = ph - 30
+    ops += text("FACETS BETWEEN US", 20, y, 17, 0.1)
+    ops += text("marker sheets", 20, y - 9, 11, 0.4)
+    y -= 19
+    ops += ["0.25 G 0.4 w", f"{20*MM:.4f} {y*MM:.4f} m {(pw-20)*MM:.4f} {y*MM:.4f} l S"]
+
+    y -= 13
+    for line in ["PRINT AT 100%.  no fit to page, no scaling.",
+                 "MATTE paper.  gloss kills the marker under a spotlight.",
+                 "DO NOT CUT the white margin around the black square.",
+                 "CHECK the 100 mm ruler on every page with a real ruler."]:
+        ops += text(line, 20, y, 9.5, 0.15)
+        y -= 10
+
+    y -= 6
+    ops += ["0.25 G 0.4 w", f"{20*MM:.4f} {y*MM:.4f} m {(pw-20)*MM:.4f} {y*MM:.4f} l S"]
+    y -= 13
+    ops += text("page", 20, y, 8, 0.45)
+    ops += text("what", 46, y, 8, 0.45)
+    ops += text("black square", 120, y, 8, 0.45)
+    y -= 4
+    ops += ["0.7 G 0.3 w", f"{20*MM:.4f} {y*MM:.4f} m {(pw-20)*MM:.4f} {y*MM:.4f} l S"]
+    y -= 11
+    for rng, what, blk in items:
+        ops += text(rng, 20, y, 9.5, 0.1)
+        ops += text(what, 46, y, 9.5, 0.1)
+        ops += text(blk, 120, y, 9.5, 0.25)
+        y -= 10.5
+
+    y -= 7
+    ops += ["0.25 G 0.4 w", f"{20*MM:.4f} {y*MM:.4f} m {(pw-20)*MM:.4f} {y*MM:.4f} l S"]
+    y -= 13
+    for line in [
+        f"FLOOR  put the 4 sheets {MRING_MM:.0f} mm from the pedestal axis,",
+        "       all four facing the SAME way (tops toward marker 44).",
+        "CUBE   4 sides + 1 bottom + 1 top.  the top has no marker,",
+        "       only the 2 holes for the fishing line.",
+        "       fold the tabs IN so only markers show outside.",
+        "CEILING  optional. the cube bottoms already cover that view.",
+    ]:
+        ops += text(line, 20, y, 9, 0.2)
+        y -= 10
+    ops += text("raonsum-chandelier / markers/make_pdf.py", 20, 16, 7.5, 0.55)
+    return pw, ph, ops
+
+
+# 하나로 합쳐 뽑는다. 스물세 장을 따로 열어 찍으면 한 장이 빠지기 쉽다.
+pages, items = [], []
+n = 2                                   # 1쪽은 차례다
+
+floor_pages = [full_page(c, l, FLOOR_MM, A4) for c, l in FLOOR]
+pages += floor_pages
+items.append((f"{n}-{n+3}", "FLOOR 1-4   barcode 0, 7, 44, 63", f"{FLOOR_MM:.0f} mm"))
+n += len(floor_pages)
 
 for ci in range(len(CUBE_CODES)):
     face = CUBE_FACE_MM[ci]
-    p = os.path.join(OUT, f"RAONSUM_marker_cube{ci+1}.pdf")
-    sheet = cube_sheet(face)
-    pages = [cube_page(ci, fi, face, sheet) for fi in range(6)]
-    made.append((p, write_pdf(pages, p),
-                 f"{'A4' if sheet is A4 else 'A3'} 6장 (옆면4 + 밑면 + 윗면), "
-                 f"한 변 {face:.0f}mm"))
+    cp = [cube_page(ci, fi, face, A4) for fi in range(6)]
+    pages += cp
+    items.append((f"{n}-{n+5}", f"CUBE {ci+1}   edge {face:.0f} mm",
+                  f"{face/(1+QUIET*2):.1f} mm"))
+    n += len(cp)
+
+ccode, clabel = CEILING
+big = CEIL_MM * (1 + QUIET * 2)
+pages.append(full_page(ccode, clabel, CEIL_MM, A4))
+items.append((f"{n}", f"CEILING   barcode {ccode}   (optional)", f"{CEIL_MM:.0f} mm"))
+
+pages.insert(0, index_page(items, A4))
+
+out = os.path.join(OUT, "RAONSUM_markers_A4_ALL.pdf")
+size = write_pdf(pages, out)
 
 cb = ", ".join(f"{v/(1+QUIET*2):.1f}" for v in CUBE_FACE_MM)
 print(f"검은 사각형: 바닥 {FLOOR_MM:.0f}mm, 천장 {CEIL_MM:.0f}mm, 큐브 {cb}mm")
 print(f"흰 여백 포함: 바닥 {FLOOR_MM*(1+QUIET*2):.0f}mm, 천장 {big:.0f}mm, "
       f"큐브 {', '.join(f'{v:.0f}' for v in CUBE_FACE_MM)}mm")
-for path, size, note in made:
-    print(f"  {os.path.basename(path)}  {size//1024}KB  {note}")
+print(f"마커 반지름 {MRING_MM:.0f}mm\n")
+print(f"  {os.path.basename(out)}   A4 {len(pages)}장   {size//1024}KB")
+for rng, what, blk in items:
+    print(f"    {rng:>7}  {what:<40} {blk}")
