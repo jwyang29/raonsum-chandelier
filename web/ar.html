@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>가상 샹들리에</title>
+  <style>
+    /* 🔴 body 에 배경을 주면 안 된다.
+       AR.js 는 카메라 비디오에 z-index:-2 를 건다. CSS 페인팅 순서상 음수 z-index 는
+       html 배경 위, body 배경 아래에 그려진다. 그래서 body 에 배경이 있으면
+       비디오가 그 밑에 깔려 안 보인다. 배경은 html 에만 둔다. */
+    html { background: #000; }
+    html, body { margin: 0; height: 100%; overflow: hidden; }
+    body { background: transparent; }
+
+    /* ⚠️ 이 크기를 빼면 AR 이 깨진다.
+       embedded 씬은 부모 크기를 따라가는데 #app 이 auto 높이면 0 으로 접히고,
+       그러면 AR.js 가 비디오 위치를 엉뚱하게 잡아 카메라가 잠깐 보였다 사라진다. */
+    #app { position: fixed; inset: 0; width: 100%; height: 100%; }
+    #app > a-scene { width: 100%; height: 100%; }
+    /* AR.js 가 넣는 비디오의 크기와 쌓는 순서는 AR.js 가 직접 잡는다.
+       여기서 건드리지 않는다. 크기를 바꾸면 영상과 3D 가 어긋나고,
+       z-index 를 음수로 주면 body 배경 뒤로 밀려 안 보인다. */
+    #status {
+      position: fixed; left: 0; right: 0; bottom: 24px; z-index: 10;
+      text-align: center; color: #fff; font: 15px/1.5 system-ui, sans-serif;
+      text-shadow: 0 1px 4px rgba(0,0,0,.8); pointer-events: none;
+    }
+    #gyro-hint {
+      display: none; position: fixed; left: 0; right: 0; bottom: 56px; z-index: 11;
+      text-align: center; color: #d8e0ea; font: 13px/1.5 system-ui, sans-serif;
+      text-shadow: 0 1px 4px rgba(0,0,0,.85); pointer-events: none;
+    }
+    #debug {
+      display: none; position: fixed; top: 8px; left: 8px; z-index: 11;
+      padding: 8px 10px; border-radius: 6px; background: rgba(0,0,0,.6);
+      color: #9fe; font: 12px/1.45 ui-monospace, monospace; white-space: pre;
+      pointer-events: none;
+    }
+    .a-enter-vr, .a-enter-ar { display: none !important; }
+    #cal {
+      display: none; position: fixed; left: 8px; bottom: 8px; z-index: 12;
+      padding: 10px 12px; border-radius: 8px; background: rgba(10,14,20,.86);
+      color: #d8e0ea; font: 13px/1.5 system-ui, sans-serif; min-width: 210px;
+    }
+    #cal h2 { margin: 0 0 8px; font-size: 12px; color: #8b97a6; font-weight: 500; }
+    #cal .lab { font-size: 11px; color: #8b97a6; margin: 0 0 4px; }
+    #cal .lab + .row { margin-bottom: 6px; }
+    #cal .hint b { color: #7fd4c1; font-weight: 600; }
+    #cal input {
+      flex: 1; min-width: 0; padding: 8px 10px; border-radius: 6px;
+      background: #0e1116; color: #d8e0ea; border: 1px solid #2a323d;
+      font: 22px/1 ui-monospace, Menlo, monospace; font-variant-numeric: tabular-nums;
+    }
+    #cal-pedh, #cal-pedd { font-size: 17px !important; }
+    #cal .unit { align-self: center; color: #8b97a6; font-size: 13px; }
+    #cal #cal-reset { font-size: 11.5px; color: #8b97a6; }
+    #cal .row { display: flex; gap: 5px; margin-bottom: 7px; }
+    #cal button {
+      flex: 1; padding: 9px 0; border-radius: 6px; cursor: pointer; font-size: 13px;
+      background: #1f2630; color: #d8e0ea; border: 1px solid #2a323d;
+    }
+    #cal button:active { background: #2a323d; }
+    #cal .hint { font-size: 11px; color: #7f8b99; line-height: 1.5; }
+    #cal code { color: #7fd4c1; }
+
+    /* 물체 검출 출력의 생김새를 빌린 오버레이 */
+    #det-box {
+      display: none; position: fixed; z-index: 13; pointer-events: none;
+      border: 2px solid #7fd4c1; border-radius: 2px;
+      box-shadow: 0 0 0 1px rgba(0,0,0,.45), inset 0 0 0 1px rgba(0,0,0,.35);
+    }
+    #det-label {
+      display: none; position: fixed; z-index: 14; pointer-events: none;
+      width: 190px; padding: 7px 9px; border-radius: 3px;
+      background: rgba(8,12,17,.9); color: #d8e0ea;
+      font: 11px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace;
+    }
+    #det-label .cls {
+      background: #7fd4c1; color: #08111a; font-weight: 700;
+      margin: -7px -9px 7px; padding: 4px 9px; letter-spacing: .02em;
+    }
+    #det-label .cls span { float: right; font-weight: 500; }
+    #det-label .note { color: #8b97a6; margin-bottom: 6px; }
+    #det-label .r { display: flex; align-items: center; gap: 5px; margin-bottom: 3px; }
+    #det-label .r span { width: 52px; color: #8b97a6; font-size: 10px; }
+    #det-label .r i { flex: 1; height: 4px; background: #222b36; border-radius: 2px; }
+    #det-label .r i b { display: block; height: 100%; background: #7fd4c1; border-radius: 2px; }
+    #det-label .r em { width: 34px; text-align: right; font-style: normal; }
+    #det-label .meta {
+      margin-top: 6px; padding-top: 5px; border-top: 1px solid #222b36;
+      color: #8b97a6; font-size: 10px;
+    }
+  </style>
+  <script src="./camerafix.js"></script>
+  <script src="./vendor/aframe.min.js"></script>
+  <!-- 🔴 AR.js 는 여기서 불러오지 않는다. app.js 가 AR 모드일 때만 불러온다.
+       이유는 app.js 의 loadScript 위 주석 참고. ?preview=1 이 깨진다. -->
+</head>
+<body>
+  <div id="app"></div>
+  <div id="status">카메라를 준비하고 있습니다</div>
+  <div id="gyro-hint">화면을 한 번 누르면 방향 센서를 씁니다</div>
+  <pre id="debug"></pre>
+  <div id="det-box"></div>
+  <div id="det-label"></div>
+  <div id="cal">
+    <h2>현장 보정</h2>
+    <div class="lab">바닥에서 천장까지</div>
+    <div class="row">
+      <input id="cal-ceil" type="number" step="0.01" min="1.6" max="8" value="3.40">
+      <span class="unit">m</span>
+    </div>
+    <div class="row">
+      <button data-d="-0.05">-5cm</button>
+      <button data-d="-0.01">-1cm</button>
+      <button data-d="0.01">+1cm</button>
+      <button data-d="0.05">+5cm</button>
+    </div>
+    <div class="lab">좌대 높이 / 지름</div>
+    <div class="row">
+      <input id="cal-pedh" type="number" step="0.01" min="0" max="1.5" value="0.80">
+      <input id="cal-pedd" type="number" step="0.01" min="0.3" max="2" value="0.80">
+      <span class="unit">m</span>
+    </div>
+    <div class="row">
+      <button id="cal-reset">저장값 지우기 (기본값으로)</button>
+    </div>
+    <div class="hint" id="cal-hint"></div>
+  </div>
+  <script>
+    // ?diag=1 이면 비디오 상태를 화면에 찍는다 (카메라가 안 보일 때 원인 추적용)
+    if (new URLSearchParams(location.search).get("diag") === "1") {
+      const s = document.createElement("script");
+      s.src = "./videodiag.js";
+      document.head.appendChild(s);
+    }
+  </script>
+  <script type="module" src="./app.js"></script>
+</body>
+</html>
