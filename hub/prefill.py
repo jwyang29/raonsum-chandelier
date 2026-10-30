@@ -109,12 +109,23 @@ def build():
         w = 0.42 + 0.58 * (1 + math.sin(L * 0.9 + 0.6)) / 2
         plan.append(max(4, round(PER * w)))
 
+    # 🔴 시각은 반드시 과거여야 한다. chandelier.js 가 t 를 보고 태어난 때를
+    #    되돌리는데, 미래면 "방금 그린 것" 으로 보고 처음부터 올라간다.
+    #    관객이 열 때마다 122개가 전부 다시 올라가게 된다.
+    #    전시 시작(11/1)에 맞춰 적으면 지금은 물론 전시 초반에도 뒤쪽 겹이
+    #    미래다. 그래서 쓰는 시점 기준으로 과거에 깔고 한 주기씩 벌린다.
+    #    겹은 시계가 아니라 쌓인 것으로 넘어가므로 주기 번호만 늘면 된다.
+    #    ⚠️ 주기 경계에 맞춰 적어야 한다. 겹 하나가 경계를 걸치면 그 겹이
+    #       둘로 갈라져 10겹을 쓰려다 11겹이 생긴다. 주기 번호를 먼저 정하고
+    #       그 안쪽에만 적는다.
+    period_ms = int(period_h * 3600_000)
+    anchor = min(int(datetime.now().timestamp() * 1000), start_ms) - 2 * 3600_000
+    last_idx = math.floor((anchor - start_ms) / period_ms)   # 마지막 겹의 주기 번호
+
     for L, n in enumerate(plan):
-        # 겹 하나는 한 주기 안에 들어가야 한다. 날을 벌려 적어 둔다.
-        day = L
-        hour = 3 + (L * 2) % 6          # 운영 시간 안쪽
-        base = start_ms + ((day * 24 + hour) * 3600_000)
-        span = int(period_h * 3600_000) - 60_000
+        idx = last_idx - (LAYERS - 1 - L)
+        base = start_ms + idx * period_ms + 60_000           # 주기 시작 직후
+        span = period_ms - 180_000                           # 끝나기 전에 마친다
         for k in range(n):
             t = base + int(span * (k + 0.5) / n)
             out[f"{PREFIX}{i:04d}"] = crystal(rng, t)
@@ -124,12 +135,11 @@ def build():
     # 0.35~0.84 면 바닥 기준 약 0.97m 에서 2.45m 사이에 선다. 천과 샹들리에
     # 사이의 빈 구간이 바로 거기다.
     if HOLDS > 0:
-        L = LAYERS - 1
-        base = start_ms + (((L * 24) + 3 + (L * 2) % 6) * 3600_000)
+        # 마지막 겹과 같은 주기에 둔다. 그 겹으로 올라가는 중이다.
+        base = start_ms + last_idx * period_ms + period_ms - 60_000
         for k in range(HOLDS):
             h = 0.35 + (0.84 - 0.35) * (k / max(1, HOLDS - 1))
-            t = base + int(period_h * 3600_000) - 40_000 + k
-            out[f"{PREFIX}{i:04d}"] = crystal(rng, t, hold=h)
+            out[f"{PREFIX}{i:04d}"] = crystal(rng, base + k, hold=h)
             i += 1
     return out, plan
 
