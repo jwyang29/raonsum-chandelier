@@ -61,6 +61,11 @@ if INK > 60:
     print(f"⚠️ 검은 칸 밝기 {INK} 는 여유가 거의 없습니다. 60 이하를 권합니다")
 INK_G = INK / 255.0
 A4 = (210.0, 297.0)
+A3 = (297.0, 420.0)
+
+# 종이로 접어 풀로 붙인다. 날개(풀칠 탭) 폭과 종이 가장자리 여백.
+TAB    = 12.0
+MARGIN = 8.0
 
 
 def esc(s):
@@ -87,6 +92,37 @@ def marker_ops(code, x, y, size):
 def text(s, x, y, size=9, gray=0.2, center_w=None):
     tx = (center_w - len(s) * size * 0.5 / MM) / 2 if center_w else x
     return [f"BT /F1 {size} Tf {gray} g {tx*MM:.4f} {y*MM:.4f} Td ({esc(s)}) Tj ET"]
+
+
+def poly(pts, w=0.3, gray=0.2, dash=None, close=False):
+    """점들을 잇는 선. 자르는 선은 실선, 접는 선은 점선으로 쓴다."""
+    o = [f"{gray} G {w} w"]
+    if dash:
+        o.append(f"[{dash}] 0 d")
+    o.append(f"{pts[0][0]*MM:.4f} {pts[0][1]*MM:.4f} m")
+    for q in pts[1:]:
+        o.append(f"{q[0]*MM:.4f} {q[1]*MM:.4f} l")
+    if close:
+        o.append("h")
+    o.append("S")
+    if dash:
+        o.append("[] 0 d")
+    return o
+
+
+def tab_poly(p0, p1, n):
+    """p0 에서 p1 로 가는 변에 붙는 날개. 바깥쪽을 45도로 좁혀 모서리에서 안 겹치게.
+
+    n 은 바깥을 향하는 단위 법선이다.
+    """
+    tx, ty = (p1[0] - p0[0]), (p1[1] - p0[1])
+    L = (tx * tx + ty * ty) ** 0.5
+    tx, ty = tx / L, ty / L
+    d = min(TAB, L / 3)                      # 변이 짧으면 덜 좁힌다
+    return [p0,
+            (p0[0] + n[0]*TAB + tx*d, p0[1] + n[1]*TAB + ty*d),
+            (p1[0] + n[0]*TAB - tx*d, p1[1] + n[1]*TAB - ty*d),
+            p1]
 
 
 def crop(x, y, w, h, t=2.0):
@@ -174,28 +210,129 @@ def write_pdf(pages, path):
 
 
 def cube_page(cube_i, face_i, face_mm, page):
-    """큐브 한 면. 어느 큐브의 어느 면인지 크게 적는다. 열두 장이 섞이면 못 찾는다."""
+    """큐브 한 면을 날개까지 붙여 한 장에. 오려서 접고 풀로 붙인다.
+
+    날개는 큐브 모서리 12개에 정확히 하나씩 가도록 나눠 두었다.
+      밑면과 윗면  네 변 전부 (8개)
+      옆면 넷      오른쪽 한 변만 (4개)
+    옆면의 오른쪽 날개는 다음 번호 옆면에 붙는다. 면 순서가 큐브를 한 바퀴 돈다.
+
+    face_i 0~3 옆면, 4 밑면, 5 윗면(마커 없음, 낚싯줄 구멍)
+    """
     pw, ph = page
-    code = CUBE_CODES[cube_i][face_i]
-    direction, floor_code = CUBE_DIRS[face_i]
+    top_face = face_i == 5
     black = face_mm / (1 + QUIET * 2)
-    bottom = floor_code is None
     quiet = black * QUIET
-    bx, by = (pw - face_mm) / 2, (ph - face_mm) / 2 - 10
-    ops = crop(bx, by, face_mm, face_mm)
-    ops += marker_ops(code, bx + quiet, by + quiet, black)
-    ops += text(f"CUBE {cube_i+1}   face {direction}   barcode {code}",
-                0, by + face_mm + 12, 12, 0.1, pw)
-    ops += text("this face looks straight DOWN (the underside of the cube)"
-                if bottom else f"this face must look toward FLOOR marker {floor_code}",
-                0, by + face_mm + 5, 9, 0.3, pw)
-    ops += text(f"cube edge {face_mm:.0f} mm   black square {black:.1f} mm   "
-                + ("TOP of this sheet points AWAY from floor marker 44"
-                   if bottom else "TOP of this sheet points to the ceiling"),
-                0, by - 7, 8, 0.35, pw)
-    ops += ruler(pw, by - 16)
-    ops += text("matte paper, do not cut the white margin", 0, 10, 7.5, 0.5, pw)
+    e = face_mm
+
+    # 날개가 붙는 변. [(모서리0, 모서리1, 바깥 법선)]
+    bx = (pw - e) / 2
+    by = (ph - e) / 2 - 12
+    P = {"bl": (bx, by), "br": (bx + e, by), "tr": (bx + e, by + e), "tl": (bx, by + e)}
+    edges = {
+        "bottom": (P["bl"], P["br"], (0, -1)),
+        "right":  (P["br"], P["tr"], (1, 0)),
+        "top":    (P["tr"], P["tl"], (0, 1)),
+        "left":   (P["tl"], P["bl"], (-1, 0)),
+    }
+    with_tab = (["bottom", "right", "top", "left"] if face_i >= 4 else ["right"])
+
+    ops = []
+    # 마커. 윗면은 아무도 못 보므로 비운다.
+    if not top_face:
+        code = CUBE_CODES[cube_i][face_i]
+        ops += marker_ops(code, bx + quiet, by + quiet, black)
+
+    # 날개 (오려낼 선) 와 접는 선
+    for name in with_tab:
+        p0, p1, n = edges[name]
+        ops += poly(tab_poly(p0, p1, n), 0.3, 0.45)
+        ops += poly([p0, p1], 0.35, 0.55, dash="2.2 1.8")
+    # 날개가 없는 변은 그냥 오리는 선
+    for name, (p0, p1, n) in edges.items():
+        if name not in with_tab:
+            ops += poly([p0, p1], 0.3, 0.45)
+
+    # 글자
+    direction, floor_code = ("TOP", None) if top_face else CUBE_DIRS[face_i]
+    label = (f"CUBE {cube_i+1}   TOP  (no marker)" if top_face
+             else f"CUBE {cube_i+1}   face {direction}   barcode "
+                  f"{CUBE_CODES[cube_i][face_i]}")
+    ops += text(label, 0, by + e + TAB + 10, 12, 0.1, pw)
+    if top_face:
+        ops += text("2 holes for the fishing line. reinforce with tape before piercing.",
+                    0, by + e + TAB + 3, 9, 0.3, pw)
+    else:
+        ops += text("this face looks straight DOWN (the underside)" if floor_code is None
+                    else f"this face must look toward FLOOR marker {floor_code}",
+                    0, by + e + TAB + 3, 9, 0.3, pw)
+
+    hint = ("fold the 4 tabs DOWN, tuck inside, glue to the side faces" if top_face
+            else "fold the 4 tabs UP, the side faces glue over them" if face_i == 4
+            else f"fold the right tab IN, glue it to face "
+                 f"{CUBE_DIRS[(face_i+1) % 4][0]}")
+    ops += text(hint, 0, by - TAB - 7, 8.5, 0.3, pw)
+    ops += text(f"cube edge {e:.0f} mm" + ("" if top_face else
+                f"   black square {black:.1f} mm"), 0, by - TAB - 14, 8, 0.4, pw)
+    ops += ruler(pw, by - TAB - 23)
+    ops += text("cut the solid line, crease the dashed line. 100% scale, no fit to page.",
+                0, 10, 7.5, 0.5, pw)
+
+    # 윗면 낚싯줄 구멍 자리. 둘을 벌려야 큐브가 안 돈다.
+    if top_face:
+        cy = by + e / 2
+        for sx in (-1, 1):
+            cx = bx + e / 2 + sx * (e / 2 - 22.0)
+            r = 2.0
+            ops += poly([(cx - r, cy), (cx, cy + r), (cx + r, cy), (cx, cy - r)],
+                        0.4, 0.1, close=True)
+            ops += poly([(cx - 7, cy), (cx + 7, cy)], 0.25, 0.6)
+            ops += poly([(cx, cy - 7), (cx, cy + 7)], 0.25, 0.6)
+        ops += text(f"{e - 44:.0f} mm apart", 0, cy - 12, 8, 0.4, pw)
     return pw, ph, ops
+
+
+def write_pdf(pages, path):
+    objs, out = [], bytearray(b"%PDF-1.4\n")
+    n_pages = len(pages)
+    # 1 Catalog, 2 Pages, 3 Font, then page/content pairs
+    kids = " ".join(f"{4+i*2} 0 R" for i in range(n_pages))
+    objs.append(f"<< /Type /Catalog /Pages 2 0 R >>")
+    objs.append(f"<< /Type /Pages /Count {n_pages} /Kids [{kids}] >>")
+    objs.append("<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>")
+    for i, (pw, ph, ops) in enumerate(pages):
+        stream = "\n".join(ops).encode()
+        objs.append(f"<< /Type /Page /Parent 2 0 R /MediaBox [0 0 {pw*MM:.4f} {ph*MM:.4f}] "
+                    f"/Resources << /Font << /F1 3 0 R >> >> /Contents {5+i*2} 0 R >>")
+        objs.append((f"<< /Length {len(stream)} >>\nstream\n", stream, "\nendstream"))
+
+    offsets = []
+    for i, o in enumerate(objs, start=1):
+        offsets.append(len(out))
+        out += f"{i} 0 obj\n".encode()
+        if isinstance(o, tuple):
+            out += o[0].encode() + o[1] + o[2].encode()
+        else:
+            out += o.encode()
+        out += b"\nendobj\n"
+    xref = len(out)
+    out += f"xref\n0 {len(objs)+1}\n0000000000 65535 f \n".encode()
+    for off in offsets:
+        out += f"{off:010d} 00000 n \n".encode()
+    out += (f"trailer\n<< /Size {len(objs)+1} /Root 1 0 R >>\nstartxref\n{xref}\n%%EOF\n").encode()
+    with open(path, "wb") as f:
+        f.write(bytes(out))
+    return len(out)
+
+
+def cube_sheet(face_mm):
+    """그 크기가 들어가는 종이. 날개와 여백까지 보고 고른다.
+
+    🔴 A4 폭 210mm 에 205mm 면을 올리면 가장자리 2.5mm 밖에 안 남아 프린터가
+       잘라 먹거나 제멋대로 줄인다. 큐브3 은 A3 으로 간다.
+    """
+    need = face_mm + 2 * TAB + 2 * MARGIN
+    return A4 if need <= A4[0] else A3
 
 
 made = []
@@ -208,15 +345,14 @@ p = os.path.join(OUT, "RAONSUM_marker_ceiling_A4.pdf")
 made.append((p, write_pdf([full_page(ccode, clabel, CEIL_MM, A4)], p),
              f"A4 1장 (선택), 흰 여백 포함 {big:.0f}mm"))
 
-# ⚠️ A4 로 찍는다. 종이 크기를 마커에 맞춰 잘라 놓으면 인쇄 대화상자가
-#    용지에 맞춰 줄여 버린다. 마커는 배율이 틀어지면 그대로 못 쓴다.
-CUBE_PAGE = A4
 for ci in range(len(CUBE_CODES)):
     face = CUBE_FACE_MM[ci]
     p = os.path.join(OUT, f"RAONSUM_marker_cube{ci+1}.pdf")
-    pages = [cube_page(ci, fi, face, CUBE_PAGE) for fi in range(5)]
+    sheet = cube_sheet(face)
+    pages = [cube_page(ci, fi, face, sheet) for fi in range(6)]
     made.append((p, write_pdf(pages, p),
-                 f"A4 5장 (옆면 4 + 밑면 1), 한 변 {face:.0f}mm"))
+                 f"{'A4' if sheet is A4 else 'A3'} 6장 (옆면4 + 밑면 + 윗면), "
+                 f"한 변 {face:.0f}mm"))
 
 cb = ", ".join(f"{v/(1+QUIET*2):.1f}" for v in CUBE_FACE_MM)
 print(f"검은 사각형: 바닥 {FLOOR_MM:.0f}mm, 천장 {CEIL_MM:.0f}mm, 큐브 {cb}mm")

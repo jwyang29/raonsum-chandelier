@@ -133,7 +133,9 @@
 <line x1="14" y1="268" x2="196.0" y2="268" stroke="#d6dbe0" stroke-width="0.3"/>
 <text x="14.00" y="276.00" font-size="3.6" fill="#1b1f24" font-weight="700" text-anchor="start" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">인쇄</text>
 <text x="26.00" y="276.00" font-size="3.0" fill="#1b1f24" font-weight="400" text-anchor="start" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">markers/print/ 의 PDF 를 100% 배율로. 무광. 흰 여백 자르지 말 것. 찍은 뒤 자로 검은 사각형을 재서 맞는지 확인.</text>
-<text x="14.00" y="282.00" font-size="3.6" fill="#1b1f24" font-weight="700" text-anchor="start" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">확인</text>
-<text x="26.00" y="282.00" font-size="3.0" fill="#1b1f24" font-weight="400" text-anchor="start" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">폰에서 ?guide=1 로 열면 실측 윤곽이 겹쳐 보입니다. 초록 네모가 장치 위에 딱 맞으면 된 것입니다.</text>
-<text x="14.00" y="289.50" font-size="2.6" fill="#6b7784" font-weight="400" text-anchor="start" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">raonsum-chandelier / markers/make_layout.py 가 config.js 에서 읽어 만든 종이입니다</text>
+<text x="14.00" y="282.00" font-size="3.6" fill="#1b1f24" font-weight="700" text-anchor="start" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">큐브</text>
+<text x="26.00" y="282.00" font-size="3.0" fill="#1b1f24" font-weight="400" text-anchor="start" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">여섯 장을 오려 날개를 접고 풀로 붙입니다. 날개는 전부 안쪽으로. 윗면 구멍 둘에 낚싯줄 두 줄.</text>
+<text x="14.00" y="288.00" font-size="3.6" fill="#1b1f24" font-weight="700" text-anchor="start" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">확인</text>
+<text x="26.00" y="288.00" font-size="3.0" fill="#1b1f24" font-weight="400" text-anchor="start" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">폰에서 ?guide=1 로 열면 실측 윤곽이 겹쳐 보입니다. 초록 네모가 장치 위에 딱 맞으면 된 것입니다.</text>
+<text x="14.00" y="294.00" font-size="2.6" fill="#6b7784" font-weight="400" text-anchor="start" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">raonsum-chandelier / markers/make_layout.py 가 config.js 에서 읽어 만든 종이입니다</text>
 </svg>
