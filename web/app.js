@@ -315,6 +315,12 @@ AFRAME.registerComponent("chandelier-driver", {
     panel.textContent =
       `${VERSION}${PREVIEW ? "  preview" : ""}\n` +
       (PREVIEW ? "" : `보이는 마커  ${seen} / ${MARKERS.length}${this.anchor && this.anchor.source && this.anchor.source !== "floor" ? ` (${this.anchor.source === "cube" ? "큐브" : "천장"})` : ""}\n`) +
+      (PREVIEW ? "" : `번호         ${this.anchor && this.anchor.seenValues.length
+          ? this.anchor.seenValues.join(" ") : "없음"}\n`) +
+      // 마커끼리 얼마나 다른 자리를 주장하는가. 흔들림의 원인이 여기 보인다.
+      (PREVIEW ? "" : `서로 어긋남  ${this.anchor
+          ? (this.anchor.spread * 100).toFixed(1) : "0"} cm` +
+        `${this.anchor && this.anchor.spread > 0.08 ? "  <- 배치가 틀렸습니다" : ""}\n`) +
       `크리스탈     ${chandelier.items.length} (cap ${chandelier.cap})\n` +
       `품질 단계    ${chandelier.level}\n` +
       `fps          ${chandelier.fps ? chandelier.fps.toFixed(1) : "재는 중"}\n` +

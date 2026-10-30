@@ -362,8 +362,11 @@ const CUBE_PLAN = [
   [3.05, 0.160],
 ];
 
+// ?cubes=0 이면 매단 큐브를 통째로 끈다. 바닥 네 장만 두고 시험할 때 쓴다.
+// 큐브 마커는 자리가 1.25~3.05m 위라, 하나라도 잘못 읽히면 월드가 그리로 끌려간다.
+const CUBES_ON = QS.get("cubes") !== "0";
 const cubeParam = (QS.get("cube") || "").trim();
-export const CUBES = cubeParam
+export const CUBES = !CUBES_ON ? [] : cubeParam
   ? cubeParam.split(";").map((t, i) => {
       const [y, face, r, az] = t.split(",").map(Number);
       return { y, face, r: r || 0, az: az || 0,

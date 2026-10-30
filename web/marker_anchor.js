@@ -62,6 +62,8 @@ AFRAME.registerComponent("world-anchor", {
     this.quat = new THREE.Quaternion();
     this.started = false;
     this.visibleCount = 0;
+    this.seenValues = [];
+    this.spread = 0;
 
     this.tmpM = new THREE.Matrix4();
     this.tmpQ = new THREE.Quaternion();
@@ -84,6 +86,8 @@ AFRAME.registerComponent("world-anchor", {
       ? (by("floor").length ? by("floor") : by("cube").length ? by("cube") : visible)
       : visible;
     this.source = group.length ? (group[0].conf.kind || "floor") : null;
+    // 지금 무엇이 보이는지. 바닥 네 장만 깔았는데 큐브 번호가 뜨면 오검출이다.
+    this.seenValues = visible.map((s) => s.conf.value);
     this.usingCeiling = this.source === "ceiling";
 
     // 마커마다 믿을 만한 정도를 매긴다. AR.js 는 비스듬히 보이는 평면에서
@@ -117,6 +121,15 @@ AFRAME.registerComponent("world-anchor", {
       const kept = cands.filter((c) => c.p.distanceTo(med) <= ANCHOR.outlierMeters);
       if (kept.length) use = kept;
     }
+
+    // 🔴 마커들이 서로 얼마나 다른 자리를 주장하는가. 이게 흔들림의 원인이다.
+    //    실제 배치가 config 와 다르면 마커마다 월드 원점이 따로 나오고,
+    //    폰을 움직여 보이는 마커가 바뀔 때마다 평균이 튄다.
+    //    잘 맞으면 2~3cm, 배치가 틀리면 수십 cm 가 나온다.
+    this.spread = 0;
+    for (let i = 0; i < cands.length; i++)
+      for (let j = i + 1; j < cands.length; j++)
+        this.spread = Math.max(this.spread, cands[i].p.distanceTo(cands[j].p));
 
     use.sort((a, b) => b.w - a.w);
     let accW = 0;
