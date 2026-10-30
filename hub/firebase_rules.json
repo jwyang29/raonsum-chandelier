@@ -4,7 +4,6 @@
     ".write": false,
 
     "cal": {
-      "//": "현장 실측 보정값. 관객 폰이 읽어야 하므로 읽기를 연다.",
       ".read": true,
       ".write": "auth != null"
     },
