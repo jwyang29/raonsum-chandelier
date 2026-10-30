@@ -1,0 +1,523 @@
+<title>설치 프로토콜 5시간</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans+KR:wght@400;500;700&display=swap">
+<style>
+/* 레이아웃: 시간 순으로 흐르는 한 줄짜리 작업 띠. 왼쪽에 T+ 시각, 오른쪽에 할 일.
+   어두운 전시장에서 폰 한 손으로 보는 것이 전제라 단일 다크로 못박는다. */
+:root{
+  color-scheme: dark;
+  --bg:#0b0c0d; --panel:#141719; --panel2:#1b1f22;
+  --fg:#e9ecee; --muted:#878f96; --line:#272c30;
+  --accent:#7fd4c1;   /* 크리스탈 민트. 작품 사이트의 강조색 */
+  --warn:#e8b36b;
+  --stop:#e8736b;
+  --mono:'IBM Plex Mono',ui-monospace,SFMono-Regular,monospace;
+  --sans:'IBM Plex Sans KR',system-ui,-apple-system,'Apple SD Gothic Neo',sans-serif;
+}
+*{box-sizing:border-box}
+html,body{background:var(--bg)}
+body{
+  margin:0; color:var(--fg); font-family:var(--sans);
+  font-size:15px; line-height:1.65;
+  -webkit-text-size-adjust:100%;
+}
+.wrap{
+  max-width:720px; margin:0 auto;
+  padding-left:max(16px,env(safe-area-inset-left,0px));
+  padding-right:max(16px,env(safe-area-inset-right,0px));
+  padding-block:0 64px;
+}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+
+/* ── 머리띠 ─────────────────────────────── */
+header.bar{
+  position:sticky; top:env(safe-area-inset-top,0px); z-index:9;
+  background:var(--bg); border-bottom:1px solid var(--line);
+  margin-left:calc(-1*max(16px,env(safe-area-inset-left,0px)));
+  margin-right:calc(-1*max(16px,env(safe-area-inset-right,0px)));
+  padding-left:max(16px,env(safe-area-inset-left,0px));
+  padding-right:max(16px,env(safe-area-inset-right,0px));
+  padding-block:10px;
+  display:flex; align-items:center; gap:12px; flex-wrap:wrap;
+}
+.bar .ttl{font-weight:700; font-size:14px; letter-spacing:.02em; margin-right:auto}
+.clock{
+  font-family:var(--mono); font-size:20px; font-weight:600;
+  font-variant-numeric:tabular-nums; color:var(--accent); min-width:4.4em; text-align:right;
+}
+.clock.off{color:var(--muted)}
+button{
+  font-family:var(--sans); font-size:13px; font-weight:500;
+  background:var(--panel2); color:var(--fg);
+  border:1px solid var(--line); border-radius:3px;
+  padding:6px 11px; cursor:pointer;
+}
+button:hover{border-color:var(--muted)}
+button:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+.prog{font-family:var(--mono); font-size:12px; color:var(--muted); font-variant-numeric:tabular-nums}
+
+/* ── 큰 제목 ─────────────────────────────── */
+.lede{padding-block:28px 10px}
+.lede h1{
+  font-size:clamp(28px,8vw,42px); line-height:1.08; font-weight:700;
+  margin:0 0 12px; letter-spacing:-.02em; text-wrap:balance;
+}
+.lede p{color:var(--muted); margin:0; max-width:46em}
+
+/* ── 단계 ───────────────────────────────── */
+section.step{
+  border-top:1px solid var(--line);
+  padding-block:22px;
+  display:grid; grid-template-columns:72px 1fr; gap:0 16px;
+}
+section.step > .when{
+  font-family:var(--mono); font-size:13px; font-weight:600;
+  font-variant-numeric:tabular-nums; color:var(--accent);
+  padding-top:2px;
+}
+section.step > .when small{display:block;color:var(--muted);font-weight:400;font-size:11px;margin-top:2px}
+section.step > .body{min-width:0}
+section.step h2{font-size:19px; font-weight:700; margin:0 0 4px; letter-spacing:-.01em}
+section.step .why{color:var(--muted); font-size:13.5px; margin:0 0 14px}
+
+section.gate{background:var(--panel); border-top:2px solid var(--stop)}
+section.gate > .when{color:var(--stop)}
+section.gate h2{color:var(--stop)}
+
+/* ── 체크 항목 ───────────────────────────── */
+ul.checks{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px}
+ul.checks li{margin:0}
+ul.checks label{
+  display:grid; grid-template-columns:22px 1fr; gap:10px;
+  align-items:start; padding:7px 8px 7px 0; cursor:pointer; border-radius:3px;
+}
+ul.checks label:hover{background:var(--panel)}
+ul.checks input{
+  appearance:none; -webkit-appearance:none;
+  width:18px; height:18px; margin:3px 0 0; border:1.5px solid var(--muted);
+  border-radius:3px; background:transparent; cursor:pointer; flex:none;
+  display:grid; place-content:center;
+}
+ul.checks input::after{
+  content:""; width:10px; height:6px; margin-top:-2px;
+  border-left:2px solid var(--bg); border-bottom:2px solid var(--bg);
+  transform:rotate(-45deg) scale(0); transition:transform .12s;
+}
+ul.checks input:checked{background:var(--accent); border-color:var(--accent)}
+ul.checks input:checked::after{transform:rotate(-45deg) scale(1)}
+ul.checks input:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+ul.checks label:has(input:checked) > span{color:var(--muted); text-decoration:line-through; text-decoration-color:var(--line)}
+ul.checks span{min-width:0}
+ul.checks b{font-weight:700; color:var(--fg)}
+ul.checks label:has(input:checked) b{color:var(--muted)}
+
+/* ── 쪽지 ───────────────────────────────── */
+.note{
+  border-left:2px solid var(--line); padding:2px 0 2px 13px;
+  margin:14px 0; font-size:13.5px; color:var(--muted);
+}
+.note.warn{border-left-color:var(--warn)}
+.note.stop{border-left-color:var(--stop)}
+.note strong{color:var(--fg); font-weight:700}
+.note.warn strong{color:var(--warn)}
+.note.stop strong{color:var(--stop)}
+
+/* ── 명령/주소 ──────────────────────────── */
+.cmd{
+  display:flex; align-items:center; gap:8px;
+  background:var(--panel2); border:1px solid var(--line); border-radius:3px;
+  padding:8px 10px; margin:8px 0; min-width:0;
+}
+.cmd code{
+  font-family:var(--mono); font-size:12.5px; color:var(--accent);
+  overflow-x:auto; white-space:pre; flex:1; min-width:0;
+}
+.cmd button{flex:none; padding:4px 9px; font-size:11.5px}
+
+/* ── 잘라도 되는 선 ─────────────────────── */
+.cut{
+  display:flex; align-items:center; gap:12px;
+  margin:4px 0; padding-block:16px;
+  color:var(--warn); font-size:12.5px; font-weight:700; letter-spacing:.04em;
+}
+.cut::before,.cut::after{content:""; height:0; border-top:2px dashed var(--warn); opacity:.45; flex:1}
+
+/* ── 표 ─────────────────────────────────── */
+.tablewrap{overflow-x:auto; margin:12px 0; border:1px solid var(--line); border-radius:3px}
+table{border-collapse:collapse; width:100%; font-size:13px; font-variant-numeric:tabular-nums}
+th,td{padding:7px 12px; text-align:right; border-bottom:1px solid var(--line); white-space:nowrap}
+th{background:var(--panel2); color:var(--muted); font-weight:500; font-size:11.5px; letter-spacing:.03em}
+td:first-child,th:first-child{text-align:left}
+tbody tr:last-child td{border-bottom:none}
+td.num{font-family:var(--mono); color:var(--accent)}
+tr.bad td{color:var(--stop)}
+
+/* ── 참고 묶음 ──────────────────────────── */
+.ref{border-top:1px solid var(--line); padding-block:22px}
+.ref h2{font-size:19px; font-weight:700; margin:0 0 14px}
+.ref h3{font-size:13px; font-weight:700; color:var(--muted); letter-spacing:.04em; margin:22px 0 6px}
+.ref h3:first-of-type{margin-top:0}
+.ref p{margin:0 0 8px; font-size:13.5px; color:var(--muted)}
+dl.codes{display:grid; grid-template-columns:auto 1fr; gap:4px 14px; margin:0; font-size:13.5px}
+dl.codes dt{font-family:var(--mono); color:var(--accent); font-weight:600}
+dl.codes dd{margin:0; color:var(--muted)}
+.foot{border-top:1px solid var(--line); padding-block:22px; color:var(--muted); font-size:12.5px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<header class="bar">
+  <span class="ttl">설치 프로토콜</span>
+  <span class="prog" id="prog">0 / 0</span>
+  <span class="clock off" id="clock">T+0:00</span>
+  <button id="go">시작</button>
+  <button id="reset">초기화</button>
+</header>
+
+<div class="wrap">
+
+<div class="lede">
+  <h1>Facets Between Us<br>설치 5시간</h1>
+  <p>순서를 틀리면 되돌릴 시간이 없습니다. 조명과 마커가 먼저고, 큐브는 마지막입니다.
+  T+2:05 의 점선 위까지만 끝내도 전시는 돌아갑니다.</p>
+</div>
+
+<!-- ═══════════ 출발 전 ═══════════ -->
+<section class="step">
+  <div class="when">출발 전<small>지금</small></div>
+  <div class="body">
+    <h2>떠나기 전에 두 가지</h2>
+    <p class="why">둘 다 현장에서는 못 고칩니다.</p>
+    <ul class="checks">
+      <li><label><input type="checkbox" data-k="p1"><span><b>푸시한다.</b> 오늘 커밋 2개가 라이브에 없습니다. QR 유령 보호가 빠진 채로 돌고 있습니다.</span></label></li>
+      <li><label><input type="checkbox" data-k="p2"><span><b>인쇄물의 검은 사각형을 자로 잽니다.</b> 바닥 마커는 <b>100.0 mm</b> 여야 합니다. 프린터가 용지에 맞춤으로 줄였으면 96~98 mm 가 나옵니다. 다르면 그 숫자를 적어 두세요.</span></label></li>
+      <li><label><input type="checkbox" data-k="p3"><span>챙길 것: 노트북과 충전기, 줄자 5 m, 마스킹테이프, 투명테이프, 가위, 풀, 낚싯줄, 인쇄물 전부, 배치도 2장, 폰 2대, 보조배터리</span></label></li>
+    </ul>
+    <div class="cmd"><code>git push origin main</code><button data-copy="git push origin main">복사</button></div>
+    <div class="note warn"><strong>검은 사각형이 100 mm 가 아니면</strong> 현장에서 <code>?msize=0.097</code> 처럼 넣어야 합니다. 안 넣으면 샹들리에 크기가 그 비율만큼 통째로 틀어집니다.</div>
+  </div>
+</section>
+
+<!-- ═══════════ 1 ═══════════ -->
+<section class="step">
+  <div class="when">T+0:00<small>20분</small></div>
+  <div class="body">
+    <h2>조명부터 건다</h2>
+    <p class="why">남이 해 줘야 할 수도 있어서 대기가 생깁니다. 도착하자마자 요청해 두고 그동안 다른 일을 합니다.</p>
+    <ul class="checks">
+      <li><label><input type="checkbox" data-k="a1"><span>좌대 놓을 자리를 확정합니다</span></label></li>
+      <li><label><input type="checkbox" data-k="a2"><span><b>사이드 조명을 양쪽에서 대칭으로</b> 좌대 상판에 겨냥합니다. 한쪽만이면 관객이 폰을 들이댈 때 자기 그림자가 마커를 덮습니다.</span></label></li>
+      <li><label><input type="checkbox" data-k="a3"><span>관객이 서는 방향 정면에 밝은 조명이 오지 않게 합니다</span></label></li>
+      <li><label><input type="checkbox" data-k="a4"><span>마커 종이를 <b>코팅하지 않습니다.</b> 번들거리면 반사로 날아갑니다.</span></label></li>
+    </ul>
+    <div class="note"><strong>왜 밝기가 중요한가.</strong> 검출기는 밝기 100 을 고정 문턱으로 자릅니다. 상판의 흰 종이가 카메라 영상에서 100 을 넘어야 마커가 보입니다. 화면 안에 밝은 조명이 직접 들어오면 자동 노출이 내려가 상판이 어두워지고, 흰 종이가 문턱 아래로 떨어지면 마커가 통째로 검정이 되어 아무것도 안 잡힙니다.</div>
+  </div>
+</section>
+
+<!-- ═══════════ 2 ═══════════ -->
+<section class="step">
+  <div class="when">T+0:20<small>15분</small></div>
+  <div class="body">
+    <h2>좌대를 잰다</h2>
+    <p class="why">모든 숫자가 여기서 나옵니다. 마커 반지름도 샹들리에 높이도 좌대에서 따라 나옵니다.</p>
+    <ul class="checks">
+      <li><label><input type="checkbox" data-k="b1"><span>상판 지름과 좌대 높이를 잽니다. 둥근지 각진지도 적습니다.</span></label></li>
+      <li><label><input type="checkbox" data-k="b2"><span>아래 표에서 마커 반지름 R 을 찾습니다</span></label></li>
+      <li><label><input type="checkbox" data-k="b3"><span>바닥에서 천장까지 높이를 잽니다</span></label></li>
+    </ul>
+    <div class="note stop"><strong>지름이 76.6 cm 미만이면 분기합니다.</strong> 40 cm 장치 바깥에 15 cm 마커 네 장을 둘 자리가 없습니다. 그 경우 장치를 한쪽으로 밀고 마커를 비대칭으로 놓은 뒤, 네 장의 실제 위치를 <code>--fm</code> 으로 전부 손으로 적어야 합니다.</div>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>좌대 지름</th><th>마커 반지름 R</th><th>마주보는 간격</th><th>이웃 간격</th></tr></thead>
+        <tbody>
+          <tr class="bad"><td>76 cm 미만</td><td colspan="3">안 들어감</td></tr>
+          <tr><td>80 cm</td><td class="num">29.5 cm</td><td>59.0</td><td>41.7</td></tr>
+          <tr><td>85 cm</td><td class="num">32.0 cm</td><td>64.0</td><td>45.3</td></tr>
+          <tr><td>90 cm</td><td class="num">34.5 cm</td><td>69.0</td><td>48.8</td></tr>
+          <tr><td>95 cm</td><td class="num">37.0 cm</td><td>74.0</td><td>52.3</td></tr>
+          <tr><td>100 cm</td><td class="num">39.5 cm</td><td>79.0</td><td>55.9</td></tr>
+          <tr><td>105 cm</td><td class="num">42.0 cm</td><td>84.0</td><td>59.4</td></tr>
+          <tr><td>110 cm</td><td class="num">44.5 cm</td><td>89.0</td><td>62.9</td></tr>
+          <tr><td>115 cm</td><td class="num">47.0 cm</td><td>94.0</td><td>66.5</td></tr>
+          <tr><td>120 cm</td><td class="num">50.0 cm</td><td>100.0</td><td>70.7</td></tr>
+          <tr><td>130 cm</td><td class="num">55.0 cm</td><td>110.0</td><td>77.8</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ 3 ═══════════ -->
+<section class="step">
+  <div class="when">T+0:35<small>30분</small></div>
+  <div class="body">
+    <h2>바닥 마커 네 장을 가고정</h2>
+    <p class="why">아직 완전히 붙이지 않습니다. 다음 단계를 통과해야 확정합니다.</p>
+    <ul class="checks">
+      <li><label><input type="checkbox" data-k="c1"><span>상판 중심을 찾습니다. 지름을 서로 다른 방향으로 두 번 그어 교차점을 잡습니다.</span></label></li>
+      <li><label><input type="checkbox" data-k="c2"><span><b>기준선을 한 줄 마스킹으로 긋습니다.</b> 네 장을 전부 이 선과 나란히 붙입니다. 코드가 yaw 0 을 전제하므로 방향이 틀어지면 월드가 돌아갑니다.</span></label></li>
+      <li><label><input type="checkbox" data-k="c3"><span><b>관객이 주로 서는 쪽에 0번</b>을 둡니다. 거기서 좌대를 바라볼 때 오른쪽이 <b>63번</b>, 왼쪽이 <b>7번</b>, 맞은편이 <b>44번</b> 입니다.</span></label></li>
+      <li><label><input type="checkbox" data-k="c4"><span><b>검은 사각형의 중심</b>이 중심에서 R 만큼 떨어진 점에 오게 합니다. 종이 모서리가 아니라 검은 사각형 기준입니다.</span></label></li>
+      <li><label><input type="checkbox" data-k="c5"><span>마스킹으로 가고정합니다</span></label></li>
+    </ul>
+    <div class="note"><strong>장치와 천</strong>은 중심에 둡니다. 40 cm 장치, 33 cm 천입니다. 마커 안쪽 변이 천을 밟지 않아야 합니다.</div>
+  </div>
+</section>
+
+<!-- ═══════════ 관문 ═══════════ -->
+<section class="step gate">
+  <div class="when">T+1:05<small>20분</small></div>
+  <div class="body">
+    <h2>통과 확인</h2>
+    <p class="why">여기를 통과해야 다음으로 갑니다. 안 되면 나머지를 전부 버리고 여기에 매답니다.</p>
+    <div class="cmd"><code>.../ar.html?debug=1</code><button data-copy="https://jwyang29.github.io/raonsum-chandelier/ar.html?debug=1">복사</button></div>
+    <ul class="checks">
+      <li><label><input type="checkbox" data-k="d1"><span><b>보이는 마커</b> 가 2 에서 4 사이</span></label></li>
+      <li><label><input type="checkbox" data-k="d2"><span><b>번호</b> 가 0 7 44 63 중에서만 뜹니다. 다른 번호가 섞이면 오검출입니다.</span></label></li>
+      <li><label><input type="checkbox" data-k="d3"><span><b>서로 어긋남</b> 이 8 cm 미만. 잘 맞으면 2~3 cm 가 나옵니다.</span></label></li>
+      <li><label><input type="checkbox" data-k="d4"><span><b>마커 한 변</b> 이 0.1 (또는 실측한 값)</span></label></li>
+      <li><label><input type="checkbox" data-k="d5"><span>좌대를 한 바퀴 돌며 네 방향 전부에서 같은 값이 나옵니다</span></label></li>
+    </ul>
+    <div class="note stop"><strong>안 될 때</strong><br>
+      아예 안 잡힘 → 조명입니다. 밝기를 올리고 각도를 바꿉니다. 폰 렌즈를 닦습니다.<br>
+      어긋남이 큼 → 마커 위치나 방향이 틀렸습니다. 기준선과 R 을 다시 잽니다.<br>
+      엉뚱한 번호 → 근처에 마커를 닮은 것이 있는지 봅니다. 포스터, 다른 QR, 격자무늬.<br>
+      크기가 이상 → 인쇄 배율입니다. <code>?msize=0.097</code> 처럼 실측값을 넣습니다.
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ 5 ═══════════ -->
+<section class="step">
+  <div class="when">T+1:25<small>40분</small></div>
+  <div class="body">
+    <h2>보정을 확정</h2>
+    <p class="why">폰 주소줄로 먼저 시험하고, 맞으면 노트북에서 못박습니다. 못박아야 모든 관객 폰에 적용됩니다.</p>
+    <ul class="checks">
+      <li><label><input type="checkbox" data-k="e1"><span>폰에서 먼저 시험합니다. 주소 뒤에 <code>?ped=1.02&amp;pedh=0.30</code> 처럼 붙입니다.</span></label></li>
+      <li><label><input type="checkbox" data-k="e2"><span>네 장이 완벽한 정사각형이 아니면 한 장씩 적습니다. <code>?fm=0,0.42,0;-0.41,0,2;0,-0.43,0;0.42,0,-1</code> 순서는 0 / 7 / 44 / 63 이고 각각 x, z, yaw 입니다.</span></label></li>
+      <li><label><input type="checkbox" data-k="e3"><span>화면이 맞으면 노트북에서 못박습니다</span></label></li>
+      <li><label><input type="checkbox" data-k="e4"><span><b>다른 폰에서 파라미터 없이</b> 열어 확인합니다. <code>현장 보정</code> 줄에 값이 떠야 합니다.</span></label></li>
+      <li><label><input type="checkbox" data-k="e5"><span>마커를 완전히 고정합니다. 네 변을 투명테이프로 눌러 들뜨지 않게 합니다.</span></label></li>
+    </ul>
+    <div class="cmd"><code>python3 hub/setcal.py --ped 1.02 --pedh 0.30 --floorceiling 3.25</code><button data-copy="python3 hub/setcal.py --ped 1.02 --pedh 0.30 --floorceiling 3.25">복사</button></div>
+    <div class="cmd"><code>python3 hub/setcal.py --show</code><button data-copy="python3 hub/setcal.py --show">복사</button></div>
+    <div class="note warn"><strong>적은 것만 바뀝니다.</strong> 안 적은 항목은 그대로 남습니다. 꼬이면 <code>--clear</code> 로 전부 지우고 다시 시작하세요.</div>
+  </div>
+</section>
+
+<div class="cut">여기까지면 전시가 돌아갑니다. 시간이 모자라면 아래는 버립니다</div>
+
+<!-- ═══════════ 6 ═══════════ -->
+<section class="step">
+  <div class="when">T+2:05<small>45분</small></div>
+  <div class="body">
+    <h2>큐브를 완성</h2>
+    <p class="why">반쯤 만들어 오신 것을 마무리합니다. 큐브는 관객이 폰을 들어 위를 볼 때 쓰입니다. 없으면 그 순간 자이로로만 버팁니다.</p>
+    <ul class="checks">
+      <li><label><input type="checkbox" data-k="f1"><span>면끼리 풀로 붙입니다. 한 변이 <b>13.0 / 13.5 / 16.0 cm</b> 입니다.</span></label></li>
+      <li><label><input type="checkbox" data-k="f2"><span>모서리가 들뜨지 않게 합니다. 면이 휘면 마커가 비뚤어져 읽힙니다.</span></label></li>
+      <li><label><input type="checkbox" data-k="f3"><span>윗면 구멍 두 곳에 낚싯줄을 꿰어 둡니다</span></label></li>
+    </ul>
+  </div>
+</section>
+
+<!-- ═══════════ 7 ═══════════ -->
+<section class="step">
+  <div class="when">T+2:50<small>40분</small></div>
+  <div class="body">
+    <h2>큐브를 매단다</h2>
+    <ul class="checks">
+      <li><label><input type="checkbox" data-k="g1"><span>바닥에서 <b>1.25 / 2.15 / 3.05 m</b>. 좌대 중심축 위에 수직으로 겹쳐 답니다.</span></label></li>
+      <li><label><input type="checkbox" data-k="g2"><span>낚싯줄을 <b>팽팽하게</b> 당겨 테이프로 고정합니다. 큐브가 흔들리면 바닥 마커가 안 보일 때 샹들리에도 같이 흔들립니다.</span></label></li>
+      <li><label><input type="checkbox" data-k="g3"><span>매단 뒤 실제 높이를 다시 잽니다. 줄이 늘어나 계획보다 내려옵니다.</span></label></li>
+      <li><label><input type="checkbox" data-k="g4"><span>실측 높이를 못박습니다</span></label></li>
+    </ul>
+    <div class="cmd"><code>python3 hub/setcal.py --cubey 1.22 2.10 3.00</code><button data-copy="python3 hub/setcal.py --cubey 1.22 2.10 3.00">복사</button></div>
+  </div>
+</section>
+
+<!-- ═══════════ 8 ═══════════ -->
+<section class="step">
+  <div class="when">T+3:30<small>20분</small></div>
+  <div class="body">
+    <h2>큐브까지 확인</h2>
+    <ul class="checks">
+      <li><label><input type="checkbox" data-k="h1"><span>폰을 들어 위를 봤을 때 <code>번호</code> 에 큐브 번호가 뜹니다</span></label></li>
+      <li><label><input type="checkbox" data-k="h2"><span><code>보이는 마커</code> 옆에 (큐브) 가 뜨고 샹들리에가 제자리에 머뭅니다</span></label></li>
+      <li><label><input type="checkbox" data-k="h3"><span>바닥에서 위로 천천히 올려다볼 때 끊기는 구간이 없습니다</span></label></li>
+    </ul>
+    <div class="note"><strong>바닥이 보이면 바닥만 씁니다.</strong> 큐브는 매달려 따로 흔들리므로 섞지 않습니다. 바닥이 하나도 안 보일 때만 큐브로 넘어갑니다.</div>
+  </div>
+</section>
+
+<!-- ═══════════ 9 ═══════════ -->
+<section class="step">
+  <div class="when">T+3:50<small>20분</small></div>
+  <div class="body">
+    <h2>QR 과 안내문</h2>
+    <ul class="checks">
+      <li><label><input type="checkbox" data-k="i1"><span>QR 을 붙입니다. 상판에 붙인다면 <b>회색 128~150</b> 으로 뽑은 것이어야 하고 마커에서 최대한 멀리 둡니다. 좌대 옆면이나 따로 세운 라벨이면 검정도 괜찮습니다.</span></label></li>
+      <li><label><input type="checkbox" data-k="i2"><span><b>붙인 뒤 다시 <code>?debug=1</code></b> 로 보고 <code>번호</code> 에 엉뚱한 것이 안 뜨는지 확인합니다</span></label></li>
+      <li><label><input type="checkbox" data-k="i3"><span>QR 이 실제로 찍히는지 폰으로 시험합니다. 어두운 데서도 찍혀야 합니다.</span></label></li>
+      <li><label><input type="checkbox" data-k="i4"><span>무인 기간 안내문을 붙입니다. 11/14, 11/15 오후 2시에서 5시 사이에 작가가 직접 시연한다는 것을 적습니다.</span></label></li>
+    </ul>
+    <div class="cmd"><code>https://jwyang29.github.io/raonsum-chandelier/</code><button data-copy="https://jwyang29.github.io/raonsum-chandelier/">복사</button></div>
+  </div>
+</section>
+
+<!-- ═══════════ 10 ═══════════ -->
+<section class="step">
+  <div class="when">T+4:10<small>25분</small></div>
+  <div class="body">
+    <h2>관객이 보는 그대로 본다</h2>
+    <p class="why">파라미터를 전부 뺀 주소로 봅니다. 지금까지 본 것은 전부 보정 패널이 켜진 화면이었습니다.</p>
+    <ul class="checks">
+      <li><label><input type="checkbox" data-k="j1"><span>네 방향 × 세 거리 (0.6 / 1.2 / 2.0 m) 에서 봅니다</span></label></li>
+      <li><label><input type="checkbox" data-k="j2"><span><b>폰 두 대를 같은 자리에</b> 두고 같은 것이 보이는지 확인합니다</span></label></li>
+      <li><label><input type="checkbox" data-k="j3"><span>크리스탈 102개가 다 뜨고, 올라가다 멈춘 5개가 중간 높이에 보입니다</span></label></li>
+      <li><label><input type="checkbox" data-k="j4"><span>전시장 와이파이로 처음부터 끝까지 열어 봅니다. 폰 데이터를 끄고 합니다.</span></label></li>
+      <li><label><input type="checkbox" data-k="j5"><span>페이지가 처음 뜨는 데 몇 초 걸리는지 봅니다. 느리면 안내문에 적어 둡니다.</span></label></li>
+    </ul>
+  </div>
+</section>
+
+<section class="step">
+  <div class="when">T+4:35<small>25분</small></div>
+  <div class="body">
+    <h2>버퍼</h2>
+    <p class="why">여기까지 쓰지 않았다면 큐브 매단 높이를 다시 재거나, 조명을 한 번 더 다듬으세요.</p>
+  </div>
+</section>
+
+<!-- ═══════════ 참고 ═══════════ -->
+<div class="ref">
+  <h2>참고</h2>
+
+  <h3>주소</h3>
+  <dl class="codes">
+    <dt>관객</dt><dd>https://jwyang29.github.io/raonsum-chandelier/</dd>
+    <dt>진단</dt><dd>.../ar.html?debug=1</dd>
+    <dt>배치 안내선</dt><dd>.../ar.html?debug=1&amp;guide=1</dd>
+    <dt>큐브 끄고 시험</dt><dd>.../ar.html?debug=1&amp;cubes=0</dd>
+  </dl>
+
+  <h3>마커 번호</h3>
+  <dl class="codes">
+    <dt>0</dt><dd>바닥. 관객이 서는 쪽</dd>
+    <dt>63</dt><dd>바닥. 0번에서 볼 때 오른쪽</dd>
+    <dt>44</dt><dd>바닥. 0번 맞은편</dd>
+    <dt>7</dt><dd>바닥. 0번에서 볼 때 왼쪽</dd>
+    <dt>21 52 50 38 11</dt><dd>큐브 1 (1.25 m)</dd>
+    <dt>14 13 28 41 19</dt><dd>큐브 2 (2.15 m)</dd>
+    <dt>42 49 56 25 22</dt><dd>큐브 3 (3.05 m)</dd>
+    <dt>26</dt><dd>천장. 지금은 꺼져 있음</dd>
+  </dl>
+
+  <h3>검은 사각형 크기</h3>
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>인쇄물</th><th>검은 사각형</th><th>흰 여백 포함</th></tr></thead>
+      <tbody>
+        <tr><td>바닥 4장</td><td class="num">100.0 mm</td><td>150 mm</td></tr>
+        <tr><td>큐브1 5장</td><td class="num">86.7 mm</td><td>130 mm</td></tr>
+        <tr><td>큐브2 5장</td><td class="num">90.0 mm</td><td>135 mm</td></tr>
+        <tr><td>큐브3 5장</td><td class="num">106.7 mm</td><td>160 mm</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>보정 명령</h3>
+  <div class="cmd"><code>python3 hub/setcal.py --show</code><button data-copy="python3 hub/setcal.py --show">복사</button></div>
+  <div class="cmd"><code>python3 hub/setcal.py --clear</code><button data-copy="python3 hub/setcal.py --clear">복사</button></div>
+  <p>쓸 수 있는 항목: <code>--ped</code> 좌대 지름, <code>--pedh</code> 좌대 높이, <code>--floorceiling</code> 바닥에서 천장까지, <code>--msize</code> 검은 사각형 한 변, <code>--mring</code> 마커 반지름, <code>--fm</code> 네 장 개별 위치, <code>--cubey</code> 큐브 세 개 높이, <code>--headroom</code> 샹들리에 시작 높이</p>
+
+  <h3>아직 안 한 것</h3>
+  <p>ESP32 센서부와 허브의 연결 시험이 아직 한 번도 안 됐습니다. 무인 기간에는 필요 없지만 <b>11월 14일 시연 전에</b> 반드시 해야 합니다. 지금 Firebase 에 있는 102개는 전부 미리 넣은 것이고, 관객이 그린 것은 0개입니다.</p>
+</div>
+
+<div class="foot">
+  양지원 · Facets Between Us · 라온숨 2026<br>
+  숫자의 출처는 web/config.js 입니다. 여기와 다르면 config.js 가 맞습니다.
+</div>
+
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var KEY = "fbu-install-v1";
+  var store = {};
+  function load(){ try{ store = JSON.parse(localStorage.getItem(KEY) || "{}") || {}; }catch(e){ store = {}; } }
+  function save(){ try{ localStorage.setItem(KEY, JSON.stringify(store)); }catch(e){} }
+  load();
+
+  var boxes = Array.prototype.slice.call(document.querySelectorAll("ul.checks input[type=checkbox]"));
+  var prog  = document.getElementById("prog");
+
+  function paint(){ prog.textContent = boxes.filter(function(b){return b.checked;}).length + " / " + boxes.length; }
+
+  boxes.forEach(function(b){
+    var k = b.getAttribute("data-k");
+    b.id = "chk-" + k;
+    if (store[k]) b.checked = true;
+    b.addEventListener("change", function(){
+      if (b.checked) store[k] = 1; else delete store[k];
+      save(); paint();
+    });
+  });
+  paint();
+
+  // ── 경과 시간 ──────────────────────────────
+  var clock = document.getElementById("clock");
+  var goBtn = document.getElementById("go");
+  var timer = null;
+
+  function tick(){
+    if (!store.__t0){ clock.textContent = "T+0:00"; clock.classList.add("off"); return; }
+    var s = Math.max(0, Math.floor((Date.now() - store.__t0) / 1000));
+    var h = Math.floor(s / 3600), m = Math.floor(s / 60) % 60;
+    clock.textContent = "T+" + h + ":" + String(m).padStart(2, "0");
+    clock.classList.remove("off");
+  }
+  function sync(){
+    if (timer) clearInterval(timer);
+    if (store.__t0){ goBtn.textContent = "시계 정지"; timer = setInterval(tick, 10000); }
+    else { goBtn.textContent = "시작"; }
+    tick();
+  }
+  goBtn.addEventListener("click", function(){
+    if (store.__t0) delete store.__t0; else store.__t0 = Date.now();
+    save(); sync();
+  });
+  sync();
+
+  document.getElementById("reset").addEventListener("click", function(){
+    store = {}; save();
+    boxes.forEach(function(b){ b.checked = false; });
+    paint(); sync();
+  });
+
+  // ── 복사 ───────────────────────────────────
+  document.addEventListener("click", function(ev){
+    var btn = ev.target.closest("button[data-copy]");
+    if (!btn) return;
+    var text = btn.getAttribute("data-copy");
+    var done = function(){
+      var old = btn.textContent;
+      btn.textContent = "복사됨";
+      setTimeout(function(){ btn.textContent = old; }, 1200);
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(done, select);
+    } else { select(); }
+    function select(){
+      var code = btn.parentNode.querySelector("code");
+      if (!code) return;
+      var r = document.createRange(); r.selectNodeContents(code);
+      var sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(r);
+      btn.textContent = "선택됨";
+      setTimeout(function(){ btn.textContent = "복사"; }, 1400);
+    }
+  });
+})();
+</script>
