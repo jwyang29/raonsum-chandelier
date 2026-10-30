@@ -77,7 +77,10 @@ python3 -m http.server 5604 --directory web
 | 파일 | 내용 |
 |---|---|
 | `RAONSUM_markers_A4_ALL.pdf` | **마커 전부. A4 24장 한 파일.** 1쪽이 차례다 |
-| `RAONSUM_marker_layout_A4.svg` | **배치도 한 장.** 평면도, 옆면도, 큐브 자리와 면 번호. 브라우저에서 인쇄 |
+| `RAONSUM_layout_1_floor_A4.svg` | **바닥 배치도.** 실제 마커 그림으로 그렸다. 실측값 적는 칸 포함 |
+| `RAONSUM_layout_2_cubes_A4.svg` | **큐브 면 배치도.** 열다섯 면의 실제 그림 |
+
+배치도 두 장은 `markers/layout_preview.html` 을 브라우저에서 열어 인쇄한다.
 
 합친 파일의 구성이다.
 

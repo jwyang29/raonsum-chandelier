@@ -1,0 +1,420 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="210.0mm" height="297.0mm" viewBox="0 0 210.0 297.0">
+<rect width="210.0" height="297.0" fill="#fff"/>
+<text x="14.00" y="17.00" font-size="6.0" fill="#15181c" font-weight="700" text-anchor="start" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">매단 큐브 면 배치</text>
+<text x="196.00" y="17.00" font-size="3.0" fill="#6b7784" font-weight="400" text-anchor="end" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">A4</text>
+<text x="14.00" y="23.00" font-size="2.9" fill="#6b7784" font-weight="400" text-anchor="start" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">큐브마다 옆면 넷 + 밑면 하나. 윗면은 마커 없이 낚싯줄 구멍만 있습니다.</text>
+<line x1="14.00" y1="27.00" x2="196.00" y2="27.00" stroke="#d6dbe0" stroke-width="0.3"/>
+<text x="14.00" y="37.00" font-size="4.4" fill="#15181c" font-weight="700" text-anchor="start" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">큐브 1</text>
+<text x="37.00" y="37.00" font-size="3.0" fill="#6b7784" font-weight="400" text-anchor="start" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">바닥 1.25 m</text>
+<text x="196.00" y="37.00" font-size="2.8" fill="#6b7784" font-weight="400" text-anchor="end" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">한 변 130 mm   검은 사각형 86.7 mm</text>
+<line x1="14.00" y1="41.50" x2="196.00" y2="41.50" stroke="#d6dbe0" stroke-width="0.3"/>
+<text x="32.20" y="47.50" font-size="3.0" fill="#15181c" font-weight="700" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">+Z</text>
+<rect x="19.70" y="50.00" width="25.00" height="25.00" fill="#fff" stroke="#d6dbe0" stroke-width="0.25"/>
+<rect x="23.867" y="54.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="27.200" y="54.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="30.533" y="54.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="33.867" y="54.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="37.200" y="54.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="23.867" y="57.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="27.200" y="57.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="33.867" y="57.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="37.200" y="57.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="23.867" y="60.833" width="3.363" height="3.363" fill="#333"/>
+<rect x="30.533" y="60.833" width="3.363" height="3.363" fill="#333"/>
+<rect x="37.200" y="60.833" width="3.363" height="3.363" fill="#333"/>
+<rect x="23.867" y="64.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="27.200" y="64.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="30.533" y="64.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="37.200" y="64.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="23.867" y="67.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="27.200" y="67.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="30.533" y="67.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="33.867" y="67.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="37.200" y="67.500" width="3.363" height="3.363" fill="#333"/>
+<text x="32.20" y="79.00" font-size="3.0" fill="#15181c" font-weight="700" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">21</text>
+<text x="32.20" y="83.50" font-size="2.5" fill="#6b7784" font-weight="400" text-anchor="middle" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">바닥 0 쪽</text>
+<text x="68.60" y="47.50" font-size="3.0" fill="#15181c" font-weight="700" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">+X</text>
+<rect x="56.10" y="50.00" width="25.00" height="25.00" fill="#fff" stroke="#d6dbe0" stroke-width="0.25"/>
+<rect x="60.267" y="54.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="63.600" y="54.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="66.933" y="54.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="70.267" y="54.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="73.600" y="54.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="60.267" y="57.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="63.600" y="57.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="66.933" y="57.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="70.267" y="57.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="73.600" y="57.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="60.267" y="60.833" width="3.363" height="3.363" fill="#333"/>
+<rect x="66.933" y="60.833" width="3.363" height="3.363" fill="#333"/>
+<rect x="73.600" y="60.833" width="3.363" height="3.363" fill="#333"/>
+<rect x="60.267" y="64.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="63.600" y="64.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="73.600" y="64.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="60.267" y="67.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="63.600" y="67.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="66.933" y="67.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="70.267" y="67.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="73.600" y="67.500" width="3.363" height="3.363" fill="#333"/>
+<text x="68.60" y="79.00" font-size="3.0" fill="#15181c" font-weight="700" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">52</text>
+<text x="68.60" y="83.50" font-size="2.5" fill="#6b7784" font-weight="400" text-anchor="middle" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">바닥 63 쪽</text>
+<text x="105.00" y="47.50" font-size="3.0" fill="#15181c" font-weight="700" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">-Z</text>
+<rect x="92.50" y="50.00" width="25.00" height="25.00" fill="#fff" stroke="#d6dbe0" stroke-width="0.25"/>
+<rect x="96.667" y="54.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="100.000" y="54.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="103.333" y="54.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="106.667" y="54.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="110.000" y="54.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="96.667" y="57.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="100.000" y="57.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="103.333" y="57.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="106.667" y="57.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="110.000" y="57.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="96.667" y="60.833" width="3.363" height="3.363" fill="#333"/>
+<rect x="106.667" y="60.833" width="3.363" height="3.363" fill="#333"/>
+<rect x="110.000" y="60.833" width="3.363" height="3.363" fill="#333"/>
+<rect x="96.667" y="64.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="100.000" y="64.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="110.000" y="64.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="96.667" y="67.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="100.000" y="67.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="103.333" y="67.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="106.667" y="67.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="110.000" y="67.500" width="3.363" height="3.363" fill="#333"/>
+<text x="105.00" y="79.00" font-size="3.0" fill="#15181c" font-weight="700" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">50</text>
+<text x="105.00" y="83.50" font-size="2.5" fill="#6b7784" font-weight="400" text-anchor="middle" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">바닥 44 쪽</text>
+<text x="141.40" y="47.50" font-size="3.0" fill="#15181c" font-weight="700" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">-X</text>
+<rect x="128.90" y="50.00" width="25.00" height="25.00" fill="#fff" stroke="#d6dbe0" stroke-width="0.25"/>
+<rect x="133.067" y="54.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="136.400" y="54.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="139.733" y="54.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="143.067" y="54.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="146.400" y="54.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="133.067" y="57.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="136.400" y="57.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="139.733" y="57.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="146.400" y="57.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="133.067" y="60.833" width="3.363" height="3.363" fill="#333"/>
+<rect x="139.733" y="60.833" width="3.363" height="3.363" fill="#333"/>
+<rect x="143.067" y="60.833" width="3.363" height="3.363" fill="#333"/>
+<rect x="146.400" y="60.833" width="3.363" height="3.363" fill="#333"/>
+<rect x="133.067" y="64.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="136.400" y="64.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="146.400" y="64.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="133.067" y="67.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="136.400" y="67.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="139.733" y="67.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="143.067" y="67.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="146.400" y="67.500" width="3.363" height="3.363" fill="#333"/>
+<text x="141.40" y="79.00" font-size="3.0" fill="#15181c" font-weight="700" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">38</text>
+<text x="141.40" y="83.50" font-size="2.5" fill="#6b7784" font-weight="400" text-anchor="middle" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">바닥 7 쪽</text>
+<text x="177.80" y="47.50" font-size="3.0" fill="#c2185b" font-weight="700" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">밑면</text>
+<rect x="165.30" y="50.00" width="25.00" height="25.00" fill="#fff" stroke="#d6dbe0" stroke-width="0.25"/>
+<rect x="169.467" y="54.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="172.800" y="54.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="176.133" y="54.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="179.467" y="54.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="182.800" y="54.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="169.467" y="57.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="172.800" y="57.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="182.800" y="57.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="169.467" y="60.833" width="3.363" height="3.363" fill="#333"/>
+<rect x="172.800" y="60.833" width="3.363" height="3.363" fill="#333"/>
+<rect x="179.467" y="60.833" width="3.363" height="3.363" fill="#333"/>
+<rect x="182.800" y="60.833" width="3.363" height="3.363" fill="#333"/>
+<rect x="169.467" y="64.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="172.800" y="64.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="176.133" y="64.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="182.800" y="64.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="169.467" y="67.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="172.800" y="67.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="176.133" y="67.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="179.467" y="67.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="182.800" y="67.500" width="3.363" height="3.363" fill="#333"/>
+<text x="177.80" y="79.00" font-size="3.0" fill="#15181c" font-weight="700" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">11</text>
+<text x="177.80" y="83.50" font-size="2.5" fill="#6b7784" font-weight="400" text-anchor="middle" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">똑바로 아래</text>
+<text x="14.00" y="91.00" font-size="4.4" fill="#15181c" font-weight="700" text-anchor="start" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">큐브 2</text>
+<text x="37.00" y="91.00" font-size="3.0" fill="#6b7784" font-weight="400" text-anchor="start" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">바닥 2.15 m</text>
+<text x="196.00" y="91.00" font-size="2.8" fill="#6b7784" font-weight="400" text-anchor="end" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">한 변 135 mm   검은 사각형 90.0 mm</text>
+<line x1="14.00" y1="95.50" x2="196.00" y2="95.50" stroke="#d6dbe0" stroke-width="0.3"/>
+<text x="32.20" y="101.50" font-size="3.0" fill="#15181c" font-weight="700" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">+Z</text>
+<rect x="19.70" y="104.00" width="25.00" height="25.00" fill="#fff" stroke="#d6dbe0" stroke-width="0.25"/>
+<rect x="23.867" y="108.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="27.200" y="108.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="30.533" y="108.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="33.867" y="108.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="37.200" y="108.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="23.867" y="111.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="27.200" y="111.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="37.200" y="111.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="23.867" y="114.833" width="3.363" height="3.363" fill="#333"/>
+<rect x="27.200" y="114.833" width="3.363" height="3.363" fill="#333"/>
+<rect x="30.533" y="114.833" width="3.363" height="3.363" fill="#333"/>
+<rect x="33.867" y="114.833" width="3.363" height="3.363" fill="#333"/>
+<rect x="37.200" y="114.833" width="3.363" height="3.363" fill="#333"/>
+<rect x="23.867" y="118.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="27.200" y="118.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="37.200" y="118.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="23.867" y="121.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="27.200" y="121.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="30.533" y="121.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="33.867" y="121.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="37.200" y="121.500" width="3.363" height="3.363" fill="#333"/>
+<text x="32.20" y="133.00" font-size="3.0" fill="#15181c" font-weight="700" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">14</text>
+<text x="32.20" y="137.50" font-size="2.5" fill="#6b7784" font-weight="400" text-anchor="middle" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">바닥 0 쪽</text>
+<text x="68.60" y="101.50" font-size="3.0" fill="#15181c" font-weight="700" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">+X</text>
+<rect x="56.10" y="104.00" width="25.00" height="25.00" fill="#fff" stroke="#d6dbe0" stroke-width="0.25"/>
+<rect x="60.267" y="108.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="63.600" y="108.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="66.933" y="108.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="70.267" y="108.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="73.600" y="108.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="60.267" y="111.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="63.600" y="111.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="73.600" y="111.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="60.267" y="114.833" width="3.363" height="3.363" fill="#333"/>
+<rect x="63.600" y="114.833" width="3.363" height="3.363" fill="#333"/>
+<rect x="66.933" y="114.833" width="3.363" height="3.363" fill="#333"/>
+<rect x="73.600" y="114.833" width="3.363" height="3.363" fill="#333"/>
+<rect x="60.267" y="118.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="63.600" y="118.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="66.933" y="118.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="73.600" y="118.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="60.267" y="121.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="63.600" y="121.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="66.933" y="121.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="70.267" y="121.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="73.600" y="121.500" width="3.363" height="3.363" fill="#333"/>
+<text x="68.60" y="133.00" font-size="3.0" fill="#15181c" font-weight="700" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">13</text>
+<text x="68.60" y="137.50" font-size="2.5" fill="#6b7784" font-weight="400" text-anchor="middle" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">바닥 63 쪽</text>
+<text x="105.00" y="101.50" font-size="3.0" fill="#15181c" font-weight="700" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">-Z</text>
+<rect x="92.50" y="104.00" width="25.00" height="25.00" fill="#fff" stroke="#d6dbe0" stroke-width="0.25"/>
+<rect x="96.667" y="108.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="100.000" y="108.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="103.333" y="108.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="106.667" y="108.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="110.000" y="108.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="96.667" y="111.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="100.000" y="111.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="106.667" y="111.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="110.000" y="111.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="96.667" y="114.833" width="3.363" height="3.363" fill="#333"/>
+<rect x="100.000" y="114.833" width="3.363" height="3.363" fill="#333"/>
+<rect x="103.333" y="114.833" width="3.363" height="3.363" fill="#333"/>
+<rect x="110.000" y="114.833" width="3.363" height="3.363" fill="#333"/>
+<rect x="96.667" y="118.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="100.000" y="118.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="110.000" y="118.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="96.667" y="121.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="100.000" y="121.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="103.333" y="121.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="106.667" y="121.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="110.000" y="121.500" width="3.363" height="3.363" fill="#333"/>
+<text x="105.00" y="133.00" font-size="3.0" fill="#15181c" font-weight="700" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">28</text>
+<text x="105.00" y="137.50" font-size="2.5" fill="#6b7784" font-weight="400" text-anchor="middle" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">바닥 44 쪽</text>
+<text x="141.40" y="101.50" font-size="3.0" fill="#15181c" font-weight="700" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">-X</text>
+<rect x="128.90" y="104.00" width="25.00" height="25.00" fill="#fff" stroke="#d6dbe0" stroke-width="0.25"/>
+<rect x="133.067" y="108.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="136.400" y="108.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="139.733" y="108.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="143.067" y="108.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="146.400" y="108.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="133.067" y="111.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="136.400" y="111.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="139.733" y="111.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="146.400" y="111.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="133.067" y="114.833" width="3.363" height="3.363" fill="#333"/>
+<rect x="136.400" y="114.833" width="3.363" height="3.363" fill="#333"/>
+<rect x="146.400" y="114.833" width="3.363" height="3.363" fill="#333"/>
+<rect x="133.067" y="118.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="136.400" y="118.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="139.733" y="118.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="146.400" y="118.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="133.067" y="121.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="136.400" y="121.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="139.733" y="121.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="143.067" y="121.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="146.400" y="121.500" width="3.363" height="3.363" fill="#333"/>
+<text x="141.40" y="133.00" font-size="3.0" fill="#15181c" font-weight="700" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">41</text>
+<text x="141.40" y="137.50" font-size="2.5" fill="#6b7784" font-weight="400" text-anchor="middle" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">바닥 7 쪽</text>
+<text x="177.80" y="101.50" font-size="3.0" fill="#c2185b" font-weight="700" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">밑면</text>
+<rect x="165.30" y="104.00" width="25.00" height="25.00" fill="#fff" stroke="#d6dbe0" stroke-width="0.25"/>
+<rect x="169.467" y="108.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="172.800" y="108.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="176.133" y="108.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="179.467" y="108.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="182.800" y="108.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="169.467" y="111.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="172.800" y="111.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="179.467" y="111.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="182.800" y="111.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="169.467" y="114.833" width="3.363" height="3.363" fill="#333"/>
+<rect x="179.467" y="114.833" width="3.363" height="3.363" fill="#333"/>
+<rect x="182.800" y="114.833" width="3.363" height="3.363" fill="#333"/>
+<rect x="169.467" y="118.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="172.800" y="118.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="176.133" y="118.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="182.800" y="118.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="169.467" y="121.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="172.800" y="121.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="176.133" y="121.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="179.467" y="121.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="182.800" y="121.500" width="3.363" height="3.363" fill="#333"/>
+<text x="177.80" y="133.00" font-size="3.0" fill="#15181c" font-weight="700" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">19</text>
+<text x="177.80" y="137.50" font-size="2.5" fill="#6b7784" font-weight="400" text-anchor="middle" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">똑바로 아래</text>
+<text x="14.00" y="145.00" font-size="4.4" fill="#15181c" font-weight="700" text-anchor="start" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">큐브 3</text>
+<text x="37.00" y="145.00" font-size="3.0" fill="#6b7784" font-weight="400" text-anchor="start" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">바닥 3.05 m</text>
+<text x="196.00" y="145.00" font-size="2.8" fill="#6b7784" font-weight="400" text-anchor="end" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">한 변 160 mm   검은 사각형 106.7 mm</text>
+<line x1="14.00" y1="149.50" x2="196.00" y2="149.50" stroke="#d6dbe0" stroke-width="0.3"/>
+<text x="32.20" y="155.50" font-size="3.0" fill="#15181c" font-weight="700" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">+Z</text>
+<rect x="19.70" y="158.00" width="25.00" height="25.00" fill="#fff" stroke="#d6dbe0" stroke-width="0.25"/>
+<rect x="23.867" y="162.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="27.200" y="162.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="30.533" y="162.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="33.867" y="162.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="37.200" y="162.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="23.867" y="165.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="27.200" y="165.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="30.533" y="165.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="37.200" y="165.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="23.867" y="168.833" width="3.363" height="3.363" fill="#333"/>
+<rect x="27.200" y="168.833" width="3.363" height="3.363" fill="#333"/>
+<rect x="33.867" y="168.833" width="3.363" height="3.363" fill="#333"/>
+<rect x="37.200" y="168.833" width="3.363" height="3.363" fill="#333"/>
+<rect x="23.867" y="172.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="27.200" y="172.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="37.200" y="172.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="23.867" y="175.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="27.200" y="175.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="30.533" y="175.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="33.867" y="175.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="37.200" y="175.500" width="3.363" height="3.363" fill="#333"/>
+<text x="32.20" y="187.00" font-size="3.0" fill="#15181c" font-weight="700" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">42</text>
+<text x="32.20" y="191.50" font-size="2.5" fill="#6b7784" font-weight="400" text-anchor="middle" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">바닥 0 쪽</text>
+<text x="68.60" y="155.50" font-size="3.0" fill="#15181c" font-weight="700" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">+X</text>
+<rect x="56.10" y="158.00" width="25.00" height="25.00" fill="#fff" stroke="#d6dbe0" stroke-width="0.25"/>
+<rect x="60.267" y="162.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="63.600" y="162.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="66.933" y="162.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="70.267" y="162.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="73.600" y="162.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="60.267" y="165.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="63.600" y="165.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="66.933" y="165.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="70.267" y="165.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="73.600" y="165.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="60.267" y="168.833" width="3.363" height="3.363" fill="#333"/>
+<rect x="73.600" y="168.833" width="3.363" height="3.363" fill="#333"/>
+<rect x="60.267" y="172.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="63.600" y="172.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="66.933" y="172.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="73.600" y="172.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="60.267" y="175.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="63.600" y="175.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="66.933" y="175.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="70.267" y="175.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="73.600" y="175.500" width="3.363" height="3.363" fill="#333"/>
+<text x="68.60" y="187.00" font-size="3.0" fill="#15181c" font-weight="700" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">49</text>
+<text x="68.60" y="191.50" font-size="2.5" fill="#6b7784" font-weight="400" text-anchor="middle" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">바닥 63 쪽</text>
+<text x="105.00" y="155.50" font-size="3.0" fill="#15181c" font-weight="700" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">-Z</text>
+<rect x="92.50" y="158.00" width="25.00" height="25.00" fill="#fff" stroke="#d6dbe0" stroke-width="0.25"/>
+<rect x="96.667" y="162.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="100.000" y="162.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="103.333" y="162.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="106.667" y="162.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="110.000" y="162.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="96.667" y="165.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="100.000" y="165.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="103.333" y="165.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="106.667" y="165.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="110.000" y="165.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="96.667" y="168.833" width="3.363" height="3.363" fill="#333"/>
+<rect x="100.000" y="168.833" width="3.363" height="3.363" fill="#333"/>
+<rect x="110.000" y="168.833" width="3.363" height="3.363" fill="#333"/>
+<rect x="96.667" y="172.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="100.000" y="172.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="110.000" y="172.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="96.667" y="175.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="100.000" y="175.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="103.333" y="175.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="106.667" y="175.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="110.000" y="175.500" width="3.363" height="3.363" fill="#333"/>
+<text x="105.00" y="187.00" font-size="3.0" fill="#15181c" font-weight="700" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">56</text>
+<text x="105.00" y="191.50" font-size="2.5" fill="#6b7784" font-weight="400" text-anchor="middle" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">바닥 44 쪽</text>
+<text x="141.40" y="155.50" font-size="3.0" fill="#15181c" font-weight="700" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">-X</text>
+<rect x="128.90" y="158.00" width="25.00" height="25.00" fill="#fff" stroke="#d6dbe0" stroke-width="0.25"/>
+<rect x="133.067" y="162.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="136.400" y="162.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="139.733" y="162.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="143.067" y="162.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="146.400" y="162.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="133.067" y="165.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="136.400" y="165.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="143.067" y="165.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="146.400" y="165.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="133.067" y="168.833" width="3.363" height="3.363" fill="#333"/>
+<rect x="136.400" y="168.833" width="3.363" height="3.363" fill="#333"/>
+<rect x="146.400" y="168.833" width="3.363" height="3.363" fill="#333"/>
+<rect x="133.067" y="172.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="136.400" y="172.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="139.733" y="172.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="146.400" y="172.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="133.067" y="175.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="136.400" y="175.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="139.733" y="175.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="143.067" y="175.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="146.400" y="175.500" width="3.363" height="3.363" fill="#333"/>
+<text x="141.40" y="187.00" font-size="3.0" fill="#15181c" font-weight="700" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">25</text>
+<text x="141.40" y="191.50" font-size="2.5" fill="#6b7784" font-weight="400" text-anchor="middle" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">바닥 7 쪽</text>
+<text x="177.80" y="155.50" font-size="3.0" fill="#c2185b" font-weight="700" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">밑면</text>
+<rect x="165.30" y="158.00" width="25.00" height="25.00" fill="#fff" stroke="#d6dbe0" stroke-width="0.25"/>
+<rect x="169.467" y="162.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="172.800" y="162.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="176.133" y="162.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="179.467" y="162.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="182.800" y="162.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="169.467" y="165.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="172.800" y="165.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="179.467" y="165.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="182.800" y="165.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="169.467" y="168.833" width="3.363" height="3.363" fill="#333"/>
+<rect x="176.133" y="168.833" width="3.363" height="3.363" fill="#333"/>
+<rect x="179.467" y="168.833" width="3.363" height="3.363" fill="#333"/>
+<rect x="182.800" y="168.833" width="3.363" height="3.363" fill="#333"/>
+<rect x="169.467" y="172.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="172.800" y="172.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="182.800" y="172.167" width="3.363" height="3.363" fill="#333"/>
+<rect x="169.467" y="175.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="172.800" y="175.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="176.133" y="175.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="179.467" y="175.500" width="3.363" height="3.363" fill="#333"/>
+<rect x="182.800" y="175.500" width="3.363" height="3.363" fill="#333"/>
+<text x="177.80" y="187.00" font-size="3.0" fill="#15181c" font-weight="700" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">22</text>
+<text x="177.80" y="191.50" font-size="2.5" fill="#6b7784" font-weight="400" text-anchor="middle" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">똑바로 아래</text>
+<line x1="14.00" y1="199.00" x2="196.00" y2="199.00" stroke="#d6dbe0" stroke-width="0.3"/>
+<text x="14.00" y="206.00" font-size="3.6" fill="#15181c" font-weight="700" text-anchor="start" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">붙이는 방향</text>
+<text x="14.00" y="212.00" font-size="3.1" fill="#15181c" font-weight="600" text-anchor="start" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">•  옆면 넷</text>
+<text x="33.00" y="212.00" font-size="2.8" fill="#6b7784" font-weight="400" text-anchor="start" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">인쇄물 위쪽이 천장을 향하게. 각 면이 적힌 바닥 마커를 바라보게.</text>
+<text x="14.00" y="217.20" font-size="3.1" fill="#15181c" font-weight="600" text-anchor="start" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">•  밑면</text>
+<text x="33.00" y="217.20" font-size="2.8" fill="#6b7784" font-weight="400" text-anchor="start" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">인쇄물 위쪽이 44번 반대쪽을 향하게. 똑바로 아래를 봅니다.</text>
+<text x="14.00" y="222.40" font-size="3.1" fill="#15181c" font-weight="600" text-anchor="start" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">•  윗면</text>
+<text x="33.00" y="222.40" font-size="2.8" fill="#6b7784" font-weight="400" text-anchor="start" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">마커 없음. 날개는 전부 안쪽으로 접어 바깥엔 마커만 보이게.</text>
+<text x="14.00" y="229.60" font-size="3.1" fill="#15181c" font-weight="700" text-anchor="start" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">밑면이 왜 있나</text>
+<text x="14.00" y="234.40" font-size="2.75" fill="#6b7784" font-weight="400" text-anchor="start" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">옆면은 세워져 있어서, 좌대 바로 앞에 선 사람이 올려다보면 모서리로 보여</text>
+<text x="14.00" y="238.50" font-size="2.75" fill="#6b7784" font-weight="400" text-anchor="start" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">안 읽힙니다. 밑면은 법선이 아래라 그 자세에서 가장 정면으로 보입니다.</text>
+<line x1="14.00" y1="246.60" x2="196.00" y2="246.60" stroke="#d6dbe0" stroke-width="0.3"/>
+<text x="14.00" y="253.10" font-size="3.4" fill="#c2185b" font-weight="700" text-anchor="start" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">매단 뒤 재서 여기 적으세요</text>
+<text x="14.00" y="258.30" font-size="2.8" fill="#6b7784" font-weight="400" text-anchor="start" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">바닥에서 큐브 한가운데까지의 높이입니다. 한 변은 인쇄물이라 못 바꿉니다.</text>
+<text x="14.00" y="265.30" font-size="3.0" fill="#15181c" font-weight="700" text-anchor="start" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">큐브1</text>
+<line x1="30.00" y1="266.30" x2="56.00" y2="266.30" stroke="#9aa5b1" stroke-width="0.35"/>
+<text x="57.00" y="265.30" font-size="2.6" fill="#6b7784" font-weight="400" text-anchor="start" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">m</text>
+<text x="76.00" y="265.30" font-size="3.0" fill="#15181c" font-weight="700" text-anchor="start" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">큐브2</text>
+<line x1="92.00" y1="266.30" x2="118.00" y2="266.30" stroke="#9aa5b1" stroke-width="0.35"/>
+<text x="119.00" y="265.30" font-size="2.6" fill="#6b7784" font-weight="400" text-anchor="start" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">m</text>
+<text x="138.00" y="265.30" font-size="3.0" fill="#15181c" font-weight="700" text-anchor="start" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">큐브3</text>
+<line x1="154.00" y1="266.30" x2="180.00" y2="266.30" stroke="#9aa5b1" stroke-width="0.35"/>
+<text x="181.00" y="265.30" font-size="2.6" fill="#6b7784" font-weight="400" text-anchor="start" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">m</text>
+<text x="14.00" y="274.30" font-size="2.9" fill="#c2185b" font-weight="600" text-anchor="start" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">반드시 두 줄로 매세요. 한 줄이면 줄이 꼬여 큐브가 천천히 돕니다.</text>
+<text x="14.00" y="278.60" font-size="2.75" fill="#6b7784" font-weight="400" text-anchor="start" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">마커가 돌면 샹들리에가 그만큼 통째로 같이 돕니다. 흔들리는 건 (수 cm) 괜찮습니다.</text>
+<text x="14.00" y="288.00" font-size="2.5" fill="#6b7784" font-weight="400" text-anchor="start" font-family="-apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif">raonsum-chandelier / markers/make_layout.py</text>
+</svg>

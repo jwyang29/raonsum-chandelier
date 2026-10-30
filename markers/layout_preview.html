@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="utf-8">
+<title>배치도 미리보기</title>
+<style>
+  /* 브라우저에서 열어 그대로 인쇄하면 A4 두 장이 나온다. */
+  @page { size: A4; margin: 0; }
+  html, body { margin: 0; background: #555; }
+  img { display: block; width: 210mm; height: 297mm; background: #fff;
+        margin: 12px auto; box-shadow: 0 2px 16px rgba(0,0,0,.4); }
+  @media print { html, body { background: #fff; }
+                 img { margin: 0; box-shadow: none; page-break-after: always; } }
+</style></head><body>
+<img src="print/RAONSUM_layout_1_floor_A4.svg" alt="바닥 마커 배치">
+<img src="print/RAONSUM_layout_2_cubes_A4.svg" alt="매단 큐브 면 배치">
+</body></html>
