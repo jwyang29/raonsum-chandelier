@@ -75,6 +75,8 @@ function loadScript(src) {
 }
 if (!PREVIEW) await loadScript("./vendor/aframe-ar.js?v=2");
 
+let CAL_NOTE = "안 읽음";
+
 // 🔴 현장 실측값을 먼저 받아 적용한다. 마커 엘리먼트를 만들기 전이어야 한다.
 //    설치가 끝나면 마커를 못 옮기므로 숫자로 맞추는 길이 유일한데, QR 은 이미
 //    인쇄되어 있고 현장에서 다시 배포하는 것도 불안하다. DB 에 적어 두면
@@ -87,9 +89,15 @@ if (!PREVIEW && FIREBASE.databaseURL && !FIREBASE.databaseURL.includes("PASTE_")
     const cal = await (await fetch(url, { signal: ctl.signal })).json();
     clearTimeout(kill);
     const hit = applyRemoteCal(cal);
-    if (hit.length) console.log(`[cal] 현장 보정값 적용: ${hit.join(", ")}`);
+    // ⚠️ 셋 다 다른 상태다. 현장에서 값을 넣었는데 아무 기별이 없으면
+    //    된 건지 안 된 건지 모른다. 그래서 전부 소리를 낸다.
+    CAL_NOTE = !cal ? "DB 에 보정값 없음 (기본값)"
+             : hit.length ? `적용 ${hit.join(", ")}`
+             : "보정값은 받았지만 쓸 수 있는 항목이 없음";
+    console.log(`[cal] ${CAL_NOTE}`);
   } catch (e) {
-    console.warn("[cal] 보정값을 못 받았습니다. 기본값으로 갑니다.", e.name);
+    CAL_NOTE = `못 받음 (${e.name}). 기본값`;
+    console.warn(`[cal] ${CAL_NOTE}`);
   }
 }
 
@@ -353,7 +361,8 @@ AFRAME.registerComponent("chandelier-driver", {
       `${(GEOMETRY.ceilingHeight + PEDESTAL.height).toFixed(2)} m (바닥)\n` +
       `겹 간격      ${RING_GAP.toFixed(3)} m (한 겹 내려오는 높이)\n` +
       `링 반지름    ${GEOMETRY.ringRadiusMin.toFixed(2)}~${GEOMETRY.ringRadiusMax.toFixed(2)} m (개수에 따라)\n` +
-      `인식해상도   ${AR_SOURCE.width}x${AR_SOURCE.height} @${AR_SOURCE.maxDetectionRate}/s`;
+      `인식해상도   ${AR_SOURCE.width}x${AR_SOURCE.height} @${AR_SOURCE.maxDetectionRate}/s\n` +
+      `현장 보정    ${CAL_NOTE}`;
   },
 });
 
