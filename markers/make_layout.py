@@ -49,15 +49,16 @@ RIM     = cfg(r'rimMargin:\s*([\d.]+)')
 HEADROOM = cfg(r'headroom:\s*deskNum\("headroom",\s*[\d.]+,\s*([\d.]+)\)', 2.05)
 
 # refreshPedestal 과 같은 계산. 여기서 어긋나면 종이가 틀린 자리를 가리킨다.
-half = MARKER / 2
+# 🔴 검은 사각형이 아니라 인쇄물 한 변(흰 여백 포함)으로 잰다. config.js 와 같다.
+half = MARKER * 1.5 / 2
 pedR = PED_D / 2 - RIM
 outer = math.sqrt(max(0.0, pedR * pedR - half * half)) - half
 inner = DEVICE / 2 + half + 0.005
 MRING = math.floor(outer * 200) / 200 if outer >= inner else inner
 
 FLOOR_DIRS = [(0, 0, 1, "+Z"), (7, -1, 0, "-X"), (44, 0, -1, "-Z"), (63, 1, 0, "+X")]
-CUBE_CODES = [[13, 21, 22, 35, 56], [19, 25, 37, 42, 52],
-              [11, 28, 38, 41, 50]]
+CUBE_CODES = [[21, 52, 50, 38, 11], [14, 13, 28, 41, 19],
+              [42, 49, 56, 25, 22]]
 CUBE_FACES = [("+Z", "바닥 0"), ("+X", "바닥 63"), ("-Z", "바닥 44"),
               ("-X", "바닥 7"), ("밑면", "똑바로 아래")]
 

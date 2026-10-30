@@ -17,8 +17,8 @@ stream
 0.2000 g 170.0787 259.3701 255.1181 255.1181 re f
 1 g
 271.9219 412.2369 51.4318 51.4318 re f
-220.8983 361.2132 51.4318 51.4318 re f
-271.9219 361.2132 51.4318 51.4318 re f
+322.9455 412.2369 51.4318 51.4318 re f
+271.9219 310.1896 51.4318 51.4318 re f
 322.9455 310.1896 51.4318 51.4318 re f
 0.45 G 0.3 w
 488.9764 195.5906 m
@@ -44,7 +44,7 @@ S
 106.2992 578.2677 m
 106.2992 195.5906 l
 S
-BT /F1 12 Tf 0.1 g 210.6378 640.6299 Td (CUBE 2   face +Z   barcode 19) Tj ET
+BT /F1 12 Tf 0.1 g 210.6378 640.6299 Td (CUBE 2   face +Z   barcode 14) Tj ET
 BT /F1 9 Tf 0.3 g 205.3878 620.7874 Td (this face must look toward FLOOR marker 0) Tj ET
 BT /F1 8.5 Tf 0.3 g 210.5128 141.7323 Td (fold the right tab IN, glue it to face +X) Tj ET
 BT /F1 8 Tf 0.4 g 219.6378 121.8898 Td (cube edge 135 mm   black square 90.0 mm) Tj ET
@@ -65,7 +65,7 @@ stream
 0.2000 g 170.0787 259.3701 255.1181 255.1181 re f
 1 g
 271.9219 412.2369 51.4318 51.4318 re f
-271.9219 361.2132 51.4318 51.4318 re f
+322.9455 412.2369 51.4318 51.4318 re f
 322.9455 361.2132 51.4318 51.4318 re f
 322.9455 310.1896 51.4318 51.4318 re f
 0.45 G 0.3 w
@@ -92,7 +92,7 @@ S
 106.2992 578.2677 m
 106.2992 195.5906 l
 S
-BT /F1 12 Tf 0.1 g 210.6378 640.6299 Td (CUBE 2   face +X   barcode 25) Tj ET
+BT /F1 12 Tf 0.1 g 210.6378 640.6299 Td (CUBE 2   face +X   barcode 13) Tj ET
 BT /F1 9 Tf 0.3 g 203.1378 620.7874 Td (this face must look toward FLOOR marker 63) Tj ET
 BT /F1 8.5 Tf 0.3 g 210.5128 141.7323 Td (fold the right tab IN, glue it to face -Z) Tj ET
 BT /F1 8 Tf 0.4 g 219.6378 121.8898 Td (cube edge 135 mm   black square 90.0 mm) Tj ET
@@ -112,9 +112,9 @@ endobj
 stream
 0.2000 g 170.0787 259.3701 255.1181 255.1181 re f
 1 g
-322.9455 412.2369 51.4318 51.4318 re f
-220.8983 361.2132 51.4318 51.4318 re f
+271.9219 412.2369 51.4318 51.4318 re f
 322.9455 361.2132 51.4318 51.4318 re f
+271.9219 310.1896 51.4318 51.4318 re f
 322.9455 310.1896 51.4318 51.4318 re f
 0.45 G 0.3 w
 488.9764 195.5906 m
@@ -140,7 +140,7 @@ S
 106.2992 578.2677 m
 106.2992 195.5906 l
 S
-BT /F1 12 Tf 0.1 g 210.6378 640.6299 Td (CUBE 2   face -Z   barcode 37) Tj ET
+BT /F1 12 Tf 0.1 g 210.6378 640.6299 Td (CUBE 2   face -Z   barcode 28) Tj ET
 BT /F1 9 Tf 0.3 g 203.1378 620.7874 Td (this face must look toward FLOOR marker 44) Tj ET
 BT /F1 8.5 Tf 0.3 g 210.5128 141.7323 Td (fold the right tab IN, glue it to face -X) Tj ET
 BT /F1 8 Tf 0.4 g 219.6378 121.8898 Td (cube edge 135 mm   black square 90.0 mm) Tj ET
@@ -162,7 +162,7 @@ stream
 1 g
 322.9455 412.2369 51.4318 51.4318 re f
 271.9219 361.2132 51.4318 51.4318 re f
-271.9219 310.1896 51.4318 51.4318 re f
+322.9455 361.2132 51.4318 51.4318 re f
 322.9455 310.1896 51.4318 51.4318 re f
 0.45 G 0.3 w
 488.9764 195.5906 m
@@ -188,7 +188,7 @@ S
 106.2992 578.2677 m
 106.2992 195.5906 l
 S
-BT /F1 12 Tf 0.1 g 210.6378 640.6299 Td (CUBE 2   face -X   barcode 42) Tj ET
+BT /F1 12 Tf 0.1 g 210.6378 640.6299 Td (CUBE 2   face -X   barcode 41) Tj ET
 BT /F1 9 Tf 0.3 g 205.3878 620.7874 Td (this face must look toward FLOOR marker 7) Tj ET
 BT /F1 8.5 Tf 0.3 g 210.5128 141.7323 Td (fold the right tab IN, glue it to face +Z) Tj ET
 BT /F1 8 Tf 0.4 g 219.6378 121.8898 Td (cube edge 135 mm   black square 90.0 mm) Tj ET
@@ -208,9 +208,9 @@ endobj
 stream
 0.2000 g 170.0787 259.3701 255.1181 255.1181 re f
 1 g
+271.9219 412.2369 51.4318 51.4318 re f
 220.8983 361.2132 51.4318 51.4318 re f
-322.9455 361.2132 51.4318 51.4318 re f
-271.9219 310.1896 51.4318 51.4318 re f
+271.9219 361.2132 51.4318 51.4318 re f
 322.9455 310.1896 51.4318 51.4318 re f
 0.45 G 0.3 w
 106.2992 195.5906 m
@@ -260,7 +260,7 @@ S
 106.2992 195.5906 l
 S
 [] 0 d
-BT /F1 12 Tf 0.1 g 198.6378 640.6299 Td (CUBE 2   face BOTTOM   barcode 52) Tj ET
+BT /F1 12 Tf 0.1 g 198.6378 640.6299 Td (CUBE 2   face BOTTOM   barcode 19) Tj ET
 BT /F1 9 Tf 0.3 g 196.3878 620.7874 Td (this face looks straight DOWN \(the underside\)) Tj ET
 BT /F1 8.5 Tf 0.3 g 193.5128 141.7323 Td (fold the 4 tabs UP, the side faces glue over them) Tj ET
 BT /F1 8 Tf 0.4 g 219.6378 121.8898 Td (cube edge 135 mm   black square 90.0 mm) Tj ET

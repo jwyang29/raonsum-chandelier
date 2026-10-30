@@ -16,9 +16,9 @@ endobj
 stream
 0.2000 g 146.4567 235.7480 302.3622 302.3622 re f
 1 g
-267.1597 416.9235 60.9562 60.9562 re f
 327.6321 416.9235 60.9562 60.9562 re f
 267.1597 356.4510 60.9562 60.9562 re f
+267.1597 295.9786 60.9562 60.9562 re f
 327.6321 295.9786 60.9562 60.9562 re f
 0.45 G 0.3 w
 524.4094 160.1575 m
@@ -44,7 +44,7 @@ S
 70.8661 613.7008 m
 70.8661 160.1575 l
 S
-BT /F1 12 Tf 0.1 g 210.6378 676.0630 Td (CUBE 3   face +Z   barcode 11) Tj ET
+BT /F1 12 Tf 0.1 g 210.6378 676.0630 Td (CUBE 3   face +Z   barcode 42) Tj ET
 BT /F1 9 Tf 0.3 g 205.3878 656.2205 Td (this face must look toward FLOOR marker 0) Tj ET
 BT /F1 8.5 Tf 0.3 g 210.5128 106.2992 Td (fold the right tab IN, glue it to face +X) Tj ET
 BT /F1 8 Tf 0.4 g 217.6378 86.4567 Td (cube edge 160 mm   black square 106.7 mm) Tj ET
@@ -64,9 +64,9 @@ endobj
 stream
 0.2000 g 146.4567 235.7480 302.3622 302.3622 re f
 1 g
-267.1597 416.9235 60.9562 60.9562 re f
+206.6872 356.4510 60.9562 60.9562 re f
+267.1597 356.4510 60.9562 60.9562 re f
 327.6321 356.4510 60.9562 60.9562 re f
-267.1597 295.9786 60.9562 60.9562 re f
 327.6321 295.9786 60.9562 60.9562 re f
 0.45 G 0.3 w
 524.4094 160.1575 m
@@ -92,7 +92,7 @@ S
 70.8661 613.7008 m
 70.8661 160.1575 l
 S
-BT /F1 12 Tf 0.1 g 210.6378 676.0630 Td (CUBE 3   face +X   barcode 28) Tj ET
+BT /F1 12 Tf 0.1 g 210.6378 676.0630 Td (CUBE 3   face +X   barcode 49) Tj ET
 BT /F1 9 Tf 0.3 g 203.1378 656.2205 Td (this face must look toward FLOOR marker 63) Tj ET
 BT /F1 8.5 Tf 0.3 g 210.5128 106.2992 Td (fold the right tab IN, glue it to face -Z) Tj ET
 BT /F1 8 Tf 0.4 g 217.6378 86.4567 Td (cube edge 160 mm   black square 106.7 mm) Tj ET
@@ -112,8 +112,8 @@ endobj
 stream
 0.2000 g 146.4567 235.7480 302.3622 302.3622 re f
 1 g
-327.6321 416.9235 60.9562 60.9562 re f
-206.6872 356.4510 60.9562 60.9562 re f
+267.1597 356.4510 60.9562 60.9562 re f
+327.6321 356.4510 60.9562 60.9562 re f
 267.1597 295.9786 60.9562 60.9562 re f
 327.6321 295.9786 60.9562 60.9562 re f
 0.45 G 0.3 w
@@ -140,7 +140,7 @@ S
 70.8661 613.7008 m
 70.8661 160.1575 l
 S
-BT /F1 12 Tf 0.1 g 210.6378 676.0630 Td (CUBE 3   face -Z   barcode 38) Tj ET
+BT /F1 12 Tf 0.1 g 210.6378 676.0630 Td (CUBE 3   face -Z   barcode 56) Tj ET
 BT /F1 9 Tf 0.3 g 203.1378 656.2205 Td (this face must look toward FLOOR marker 44) Tj ET
 BT /F1 8.5 Tf 0.3 g 210.5128 106.2992 Td (fold the right tab IN, glue it to face -X) Tj ET
 BT /F1 8 Tf 0.4 g 217.6378 86.4567 Td (cube edge 160 mm   black square 106.7 mm) Tj ET
@@ -160,7 +160,7 @@ endobj
 stream
 0.2000 g 146.4567 235.7480 302.3622 302.3622 re f
 1 g
-327.6321 416.9235 60.9562 60.9562 re f
+267.1597 416.9235 60.9562 60.9562 re f
 267.1597 356.4510 60.9562 60.9562 re f
 327.6321 356.4510 60.9562 60.9562 re f
 327.6321 295.9786 60.9562 60.9562 re f
@@ -188,7 +188,7 @@ S
 70.8661 613.7008 m
 70.8661 160.1575 l
 S
-BT /F1 12 Tf 0.1 g 210.6378 676.0630 Td (CUBE 3   face -X   barcode 41) Tj ET
+BT /F1 12 Tf 0.1 g 210.6378 676.0630 Td (CUBE 3   face -X   barcode 25) Tj ET
 BT /F1 9 Tf 0.3 g 205.3878 656.2205 Td (this face must look toward FLOOR marker 7) Tj ET
 BT /F1 8.5 Tf 0.3 g 210.5128 106.2992 Td (fold the right tab IN, glue it to face +Z) Tj ET
 BT /F1 8 Tf 0.4 g 217.6378 86.4567 Td (cube edge 160 mm   black square 106.7 mm) Tj ET
@@ -208,8 +208,8 @@ endobj
 stream
 0.2000 g 146.4567 235.7480 302.3622 302.3622 re f
 1 g
+267.1597 416.9235 60.9562 60.9562 re f
 206.6872 356.4510 60.9562 60.9562 re f
-267.1597 356.4510 60.9562 60.9562 re f
 267.1597 295.9786 60.9562 60.9562 re f
 327.6321 295.9786 60.9562 60.9562 re f
 0.45 G 0.3 w
@@ -260,7 +260,7 @@ S
 70.8661 160.1575 l
 S
 [] 0 d
-BT /F1 12 Tf 0.1 g 198.6378 676.0630 Td (CUBE 3   face BOTTOM   barcode 50) Tj ET
+BT /F1 12 Tf 0.1 g 198.6378 676.0630 Td (CUBE 3   face BOTTOM   barcode 22) Tj ET
 BT /F1 9 Tf 0.3 g 196.3878 656.2205 Td (this face looks straight DOWN \(the underside\)) Tj ET
 BT /F1 8.5 Tf 0.3 g 193.5128 106.2992 Td (fold the 4 tabs UP, the side faces glue over them) Tj ET
 BT /F1 8 Tf 0.4 g 217.6378 86.4567 Td (cube edge 160 mm   black square 106.7 mm) Tj ET
