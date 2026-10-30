@@ -19,6 +19,8 @@ OUT      = arg("--out", "../web/blobs.json")
 PER_KIND = arg("--per-kind", 6, int)
 TRIS     = arg("--tris", 700, int)
 SEED     = arg("--seed", 1000, int)
+SMOOTH      = arg("--smooth", 0.5, float)    # 데시메이트가 남긴 각을 편다
+SMOOTH_ITER = arg("--smooth-iter", 3, int)
 
 
 def clear():
@@ -111,6 +113,16 @@ def build(kind, seed, steps=70):
     if n > TRIS:
         m = obj.modifiers.new("dec", "DECIMATE")
         m.ratio = TRIS / n
+        bpy.ops.object.modifier_apply(modifier=m.name)
+
+    # 🔴 데시메이트는 면을 접어 없애는 방식이라 실루엣에 각이 남는다. 법선은
+    #    폰에서 computeVertexNormals 로 부드럽게 깔리지만, 윤곽선은 면 수가
+    #    그대로 드러난다. 보석처럼 보여야 하는 형태라 각이 남으면 안 된다.
+    #    접은 자리를 펴 준다. 부피가 조금 줄지만 어차피 정규화한다.
+    if SMOOTH > 0:
+        m = obj.modifiers.new("sm", "SMOOTH")
+        m.factor = SMOOTH
+        m.iterations = SMOOTH_ITER
         bpy.ops.object.modifier_apply(modifier=m.name)
 
     # 원점 중심, 가장 긴 변이 1 이 되게 정규화. 크기는 폰에서 입힌다.

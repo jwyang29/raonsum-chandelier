@@ -33,10 +33,12 @@ export async function startHero(holder) {
 
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(32, 1, 0.01, 50);
-  camera.position.set(0, 0, 3.0);
+  camera.position.set(0, 0, 1.5);   // 가까울수록 크게 보인다
 
   // 크리스탈 셰이더는 환경광을 스스로 흉내내므로 조명이 필요 없다.
+  // 제목이 왼쪽 아래를 덮는다. 조각을 오른쪽 위로 비켜 앉힌다.
   const pivot = new THREE.Object3D();
+  pivot.position.set(0.10, 0.12, 0);
   scene.add(pivot);
 
   let mesh = null;
@@ -83,7 +85,7 @@ export async function startHero(holder) {
     renderer.setSize(w, h, false);
     camera.aspect = w / h;
     // 세로로 긴 칸에서는 가로 화각이 좁아져 조각이 잘린다. 뒤로 물린다.
-    camera.position.z = 3.0 / Math.min(1, Math.max(0.45, camera.aspect));
+    camera.position.z = 1.5 / Math.min(1, Math.max(0.45, camera.aspect));
     camera.updateProjectionMatrix();
   }
   resize();

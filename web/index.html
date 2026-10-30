@@ -38,17 +38,9 @@
     }
     .wrap { max-width: 640px; margin: 0 auto; }
 
-    /* 맨 위 띠 */
-    .bar {
-      display: flex; justify-content: space-between; align-items: center; gap: 12px;
-      padding: 14px 18px; border-bottom: 1px solid var(--line);
-      font: 600 10.5px/1 var(--mono); letter-spacing: .2em; text-transform: uppercase;
-    }
-    .bar .mid { color: var(--mute); }
-
     /* 히어로. 크리스탈이 도는 자리 */
     #hero {
-      position: relative; height: 46vh; min-height: 260px; max-height: 420px;
+      position: relative; height: 62vh; min-height: 340px; max-height: 560px;
       border-bottom: 1px solid var(--line);
       cursor: pointer; touch-action: manipulation;
       /* 유리는 뒤에 있는 것 때문에 보인다. 완전한 검정 위에서는 사라진다.
@@ -64,8 +56,17 @@
       text-transform: uppercase; transition: opacity .4s ease;
     }
     #hero.ready .wait { opacity: 0; }
+    /* 제목. 히어로 왼쪽 아래 모서리에서 시작해 조각 위로 겹친다.
+       브루탈리즘이라 띄우지 않고 모서리에 바짝 붙인다. */
+    #hero h1 {
+      position: absolute; left: 0; bottom: 0; margin: 0; pointer-events: none;
+      padding: 0 14px 10px 16px;
+      font-weight: 800; font-size: clamp(50px, 17.5vw, 108px); line-height: .84;
+      letter-spacing: -.05em; color: var(--fg);
+    }
+    #hero h1 span { display: block; }
     #hero .hint {
-      position: absolute; left: 18px; bottom: 14px; pointer-events: none;
+      position: absolute; right: 18px; top: 16px; pointer-events: none;
       font: 500 10px/1 var(--mono); letter-spacing: .18em; color: #4e4e4e;
       text-transform: uppercase; opacity: 0; transition: opacity .6s ease .6s;
     }
@@ -121,8 +122,7 @@
     .who span { font: 500 10.5px/1 var(--mono); letter-spacing: .22em; color: var(--mute); }
 
     /* 라이브 시연 */
-    .live { border-top: 1px solid var(--line); border-left: 4px solid var(--c4);
-            padding: 18px 18px 20px; }
+    .live { border-top: 1px solid var(--line); padding: 18px 18px 20px; }
     .live .label { font: 600 10.5px/1 var(--mono); letter-spacing: .24em;
                    color: var(--c4); text-transform: uppercase; }
     .live .d { font: 700 13.5px/1.5 var(--mono); letter-spacing: .03em; margin: 9px 0 6px; }
@@ -139,10 +139,10 @@
 </head>
 <body>
   <div class="wrap">
-    <div class="bar" id="bar"></div>
     <div id="hero">
       <div class="wait">loading</div>
       <div class="hint">tap to change</div>
+      <h1 id="title"></h1>
     </div>
     <div id="menu"></div>
   </div>
@@ -157,10 +157,9 @@
     const has = (v) => v !== null && v !== undefined && String(v).trim() !== "";
     const rows = (list) => (list || []).filter((r) => has(r[0]) || has(r[1]));
 
-    document.getElementById("bar").innerHTML = `
-      <span>${esc(C.title || "")}</span>
-      <span class="mid">${esc(C.exhibit || "")}</span>
-      <span>${esc(C.year || "")}</span>`;
+    document.getElementById("title").innerHTML =
+      (Array.isArray(C.title) ? C.title : [C.title]).filter(has)
+        .map((t) => `<span>${esc(t)}</span>`).join("");
 
     const M = C.menu || {};
     const W = C.work || {};
