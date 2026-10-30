@@ -38,3 +38,13 @@ hiro, kanji, area, pattern 은 전부 defaultMarkerParameters 를 복사해 쓰�
 
 🔴 **이 파일을 다시 받으면 이 수정이 사라진다.** 다시 받았으면 위 문자열을
 찾아서 size 를 도로 넣어야 한다.
+
+## 🔴 고친 뒤에는 ?v= 번호를 올릴 것
+
+이 파일들은 2MB 라 폰이 오래 들고 있는다. 고쳐서 배포해도 안 받아 간다.
+현장에서 "고쳤는데 그대로인데요" 가 되는 자리다.
+
+부르는 곳이 여섯 군데다. 전부 같이 올려야 한다.
+
+    web/ar.html      web/venue.html   web/camtest.html
+    web/app.js       web/hero.js      web/index.html

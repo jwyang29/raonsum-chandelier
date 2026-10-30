@@ -72,7 +72,7 @@ function loadScript(src) {
     document.head.appendChild(s);
   });
 }
-if (!PREVIEW) await loadScript("./vendor/aframe-ar.js");
+if (!PREVIEW) await loadScript("./vendor/aframe-ar.js?v=2");
 
 // 🔴 cameraParametersUrl 을 안 주면 AR.js 가 ar-js-org.github.io 에서 직접 받아 온다.
 //    못 받으면 ARToolKit 이 초기화되지 않아 마커가 하나도 안 잡힌다. 이틀 동안

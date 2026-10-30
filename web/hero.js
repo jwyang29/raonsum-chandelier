@@ -22,7 +22,7 @@ const loadScript = (src) => new Promise((ok, no) => {
 });
 
 export async function startHero(holder) {
-  await loadScript("./vendor/aframe.min.js");
+  await loadScript("./vendor/aframe.min.js?v=2");
   await loadBlobs().catch(() => {});
 
   const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
