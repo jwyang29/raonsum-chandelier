@@ -3,91 +3,119 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>가상 샹들리에</title>
-  <meta name="theme-color" content="#0b0f14">
-  <meta name="description" content="천에 그은 선이 크리스탈이 되어 떠오르는 웹 AR 설치">
+  <title>Facets Between Us</title>
+  <meta name="theme-color" content="#000000">
+  <meta name="description" content="관객의 손짓이 보석 같은 조각이 되어 천장의 샹들리에를 이루는 AR 설치. 양지원, 2026">
   <style>
     /* 🔴 QR 로 처음 열리는 화면이다. A-Frame 도 AR.js 도 안 부른다.
        4MB 를 받게 하면 설명을 읽기도 전에 기다리게 된다. AR 은 버튼 뒤에 있다.
-       카메라 권한도 여기서 안 묻는다. 묻자마자 물어보면 거절당한다. */
+       카메라 권한도 여기서 안 묻는다. 열자마자 물어보면 거절당한다. */
+
+    /* 포인트 색은 크리스탈 틴트(config.js 의 TINTS)에서 가져왔다.
+       원본은 검정 위에서 흰색으로 뭉개질 만큼 엷어서, 색상은 그대로 두고
+       채도만 올렸다. 작품에 없는 색을 새로 들이지 않으려고 그렇게 했다. */
     :root {
-      --bg: #0b0f14;
-      --fg: #e8edf3;
-      --mute: #8b97a6;
-      --line: #1e2630;
-      --accent: #7fd4c1;
-      --accent-ink: #06231c;
+      --bg: #000;
+      --fg: #fff;
+      --mute: #8b8b8b;
+      --line: #2a2a2a;
+      --c1: #73de9f;
+      --c2: #7e73de;
+      --c3: #73b7de;
+      --c4: #cc73de;
+      --c5: #73de88;
+      --mono: ui-monospace, "SF Mono", Menlo, "Roboto Mono", monospace;
+      --sans: -apple-system, "Helvetica Neue", "Apple SD Gothic Neo",
+              "Noto Sans KR", Arial, sans-serif;
     }
     * { box-sizing: border-box; }
     html, body { margin: 0; padding: 0; background: var(--bg); color: var(--fg); }
     body {
-      font: 16px/1.75 -apple-system, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+      font: 15px/1.7 var(--sans);
       -webkit-font-smoothing: antialiased;
-      padding: 0 20px calc(28px + env(safe-area-inset-bottom));
+      padding-bottom: env(safe-area-inset-bottom);
     }
-    .wrap { max-width: 560px; margin: 0 auto; }
+    .wrap { max-width: 720px; margin: 0 auto; border-left: 1px solid var(--line);
+            border-right: 1px solid var(--line); }
+    @media (max-width: 740px) { .wrap { border-left: 0; border-right: 0; } }
 
-    /* 맨 위 */
-    header { padding: 56px 0 36px; }
-    .sub {
-      font-size: 12px; letter-spacing: .18em; color: var(--accent);
-      text-transform: uppercase; margin: 0 0 14px;
+    /* 브루탈리즘. 둥근 모서리도 그림자도 없다. 칸을 선으로 드러낸다. */
+    .row { border-bottom: 1px solid var(--line); padding: 18px 20px; }
+    .row.tight { padding: 12px 20px; }
+
+    /* 맨 위 메타 줄 */
+    .meta { display: flex; justify-content: space-between; align-items: center;
+            font: 600 11px/1 var(--mono); letter-spacing: .22em; color: var(--mute); }
+    .swatch { display: flex; gap: 4px; }
+    .swatch i { width: 10px; height: 10px; display: block; }
+
+    /* 제목. 화면 폭을 꽉 채운다 */
+    .title { padding: 28px 20px 24px; }
+    .title b {
+      display: block; font-weight: 800;
+      font-size: clamp(44px, 16.5vw, 112px); line-height: .88;
+      letter-spacing: -.045em; text-transform: uppercase;
     }
-    h1 { margin: 0; font-size: 34px; line-height: 1.25; font-weight: 700; letter-spacing: -.01em; }
-    .artist { margin: 12px 0 0; color: var(--mute); font-size: 14px; }
+    .title b:nth-child(2) { color: var(--c3); }
+    .title b em { font-style: normal; color: var(--c4); }
 
-    /* 작품 설명 */
-    .about p { margin: 0 0 18px; color: #c6d0db; }
-    .about p:last-child { margin-bottom: 0; }
+    /* 작가 */
+    .artist { display: flex; justify-content: space-between; align-items: baseline;
+              gap: 16px; flex-wrap: wrap; }
+    .artist .ko { font-size: 20px; font-weight: 700; letter-spacing: -.01em; }
+    .artist .en { font: 500 11px/1 var(--mono); letter-spacing: .22em; color: var(--mute); }
 
-    hr { border: 0; border-top: 1px solid var(--line); margin: 36px 0; }
+    /* 설명 */
+    .about p { margin: 0 0 14px; font-size: 16px; line-height: 1.8; color: #d8d8d8; }
+    .about p:last-child { margin: 0; }
 
-    /* 관객이 할 일 */
-    h2 { font-size: 12px; letter-spacing: .16em; color: var(--mute);
-         text-transform: uppercase; margin: 0 0 18px; font-weight: 600; }
-    ol.steps { list-style: none; margin: 0; padding: 0; counter-reset: s; }
-    ol.steps li {
-      counter-increment: s; position: relative;
-      padding: 0 0 20px 42px; margin: 0;
-    }
-    ol.steps li:last-child { padding-bottom: 0; }
-    ol.steps li::before {
-      content: counter(s); position: absolute; left: 0; top: 2px;
-      width: 26px; height: 26px; border-radius: 50%;
-      border: 1px solid var(--line); color: var(--accent);
-      font-size: 12px; font-weight: 600; display: grid; place-items: center;
-    }
-    ol.steps b { display: block; font-size: 16px; font-weight: 600; }
-    ol.steps span { color: var(--mute); font-size: 14.5px; }
+    /* 라벨 */
+    .label { font: 600 10.5px/1 var(--mono); letter-spacing: .24em;
+             color: var(--mute); text-transform: uppercase; }
 
-    /* AR 버튼. 엄지로 닿는 자리에 크게 둔다 */
-    .cta { margin: 36px 0 0; }
+    /* 보는 법. 칸마다 색 막대 하나 */
+    .steps { display: grid; }
+    .step { display: grid; grid-template-columns: 54px 1fr; gap: 0;
+            border-bottom: 1px solid var(--line); }
+    .step:last-child { border-bottom: 0; }
+    .step .n { border-right: 1px solid var(--line); display: grid;
+               place-items: center; font: 700 15px/1 var(--mono); }
+    .step .t { padding: 16px 20px; }
+    .step .t b { display: block; font-size: 17px; font-weight: 700; letter-spacing: -.01em; }
+    .step .t span { color: var(--mute); font-size: 14.5px; }
+    .step:nth-child(1) .n { color: var(--c1); }
+    .step:nth-child(2) .n { color: var(--c3); }
+    .step:nth-child(3) .n { color: var(--c4); }
+
+    /* AR 버튼. 엄지로 닿는 자리에 블록으로 */
     a.go {
-      display: block; text-align: center; text-decoration: none;
-      background: var(--accent); color: var(--accent-ink);
-      font-size: 17px; font-weight: 700; letter-spacing: -.01em;
-      padding: 19px 20px; border-radius: 14px;
-      box-shadow: 0 8px 30px rgba(127, 212, 193, .16);
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 16px; text-decoration: none;
+      background: var(--fg); color: #000; padding: 24px 20px;
+      font-size: 22px; font-weight: 800; letter-spacing: -.02em;
+      border-bottom: 1px solid var(--line);
     }
-    a.go:active { transform: translateY(1px); }
-    .cta .note { text-align: center; color: var(--mute); font-size: 13px; margin: 14px 0 0; }
+    a.go .arrow { font: 700 22px/1 var(--mono); }
+    a.go:active { background: var(--c1); }
+    .ctanote { font: 500 12px/1.6 var(--mono); color: var(--mute);
+               letter-spacing: .02em; }
 
-    /* 라이브 시연 */
-    .live {
-      margin: 36px 0 0; padding: 18px 20px;
-      border: 1px solid var(--line); border-radius: 12px; background: #0f151c;
-    }
-    .live b { display: block; font-size: 13px; letter-spacing: .1em;
-              color: var(--accent); text-transform: uppercase; margin-bottom: 8px; }
-    .live p { margin: 0; color: #c6d0db; font-size: 14.5px; white-space: pre-line; }
+    /* 라이브 시연. 여기만 테두리로 한 번 더 띄운다 */
+    .live { border-left: 4px solid var(--c4); }
+    .live .d { font: 700 14px/1.5 var(--mono); letter-spacing: .04em; margin: 8px 0 6px; }
+    .live p { margin: 0; color: var(--mute); font-size: 14.5px; }
 
-    footer { margin: 44px 0 0; padding-top: 22px; border-top: 1px solid var(--line);
-             color: #5f6b79; font-size: 12.5px; line-height: 1.9; }
+    /* 작품 정보와 링크. 라벨과 값이 붙은 표 */
+    .tbl { display: grid; grid-template-columns: 84px 1fr; }
+    .tbl dt { font: 600 11px/1.9 var(--mono); letter-spacing: .14em; color: var(--mute);
+              padding: 7px 0; }
+    .tbl dd { margin: 0; padding: 7px 0; font-size: 14.5px; }
+    .tbl dd a { color: var(--c3); text-decoration: none;
+                border-bottom: 1px solid currentColor; }
+    .tbl dd a:active { color: var(--c1); }
 
-    @media (min-width: 620px) {
-      header { padding-top: 84px; }
-      h1 { font-size: 42px; }
-    }
+    footer { padding: 22px 20px 34px; font: 500 10.5px/1.8 var(--mono);
+             letter-spacing: .14em; color: #4a4a4a; text-transform: uppercase; }
   </style>
 </head>
 <body>
@@ -97,41 +125,66 @@
     import { CONTENT as C } from "./content.js";
 
     const esc = (s) => String(s)
-      .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+      .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
     // 빈 값은 통째로 빼고 그린다. 안 채운 칸이 빈 상자로 남으면 더 흉하다.
     const has = (v) => v !== null && v !== undefined && String(v).trim() !== "";
 
-    const steps = (C.steps || []).filter((s) => has(s.head) || has(s.body));
+    const title = (Array.isArray(C.title) ? C.title : [C.title]).filter(has);
     const about = (C.about || []).filter(has);
-    const credits = (C.credits || []).filter(has);
+    const steps = (C.steps || []).filter((s) => has(s.head) || has(s.body));
+    const facts = (C.facts || []).filter((f) => has(f[0]) || has(f[1]));
+    const links = (C.links || []).filter((l) => has(l[1]));
+
+    const block = (inner, cls = "row") => inner ? `<div class="${cls}">${inner}</div>` : "";
 
     document.getElementById("app").innerHTML = `
-      <header>
-        ${has(C.subtitle) ? `<p class="sub">${esc(C.subtitle)}</p>` : ""}
-        <h1>${esc(C.title || "")}</h1>
-        ${has(C.artist) ? `<p class="artist">${esc(C.artist)}</p>` : ""}
-      </header>
+      ${block(`<div class="meta">
+          <span>${esc(C.exhibit || "")}</span>
+          <span class="swatch">${[1, 2, 3, 4, 5]
+            .map((i) => `<i style="background:var(--c${i})"></i>`).join("")}</span>
+          <span>${esc(C.year || "")}</span>
+        </div>`, "row tight")}
 
-      ${about.length ? `<div class="about">${
-        about.map((p) => `<p>${esc(p)}</p>`).join("")}</div><hr>` : ""}
+      <div class="row title">${title.map((t) => `<b>${esc(t)}</b>`).join("")}</div>
 
-      ${steps.length ? `<h2>보는 법</h2><ol class="steps">${
-        steps.map((s) => `<li><b>${esc(s.head)}</b><span>${esc(s.body)}</span></li>`)
-             .join("")}</ol>` : ""}
+      ${block(`<div class="artist">
+          <span class="ko">${esc(C.artist || "")}</span>
+          <span class="en">${esc(C.artistEn || "")}</span>
+        </div>`)}
 
-      <div class="cta">
-        <a class="go" href="./ar.html">${esc(C.ctaLabel || "AR 로 보기")}</a>
-        ${has(C.ctaNote) ? `<p class="note">${esc(C.ctaNote)}</p>` : ""}
-      </div>
+      ${about.length ? block(`<div class="about">${
+        about.map((p) => `<p>${esc(p)}</p>`).join("")}</div>`) : ""}
 
-      ${C.live && (has(C.live.head) || has(C.live.body)) ? `
-        <div class="live">
-          ${has(C.live.head) ? `<b>${esc(C.live.head)}</b>` : ""}
+      ${steps.length ? `
+        <div class="row tight"><span class="label">보는 법</span></div>
+        <div class="steps">${steps.map((s, i) => `
+          <div class="step">
+            <div class="n">0${i + 1}</div>
+            <div class="t"><b>${esc(s.head)}</b><span>${esc(s.body)}</span></div>
+          </div>`).join("")}</div>` : ""}
+
+      <a class="go" href="./ar.html">
+        <span>${esc(C.ctaLabel || "AR 로 보기")}</span><span class="arrow">&#8594;</span>
+      </a>
+      ${has(C.ctaNote) ? block(`<span class="ctanote">${esc(C.ctaNote)}</span>`, "row tight") : ""}
+
+      ${C.live && (has(C.live.head) || has(C.live.dates) || has(C.live.body)) ? `
+        <div class="row live">
+          ${has(C.live.head) ? `<span class="label">${esc(C.live.head)}</span>` : ""}
+          ${has(C.live.dates) ? `<div class="d">${esc(C.live.dates)}</div>` : ""}
           ${has(C.live.body) ? `<p>${esc(C.live.body)}</p>` : ""}
         </div>` : ""}
 
-      ${credits.length ? `<footer>${
-        credits.map((c) => esc(c)).join("<br>")}</footer>` : ""}
+      ${facts.length || links.length ? block(`<dl class="tbl">${
+        facts.map(([k, v]) => `<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join("") +
+        links.map(([k, t, href]) => `<dt>${esc(k)}</dt><dd>${
+          has(href) ? `<a href="${esc(href)}"${
+            String(href).startsWith("http") ? ' target="_blank" rel="noopener"' : ""
+          }>${esc(t)}</a>` : esc(t)}</dd>`).join("")
+      }</dl>`) : ""}
+
+      <footer>${esc(C.exhibit || "")} ${esc(C.year || "")}</footer>
     `;
 
     // 설명을 읽는 동안 AR 쪽 큰 파일을 미리 받아 둔다. 버튼을 누르면 바로 뜬다.
