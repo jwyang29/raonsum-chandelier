@@ -62,6 +62,21 @@ export function ringY(layer) {
   return Math.max(GEOMETRY.ringMinY, GEOMETRY.ceilingHeight - layer * RING_GAP);
 }
 
+// 기록이 그려진 지 몇 초 됐는지. 시각이 없거나 미래면 0 (지금 태어난 것).
+// ⚠️ 폰 시계가 틀어져 있으면 음수가 나온다. 그래서 0 으로 자른다.
+function riseAgeOf(data) {
+  const t = data && data.t;
+  if (!Number.isFinite(t)) return 0;
+  return Math.max(0, (Date.now() - t) / 1000);
+}
+
+// 올라가다 멈추는 지점. 0~1, 없으면 1 (끝까지 올라간다).
+function holdOf(data) {
+  const h = data && data.hold;
+  if (!Number.isFinite(h)) return 1;
+  return Math.max(0.05, Math.min(1, h));
+}
+
 export class Chandelier {
   constructor() {
     this.root = new THREE.Object3D();
@@ -196,7 +211,14 @@ export class Chandelier {
       targetY: ringY(layer),
       slotAngle: (ring.used - 1) * GOLDEN,
       phase: Math.random() * Math.PI * 2,
-      born: this._now,
+
+      // 🔴 지금 태어난 것으로 두면 안 된다. Firebase 에 쌓인 것을 받아 올 때
+      //    관객이 열 때마다 전부가 처음부터 다시 60초를 올라간다. 매번.
+      //    기록에 적힌 시각을 보고 그만큼 태어난 때를 되돌린다. 그러면 오래된
+      //    것은 이미 매달린 채로 뜨고, 방금 그린 것만 올라간다.
+      //    라이브 시연 중에 들어온 관객이 보는 그림도 이게 맞다.
+      born: this._now - riseAgeOf(data),
+
       attached: false,
     });
     return mesh;
@@ -240,7 +262,10 @@ export class Chandelier {
     glassTime.value = now;
     for (const it of this.items) {
       const age = now - it.born;
-      const p = Math.min(1, age / MOTION.riseSeconds);
+      // hold 가 있으면 그 지점에서 선다. 올라가다 멈춘 조각이다.
+      // 무인 기간에 "지금도 올라가는 중" 으로 보이게 하려고 몇 개를 세워 둔다.
+      const cap = holdOf(it.data);
+      const p = Math.min(cap, age / MOTION.riseSeconds);
 
       if (p < 1) {
         const e = smoothstep(p);
@@ -254,7 +279,7 @@ export class Chandelier {
           Math.sin(angle) * radius,
         );
       } else {
-        if (!it.attached) it.attached = true;
+        if (!it.attached) it.attached = true;   // hold 가 있으면 여기 안 온다
         // 매달린 뒤 살짝 흔들린다.
         const s = Math.sin((now * Math.PI * 2) / MOTION.swaySeconds + it.phase);
         // 링이 넓어지면 이미 매달린 것들도 따라 나간다. 그래야 한 겹으로 보인다.

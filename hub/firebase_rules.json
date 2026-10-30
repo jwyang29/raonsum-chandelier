@@ -20,6 +20,7 @@
         "n":       { ".validate": "newData.isNumber()" },
         "feeling": { ".validate": "newData.isString() && newData.val().length < 32" },
         "conf":    { ".validate": "newData.isNumber()" },
+        "hold":    { ".validate": "newData.isNumber() && newData.val() > 0 && newData.val() <= 1" },
         "$other":  { ".validate": false }
       }
     }
