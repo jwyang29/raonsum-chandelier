@@ -37,8 +37,12 @@ def arg(name, default, cast=str):
     return cast(a[a.index(name) + 1]) if name in a else default
 
 
-LAYERS = arg("--layers", 10, int)
-PER    = arg("--per", 15, int)
+# 겹별 개수를 직접 준다. 샹들리에 옆모습이 이 숫자로 결정된다.
+#   링 반지름은 그 겹에 걸린 개수에서 나온다 (2*pi*r >= n * crystalSpan).
+#   그래서 이 수열이 곧 "언제 얼마나 그렸는지" 의 기록으로 읽힌다.
+COUNTS = [int(v) for v in arg("--counts", "7,10,14,8,12,19,10,8,5,4").split(",")]
+LAYERS = arg("--layers", len(COUNTS), int)
+PER    = arg("--per", 0, int)      # 0 이 아니면 COUNTS 대신 사인파로 만든다
 HOLDS  = arg("--hold", 5, int)
 SEED   = arg("--seed", 20261101, int)
 DRY    = "--dry" in sys.argv
@@ -102,12 +106,12 @@ def build():
     out = {}
     i = 0
 
-    # 겹마다 개수를 다르게 준다. 한산한 시간과 붐비는 시간이 번갈아 오는 모습이고,
-    # 그래야 개수에 따라 링이 넓어지는 게 샹들리에 옆모습에 보인다.
-    plan = []
-    for L in range(LAYERS):
-        w = 0.42 + 0.58 * (1 + math.sin(L * 0.9 + 0.6)) / 2
-        plan.append(max(4, round(PER * w)))
+    # 겹마다 개수가 다르다. 그래야 개수에 따라 링이 넓어지는 게 옆모습에 보인다.
+    if PER > 0:
+        plan = [max(1, round(PER * (0.42 + 0.58 * (1 + math.sin(L * 0.9 + 0.6)) / 2)))
+                for L in range(LAYERS)]
+    else:
+        plan = (COUNTS + [COUNTS[-1]] * LAYERS)[:LAYERS]
 
     # 🔴 시각은 반드시 과거여야 한다. chandelier.js 가 t 를 보고 태어난 때를
     #    되돌리는데, 미래면 "방금 그린 것" 으로 보고 처음부터 올라간다.
@@ -174,7 +178,7 @@ if WIPE:
 
 rows, plan = build()
 held = [v for v in rows.values() if "hold" in v]
-print(f"[prefill] {LAYERS}겹 / 겹당 {plan} / 모두 {len(rows)}개 "
+print(f"[prefill] {LAYERS}겹 / 겹별 {plan} / 모두 {len(rows)}개 "
       f"(그중 올라가다 멈춘 것 {len(held)}개)")
 for v in held:
     print(f"            hold {v['hold']}")

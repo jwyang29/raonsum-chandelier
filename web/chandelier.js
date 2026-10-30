@@ -196,11 +196,16 @@ export class Chandelier {
     // 하나 더 걸렸으니 링이 그만큼 넓어진다.
     // ⚠️ used 는 줄이지 않는다. evictOne 은 그리기 예산 때문에 버리는 것이지
     //    그 시간에 그려진 개수가 줄어든 게 아니다. 링 굵기는 기록을 따른다.
-    ring.used++;
-    const nr = ringRadius(ring.used);
-    if (nr !== ring.radius) {
-      ring.radius = nr;
-      this.reshapeRing(layer, ring);
+    // ⚠️ 올라가다 멈추는 것(hold)은 세지 않는다. 그 링에 영영 안 걸린다.
+    //    세면 아무도 안 걸린 자리만큼 링이 넓어져서, 겹별 개수로 읽히는
+    //    옆모습이 틀어진다.
+    if (holdOf(data) >= 1) {
+      ring.used++;
+      const nr = ringRadius(ring.used);
+      if (nr !== ring.radius) {
+        ring.radius = nr;
+        this.reshapeRing(layer, ring);
+      }
     }
 
     this.items.push({
