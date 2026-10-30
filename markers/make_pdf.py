@@ -34,9 +34,10 @@ CUBE_DIRS = [("+Z", 0), ("+X", 63), ("-Z", 44), ("-X", 7), ("BOTTOM", None)]
 
 # 큐브마다 흰 여백 포함 한 변 (mm). web/config.js 의 CUBE_PLAN 과 같아야 한다.
 # 높이 매달수록 멀어지므로 커진다. 관객이 2.0m 뒤에서도 읽히는 최소값이다.
-#   바닥 1.25m -> 165    2.15m -> 170    3.05m -> 205
-# --cube 165,170,205 으로 한꺼번에 바꾼다.
-CUBE_FACE_MM = [165.0, 170.0, 205.0]
+#   바닥 1.25m -> 130    2.15m -> 135    3.05m -> 160
+# 셋 다 날개까지 A4 에 들어간다 (160 + 24 = 184mm).
+# --cube 130,135,160 으로 한꺼번에 바꾼다.
+CUBE_FACE_MM = [130.0, 135.0, 160.0]
 for _i, _a in enumerate(sys.argv):
     if _a == "--cube":
         CUBE_FACE_MM = [float(v) for v in sys.argv[_i + 1].split(",")]

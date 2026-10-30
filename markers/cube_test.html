@@ -21,13 +21,27 @@
 <div id="log"></div>
 <script>
 const CODES = [0, 7, 44, 63];
-const BLOCKS = [18, 24, 30, 36, 45, 54, 66, 80, 100];   // 흰 여백 포함 한 변 (px)
+const QS = new URLSearchParams(location.search);
+// 영상 크기. ?w=1920&h=1440 으로 올려서 다시 잴 수 있다.
+const FW = parseInt(QS.get("w") || "1280", 10);
+const FH = parseInt(QS.get("h") || "960", 10);
+// 🔴 AR.js 는 영상 크기(source)와 실제 검출 처리 크기(canvas)가 따로다.
+//    canvasWidth 를 안 주면 기본이 640x480 이라 1280 영상을 반으로 줄여서 읽는다.
+//    app.js 는 영상 크기와 같게 줘서 전체 해상도로 읽는다. 여기도 그래야
+//    실제와 같은 값이 나온다. ?cw=640&ch=480 으로 옛 설정을 재현해 볼 수 있다.
+const CW = parseInt(QS.get("cw") || String(FW), 10);
+const CH = parseInt(QS.get("ch") || String(FH), 10);
+// ⚠️ 흐림은 해상도에 비례해 키운다. 실제 렌즈의 번짐은 각도로 정해지므로
+//    픽셀 수로 보면 해상도에 비례한다. 안 키우면 고해상도가 부당하게 유리해진다.
+const BLUR = [0, 1.0 * FW / 1280];
+const BLOCKS = (QS.get("blocks") || "18,24,30,36,45,54,66,80,100,120,150")
+  .split(",").map(Number);                              // 흰 여백 포함 한 변 (px)
 const TILTS = [0, 30, 45, 60];
 const INK = 51;
 const log = (s) => document.getElementById("log").textContent += s + "\n";
 
 function make(img, blockPx, tiltDeg, blur) {
-  const W = 1280, H = 960;
+  const W = FW, H = FH;
   const c = document.createElement("canvas"); c.width = W; c.height = H;
   const g = c.getContext("2d");
   g.fillStyle = "#6e6e6e"; g.fillRect(0, 0, W, H);      // 전시장 벽/천장 어림
@@ -66,7 +80,7 @@ const load = (src) => new Promise((res, rej) => {
   sc.setAttribute("vr-mode-ui", "enabled: false");
   sc.setAttribute("arjs", "sourceType: image; sourceUrl: " + URL.createObjectURL(blob) +
     "; detectionMode: mono_and_matrix; matrixCodeType: 3x3; trackingMethod: best;" +
-    " sourceWidth: 1280; sourceHeight: 960");
+    ` sourceWidth: ${FW}; sourceHeight: ${FH}; canvasWidth: ${CW}; canvasHeight: ${CH}`);
   sc.style.cssText = "position:fixed;left:-9999px;width:2px;height:2px";
   const m = document.createElement("a-marker");
   m.setAttribute("type", "barcode"); m.setAttribute("value", "0");
@@ -84,6 +98,8 @@ const load = (src) => new Promise((res, rej) => {
     };
     tick();
   });
+  log(`영상 ${FW}x${FH}, 검출 처리 ${CW}x${CH}, ` +
+      `흐림 ${BLUR.map(v => v.toFixed(2)).join(" / ")}px`);
   log("검출기 확보, 문턱 모드 " + ctrl.getThresholdMode() + " 값 " + ctrl.getThreshold());
 
   let seen = [];
@@ -93,7 +109,7 @@ const load = (src) => new Promise((res, rej) => {
   for (const blockPx of BLOCKS) {
     for (const tilt of TILTS) {
       let hit = 0, tot = 0;
-      for (const code of CODES) for (const blur of [0, 1.0]) {
+      for (const code of CODES) for (const blur of BLUR) {
         seen = [];
         ctrl.process(make(imgs[code], blockPx, tilt, blur));
         tot++; if (seen.includes(code)) hit++;
