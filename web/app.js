@@ -13,7 +13,8 @@
 
 import "./marker_anchor.js";
 import { MARKERS, GEOMETRY, PEDESTAL, SCHEDULE, CAL_KEY, AR_SOURCE, ANCHOR,
-         MAX_CRYSTALS, DESK, refreshPedestal, refreshMarkers } from "./config.js";
+         MAX_CRYSTALS, DESK, FIREBASE, applyRemoteCal,
+         refreshPedestal, refreshMarkers } from "./config.js";
 import { Chandelier, RING_GAP, recomputeHeights, ringY } from "./chandelier.js";
 import { startFeed, mockData } from "./feed.js";
 import { Detector } from "./detect.js";
@@ -73,6 +74,24 @@ function loadScript(src) {
   });
 }
 if (!PREVIEW) await loadScript("./vendor/aframe-ar.js?v=2");
+
+// 🔴 현장 실측값을 먼저 받아 적용한다. 마커 엘리먼트를 만들기 전이어야 한다.
+//    설치가 끝나면 마커를 못 옮기므로 숫자로 맞추는 길이 유일한데, QR 은 이미
+//    인쇄되어 있고 현장에서 다시 배포하는 것도 불안하다. DB 에 적어 두면
+//    모든 폰이 따라온다. 못 받아도 그냥 기본값으로 간다. 멈추면 안 된다.
+if (!PREVIEW && FIREBASE.databaseURL && !FIREBASE.databaseURL.includes("PASTE_")) {
+  try {
+    const url = `${FIREBASE.databaseURL.replace(/\/$/, "")}/cal.json`;
+    const ctl = new AbortController();
+    const kill = setTimeout(() => ctl.abort(), 4000);   // 망이 느려도 넘어간다
+    const cal = await (await fetch(url, { signal: ctl.signal })).json();
+    clearTimeout(kill);
+    const hit = applyRemoteCal(cal);
+    if (hit.length) console.log(`[cal] 현장 보정값 적용: ${hit.join(", ")}`);
+  } catch (e) {
+    console.warn("[cal] 보정값을 못 받았습니다. 기본값으로 갑니다.", e.name);
+  }
+}
 
 // 🔴 cameraParametersUrl 을 안 주면 AR.js 가 ar-js-org.github.io 에서 직접 받아 온다.
 //    못 받으면 ARToolKit 이 초기화되지 않아 마커가 하나도 안 잡힌다. 이틀 동안

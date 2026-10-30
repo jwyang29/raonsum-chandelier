@@ -414,7 +414,7 @@ const cubeMarkers = () => CUBES.flatMap((c) => {
     value: c.codes[i],
     size: c.face / 1.5,                 // 검은 사각형. 흰 여백이 25% 씩이다
     pos: [cx + dx * c.face / 2, c.y, cz + dz * c.face / 2],
-    yaw, tilt: 90, kind: "cube",
+    yaw, tilt: 90, kind: "cube", cube: CUBES.indexOf(c), face: i,
   }));
 
   // 🔴 밑면. 이게 없으면 좌대 바로 앞에 선 관객이 올려다볼 때 기준이 없다.
@@ -427,7 +427,7 @@ const cubeMarkers = () => CUBES.flatMap((c) => {
     value: c.codes[4],
     size: c.face / 1.5,
     pos: [cx, c.y - c.face / 2, cz],
-    yaw: 0, tilt: 180, kind: "cube",
+    yaw: 0, tilt: 180, kind: "cube", cube: CUBES.indexOf(c), face: 4,
   });
   return faces;
 });
@@ -460,17 +460,124 @@ export const MARKERS = [
 // 네 방향 순서는 위 배열과 같다: +Z, -X, -Z, +X
 const RING_DIRS = [[0, 1], [-1, 0], [0, -1], [1, 0]];
 
+// 🔴 바닥 마커 네 장의 자리를 하나씩 못박는다.
+//
+//    설치를 마치면 마커를 옮기거나 다시 찍을 수 없다. 그런데 기본 계산은
+//    네 장이 완벽한 정사각형 위에 있다고 가정한다. 실제로는 몇 cm 씩 어긋나고,
+//    사람이 손으로 붙이면 방향도 조금씩 돌아간다. 그 차이를 못 적으면
+//    마커마다 다른 월드 원점을 내놓고 화면이 튄다.
+//
+//    순서는 MARKERS 의 바닥 네 장 순서, 곧 0 / 7 / 44 / 63 이다.
+//    각 항목은 [x, z, yaw도] 이고 원점은 장치(천)의 한가운데다.
+//      ?fm=0,0.42,0;-0.41,0,2;0,-0.43,0;0.42,0,-1
+//    비워 두면 지금처럼 반지름 하나로 정사각형을 만든다.
+let FLOOR_FIX = null;
+
+export function setFloorFix(list) {
+  FLOOR_FIX = (Array.isArray(list) && list.length === 4) ? list : null;
+}
+
+(function parseFm() {
+  const raw = (QS.get("fm") || "").trim();
+  if (!raw) return;
+  const got = raw.split(";").map((t) => t.split(",").map(Number))
+                 .filter((a) => a.length >= 2 && a.every(Number.isFinite));
+  if (got.length === 4) FLOOR_FIX = got;
+  else console.warn("[config] ?fm= 은 네 장을 전부 적어야 합니다. 무시합니다.");
+})();
+
 export function refreshMarkers() {
   const R = GEOMETRY.markerRing;
   let i = 0;
   for (const m of MARKERS) {
     if (m.kind === "ceiling") { m.pos[1] = GEOMETRY.ceilingHeight; continue; }
     // ⚠️ 매단 큐브는 좌대 지름과 상관없다. 여기서 건드리면 자리가 통째로 틀어진다.
+    if (m.kind === "cube") {
+      // 매단 높이는 현장에서 재서 고칠 수 있다. 줄을 올리고 내리면 되니까.
+      const c = CUBES[m.cube];
+      if (!c) continue;
+      const [cx, , cz] = cubeCenter(c);
+      if (m.face === 4) {
+        m.pos[0] = cx; m.pos[1] = c.y - c.face / 2; m.pos[2] = cz;
+      } else {
+        const [dx, dz] = CUBE_DIRS[m.face];
+        m.pos[0] = cx + dx * c.face / 2;
+        m.pos[1] = c.y;
+        m.pos[2] = cz + dz * c.face / 2;
+      }
+      continue;
+    }
     if (m.kind !== "floor") continue;
-    const [dx, dz] = RING_DIRS[i++ % 4];
-    m.pos[0] = dx * R;
-    m.pos[2] = dz * R;
+    const k = i++;
+    if (FLOOR_FIX) {
+      const [x, z, yaw] = FLOOR_FIX[k];
+      m.pos[0] = x;
+      m.pos[2] = z;
+      m.yaw = Number.isFinite(yaw) ? yaw : 0;
+    } else {
+      const [dx, dz] = RING_DIRS[k % 4];
+      m.pos[0] = dx * R;
+      m.pos[2] = dz * R;
+      m.yaw = 0;
+    }
   }
+}
+
+// =============================================================
+//  설치를 마친 뒤 현장 실측값을 Firebase 에서 받아 적용한다.
+//
+//  🔴 설치가 끝나면 마커를 옮기거나 다시 찍을 수 없다. 숫자로 맞추는 길이
+//     유일하다. 그런데 QR 은 이미 인쇄되어 있고 현장에서 다시 배포하는 것도
+//     불안하다. 그래서 DB 에 적어 두고 앱이 읽어 간다. 모든 폰이 따라온다.
+//  ⚠️ URL 로 직접 준 값이 이것보다 세다. 현장에서 한 대만 다르게 보며
+//     맞춰 볼 때 필요하다.
+// =============================================================
+
+export function applyRemoteCal(cal) {
+  if (!cal || typeof cal !== "object") return [];
+  const hit = [];
+  const urlHas = (k) => QS.get(k) !== null;
+  const num_ = (k) => Number(cal[k]);
+  const take = (k, fn, lo, hi) => {
+    const v = num_(k);
+    if (urlHas(k) || !Number.isFinite(v) || v < lo || v > hi) return;
+    fn(v);
+    hit.push(`${k}=${v}`);
+  };
+
+  take("ped",  (v) => { PEDESTAL.diameter = v; }, 0.2, 3);
+  take("pedh", (v) => { PEDESTAL.height = v; },   0,   2);
+  take("msize", (v) => {
+    GEOMETRY.markerSize = v;
+    for (const m of MARKERS) if (m.kind === "floor") m.size = v;
+  }, 0.02, 0.6);
+  take("headroom", (v) => { GEOMETRY.headroom = v; }, 0.3, 6);
+
+  refreshPedestal();                 // 자동으로 나오는 값들을 먼저 다시 잡는다
+
+  take("mring", (v) => { GEOMETRY.markerRing = v; }, 0.05, 1.5);
+  take("floorceiling",
+       (v) => { GEOMETRY.ceilingHeight = Math.max(0.5, v - PEDESTAL.height); }, 1.2, 9);
+  take("ceiling", (v) => { GEOMETRY.ceilingHeight = v; }, 0.5, 9);
+
+  // 바닥 마커 네 장의 실측 자리. [x, z, yaw도] 넷.
+  if (!urlHas("fm") && Array.isArray(cal.fm) && cal.fm.length === 4) {
+    setFloorFix(cal.fm);
+    hit.push("fm");
+  }
+  // 매단 큐브 높이. 한 변은 인쇄물이라 못 바꾼다.
+  if (!urlHas("cube") && Array.isArray(cal.cubeY)) {
+    cal.cubeY.forEach((y, i) => {
+      if (CUBES[i] && Number.isFinite(y)) {
+        CUBES[i].floorY = y;
+        CUBES[i].y = y - PEDESTAL.height;
+      }
+    });
+    hit.push("cubeY");
+  }
+
+  refreshMarkers();
+  return hit;
 }
 
 // 마커 포즈가 떨릴 때 쓰는 저역 통과 필터. 0 에 가까우면 둔하고 안정적.
