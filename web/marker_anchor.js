@@ -64,6 +64,7 @@ AFRAME.registerComponent("world-anchor", {
     this.visibleCount = 0;
     this.seenValues = [];
     this.spread = 0;
+    this.rejected = false;   // 둘만 보이는데 서로 어긋나 버린 프레임인가
 
     this.tmpM = new THREE.Matrix4();
     this.tmpQ = new THREE.Quaternion();
@@ -111,6 +112,15 @@ AFRAME.registerComponent("world-anchor", {
 
     // 셋 이상이면 중앙값에서 크게 벗어난 것을 버린다. 조형물에 반쯤 가려
     // 잘못 잡힌 마커 하나가 월드를 끌고 가는 것을 막는다.
+    //
+    // 🔴 둘만 보일 때는 중앙값이 없어 누가 바깥값인지 가릴 수 없다. 그런데
+    //    둘 중 하나가 오검출이면 두 마커가 아주 다른 자리를 주장하므로, 그
+    //    어긋남 자체로 알아챌 수 있다. 어긋남이 rejectMeters 를 넘으면 평균을
+    //    내지 않고 그 프레임을 버린다 (마커를 놓친 것과 같이 처리한다).
+    //    좌대 위의 QR 처럼 "검은 사각 테두리 안에 패턴" 인 그림은 없는 마커
+    //    번호로 읽힐 수 있고, 그게 쓰는 번호와 겹치면 월드가 그쪽으로 끌려간다.
+    //    (markers/qr_test.html 로 실측: 검은 QR 은 44가지 거리 중 22가지에서
+    //     유령 번호를 만들고, 그중 하나는 바닥 마커 63 이었다)
     let use = cands;
     if (cands.length >= 3) {
       const med = new THREE.Vector3();
@@ -130,6 +140,14 @@ AFRAME.registerComponent("world-anchor", {
     for (let i = 0; i < cands.length; i++)
       for (let j = i + 1; j < cands.length; j++)
         this.spread = Math.max(this.spread, cands[i].p.distanceTo(cands[j].p));
+
+    // 둘만 보이고 서로 너무 다른 자리를 주장하면 믿지 않는다.
+    if (use.length === 2 && this.spread > ANCHOR.rejectMeters) {
+      this.rejected = true;
+      use = [];
+    } else {
+      this.rejected = false;
+    }
 
     use.sort((a, b) => b.w - a.w);
     let accW = 0;

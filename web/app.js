@@ -347,7 +347,10 @@ AFRAME.registerComponent("chandelier-driver", {
       // 마커끼리 얼마나 다른 자리를 주장하는가. 흔들림의 원인이 여기 보인다.
       (PREVIEW ? "" : `서로 어긋남  ${this.anchor
           ? (this.anchor.spread * 100).toFixed(1) : "0"} cm` +
-        `${this.anchor && this.anchor.spread > 0.08 ? "  <- 배치가 틀렸습니다" : ""}\n`) +
+        `${this.anchor && this.anchor.spread > 0.08 ? "  <- 배치가 틀렸습니다" : ""}` +
+        // 둘만 보이는데 서로 너무 달라 그 프레임을 버렸다. 좌대 위의 QR 처럼
+        // 마커를 닮은 그림이 오검출되면 여기 뜬다.
+        `${this.anchor && this.anchor.rejected ? "  <- 안 믿고 버림" : ""}\n`) +
       `크리스탈     ${chandelier.items.length} (cap ${chandelier.cap})\n` +
       `품질 단계    ${chandelier.level}\n` +
       `fps          ${chandelier.fps ? chandelier.fps.toFixed(1) : "재는 중"}\n` +

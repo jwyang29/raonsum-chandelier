@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="utf-8"><title>좌대 위 QR 이 마커로 오검출되나</title>
+<style>
+ body{margin:0;padding:18px;background:#12161c;color:#d8e0ea;font:13px/1.6 system-ui,sans-serif}
+ h1{font-size:15px;margin:0 0 6px} p{color:#8b97a6;font-size:12px;margin:0 0 12px;max-width:820px}
+ table{border-collapse:collapse;font:12px ui-monospace,monospace;margin-bottom:14px}
+ td,th{border:1px solid #2a323d;padding:4px 9px;text-align:center}
+ th{color:#8b97a6;font-weight:500}
+ .ok{color:#7fd4c1} .no{color:#e8736b;font-weight:700} .mid{color:#e8b36b}
+ #log{white-space:pre;color:#7f8b99;font:11.5px ui-monospace,monospace}
+ canvas.peek{border:1px solid #2a323d;max-width:420px;margin-right:8px}
+</style>
+<script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js@3.4.5/aframe/build/aframe-ar.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
+</head><body>
+<h1>좌대 위에 QR 을 같이 붙여도 마커 인식이 그대로인가</h1>
+<p>QR 의 모서리 세 개(finder pattern)는 "검은 사각 테두리 안에 패턴" 이라 ARToolKit 이
+마커 후보로 집을 수 있다. 집어서 번호까지 읽히면 월드 원점이 엉뚱한 데로 끌려간다.
+실제 QR(전시 주소)을 만들어 실제 검출기에 넣어 잰다. 바닥 마커 한 장을 같은 화면에 두고,
+QR 의 어두운 칸 밝기를 0(검정)부터 올려 간다. ARToolKit 은 문턱 100 고정이라
+밝기가 100 을 넘으면 이진화에서 아예 흰색으로 사라진다. 묻는 것은 두 가지다.
+<b>(1) QR 때문에 없는 번호가 생기나 (2) 바닥 마커는 그대로 읽히나.</b></p>
+<div id="out">불러오는 중</div>
+<div id="peek"></div>
+<div id="log"></div>
+<script>
+const QS   = new URLSearchParams(location.search);
+const URL_ = QS.get("u") || "https://jwyang29.github.io/raonsum-chandelier/";
+const FW   = parseInt(QS.get("w")  || "1280", 10);
+const FH   = parseInt(QS.get("h")  || "960", 10);
+const INK  = 51;                                   // 마커 잉크 (#333)
+const CODES = [0, 7, 44, 63];                      // 바닥 마커 네 장
+// QR 어두운 칸 밝기. 100 이 ARToolKit 의 고정 문턱이다.
+const LEVELS = (QS.get("lum") || "0,40,80,95,105,120,140,160").split(",").map(Number);
+// QR 한 변 (흰 여백 제외, px). 바닥 마커 블록이 300px 로 잡힌 화면 기준.
+const SIZES  = (QS.get("qr") || "120,200,300,440").split(",").map(Number);
+const BLUR   = [0, 1.0 * FW / 1280];
+const log = (s) => document.getElementById("log").textContent += s + "\n";
+// ?mode=sweep 이면 검은 QR 하나만 두고 크기를 촘촘히 훑는다. 유령이 뜨는 것은
+// 문턱 문제가 아니라 모듈이 픽셀에 떨어지는 우연이라, 어느 거리에서 뜨는지는
+// 띄엄띄엄 재면 안 보인다.
+const MODE  = QS.get("mode") || "grid";
+const STEP  = parseInt(QS.get("step") || "10", 10);
+const FROM  = parseInt(QS.get("from") || "90", 10);
+const TO    = parseInt(QS.get("to")   || "520", 10);
+
+// ── 실제 QR 을 만든다. 모서리 세 개, 타이밍, 정렬 패턴이 전부 제대로 들어간다 ──
+function qrModules(text) {
+  const q = qrcode(0, "M"); q.addData(text); q.make();
+  const n = q.getModuleCount(), m = [];
+  for (let r = 0; r < n; r++) { m.push([]); for (let c = 0; c < n; c++) m[r].push(q.isDark(r, c)); }
+  return m;
+}
+function drawQR(g, mods, x, y, size, ink) {
+  const n = mods.length, u = size / n, q = u * 4;      // 여백 4모듈 (규격)
+  g.fillStyle = "#fff"; g.fillRect(x - q, y - q, size + 2*q, size + 2*q);
+  // ⚠️ ARToolKit 이 회색으로 바꿀 때 평균을 쓰는지 휘도를 쓰는지가 확실하지 않다.
+  //    그래서 색을 회색으로 어림하지 않고 실제 색을 그대로 넣어 잰다.
+  g.fillStyle = typeof ink === "number" ? `rgb(${ink},${ink},${ink})` : ink;
+  for (let r = 0; r < n; r++) for (let c = 0; c < n; c++)
+    if (mods[r][c]) g.fillRect(x + c*u, y + r*u, u + 0.6, u + 0.6);
+}
+
+// ── 바닥 마커. cube_test.html 과 같은 방식으로 실제 인쇄 그림을 쓴다 ──
+function inked(img) {
+  const t = document.createElement("canvas"); t.width = t.height = img.width;
+  const tg = t.getContext("2d"); tg.drawImage(img, 0, 0);
+  const d = tg.getImageData(0, 0, t.width, t.height);
+  for (let i = 0; i < d.data.length; i += 4)
+    if (d.data[i] < 128) { d.data[i] = d.data[i+1] = d.data[i+2] = INK; }
+  tg.putImageData(d, 0, 0); return t;
+}
+function frame(markerTex, mods, qrSize, ink, blur, blockPx) {
+  const c = document.createElement("canvas"); c.width = FW; c.height = FH;
+  const g = c.getContext("2d");
+  g.fillStyle = "#8e8f8b"; g.fillRect(0, 0, FW, FH);         // 좌대 상판 어림
+  if (blur) g.filter = `blur(${blur}px)`;
+  const quiet = 0.25 / 1.5;
+  const mx = 90, my = (FH - blockPx) / 2;
+  g.fillStyle = "#fff"; g.fillRect(mx, my, blockPx, blockPx);
+  g.drawImage(markerTex, mx + blockPx*quiet, my + blockPx*quiet,
+              blockPx*(1 - 2*quiet), blockPx*(1 - 2*quiet));
+  drawQR(g, mods, FW - qrSize - 110, (FH - qrSize) / 2, qrSize, ink);
+  return c;
+}
+
+const load = (src) => new Promise((res, rej) => {
+  const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = src; });
+
+// 지금 작품에서 쓰는 번호. config.js 를 읽어 와서 하드코딩하지 않는다.
+async function usedCodes() {
+  // 이 쪽 개발 서버는 markers/ 를 뿌리로 보므로 ../web 이 안 열린다.
+  // web 쪽 서버(5604)도 같이 켜 두고 거기서 읽는다.
+  let src = "";
+  for (const u of ["../web/config.js", "http://localhost:5604/config.js",
+                   "https://jwyang29.github.io/raonsum-chandelier/config.js"]) {
+    try { const r = await fetch(u); if (r.ok) { src = await r.text(); break; } } catch (e) {}
+  }
+  if (!src) throw new Error("config.js 를 못 읽음. web 개발 서버(5604)를 같이 켜세요");
+  const nums = new Set();
+  const grab = (re) => { let m; while ((m = re.exec(src))) 
+    m[1].match(/\d+/g).forEach(v => nums.add(+v)); };
+  grab(/CUBE_CODES\s*=\s*\[([\s\S]*?)\]\s*;/g);
+  // 바닥과 천장은 MARKERS 목록에 value: 로 적혀 있다
+  let m; const re = /value:\s*(\d+)/g;
+  while ((m = re.exec(src))) nums.add(+m[1]);
+  return nums;
+}
+
+(async () => {
+  const mods = qrModules(URL_);
+  const USED = await usedCodes();
+  const tex = {};
+  for (const c of CODES) tex[c] = inked(await load(`src/${c}.png`));
+  const BLOCK = 300;                                          // 바닥 마커 블록 px
+
+  const blob = await new Promise(r => frame(tex[0], mods, 300, 0, 0, BLOCK).toBlob(r));
+  const sc = document.createElement("a-scene");
+  sc.setAttribute("embedded", ""); sc.setAttribute("vr-mode-ui", "enabled: false");
+  sc.setAttribute("arjs", "sourceType: image; sourceUrl: " + URL.createObjectURL(blob) +
+    "; detectionMode: mono_and_matrix; matrixCodeType: 3x3; trackingMethod: best;" +
+    ` sourceWidth: ${FW}; sourceHeight: ${FH}; canvasWidth: ${FW}; canvasHeight: ${FH}`);
+  sc.style.cssText = "position:fixed;left:-9999px;width:2px;height:2px";
+  const mk = document.createElement("a-marker");
+  mk.setAttribute("type", "barcode"); mk.setAttribute("value", "0");
+  sc.appendChild(mk); sc.appendChild(document.createElement("a-entity"));
+  document.body.appendChild(sc);
+
+  const ctrl = await new Promise((res, rej) => {
+    const t0 = Date.now();
+    const tick = () => {
+      const s = sc.systems && sc.systems.arjs;
+      const c = s && s._arSession && s._arSession.arContext && s._arSession.arContext.arController;
+      if (c) return res(c);
+      if (Date.now() - t0 > 25000) return rej(new Error("검출기를 못 찾음"));
+      setTimeout(tick, 200);
+    };
+    tick();
+  });
+  log(`영상 ${FW}x${FH}  QR 모듈 ${mods.length}x${mods.length}  주소 ${URL_}`);
+  log(`문턱 모드 ${ctrl.getThresholdMode()} 값 ${ctrl.getThreshold()}  바닥 마커 블록 ${BLOCK}px`);
+
+  let seen = [];
+  ctrl.addEventListener("getMarker", e => {
+    if (e.data.marker.idMatrix >= 0) seen.push(e.data.marker.idMatrix); });
+
+  log("작품이 쓰는 번호 " + [...USED].sort((a,b)=>a-b).join(",") + ` (${USED.size}개)`);
+
+  if (MODE === "sweep") {
+    const ink = QS.get("ink") || LEVELS[0];     // ?ink=#e8352e 처럼 색으로도 준다
+    log("잉크 " + ink);
+    const rows = [];
+    for (let sz = FROM; sz <= TO; sz += STEP) {
+      const ghosts = new Set(); let hit = 0, tot = 0;
+      for (const code of CODES) {
+        seen = [];
+        ctrl.process(frame(tex[code], mods, sz, ink, 0, BLOCK));
+        tot++; if (seen.includes(code)) hit++;
+        seen.filter(v => v !== code).forEach(v => ghosts.add(v));
+      }
+      rows.push({ sz, ghosts: [...ghosts].sort((a,b)=>a-b), hit, tot });
+    }
+    const any  = rows.filter(r => r.ghosts.length);
+    const bad  = rows.filter(r => r.ghosts.some(v => USED.has(v)));
+    let html = "<table><tr><th>QR 한 변 (px)</th><th>유령 번호</th><th>그중 작품이 쓰는 번호</th>" +
+               "<th>바닥 마커</th></tr>";
+    for (const r of rows) {
+      const mine = r.ghosts.filter(v => USED.has(v));
+      html += `<tr><td>${r.sz}</td>` +
+        `<td class="${r.ghosts.length ? "mid" : "ok"}">${r.ghosts.join(",") || "없음"}</td>` +
+        `<td class="${mine.length ? "no" : "ok"}">${mine.join(",") || "없음"}</td>` +
+        `<td class="${r.hit === r.tot ? "ok" : "no"}">${r.hit}/${r.tot}</td></tr>`;
+    }
+    document.getElementById("out").innerHTML = html + "</table>" +
+      `<p>잉크 ${ink}, ${rows.length}가지 크기. 유령이 뜬 크기 ${any.length}가지 ` +
+      `(${(100*any.length/rows.length).toFixed(0)}%), 그중 작품이 쓰는 번호로 ` +
+      `읽힌 크기 ${bad.length}가지 (${(100*bad.length/rows.length).toFixed(0)}%).</p>`;
+    log(`유령이 뜬 크기 ${any.length}/${rows.length}, 쓰는 번호로 읽힌 크기 ${bad.length}/${rows.length}`);
+    log("쓰는 번호로 읽힌 크기: " + bad.map(r => `${r.sz}px->${r.ghosts.filter(v=>USED.has(v)).join("/")}`).join("  "));
+    window.__rows = rows; window.__done = true; return;
+  }
+
+  const res = {};
+  for (const lum of LEVELS) {
+    for (const sz of SIZES) {
+      const ghosts = new Set(); let hit = 0, tot = 0;
+      for (const code of CODES) for (const blur of BLUR) {
+        seen = [];
+        ctrl.process(frame(tex[code], mods, sz, lum, blur, BLOCK));
+        tot++; if (seen.includes(code)) hit++;
+        seen.filter(v => v !== code).forEach(v => ghosts.add(v));
+      }
+      res[`${lum}_${sz}`] = { ghosts: [...ghosts].sort((a,b)=>a-b), hit, tot };
+      // 한 칸마다 그림 차례를 돌려준다. 안 그러면 탭이 끝까지 멈춰 있어서
+      // 중간 결과를 볼 수가 없다.
+      window.__res = res; window.__cells = Object.keys(res).length;
+      // ⚠️ requestAnimationFrame 은 탭이 숨어 있으면 아예 안 불린다. setTimeout 을 쓴다.
+      await new Promise(r => setTimeout(r, 0));
+    }
+    log(`밝기 ${String(lum).padStart(3)}  ` + SIZES.map(s => {
+      const r = res[`${lum}_${s}`];
+      return `${s}px [${r.hit}/${r.tot}${r.ghosts.length ? " 유령 " + r.ghosts.join(",") : ""}]`;
+    }).join("  "));
+  }
+
+  let html = "<table><tr><th>QR 어두운 칸<br>밝기</th>" +
+    SIZES.map(s => `<th>QR ${s}px</th>`).join("") + "</tr>";
+  for (const lum of LEVELS) {
+    html += `<tr><td>${lum}${lum === 0 ? " 검정" : ""}</td>`;
+    for (const s of SIZES) {
+      const r = res[`${lum}_${s}`];
+      const bad = r.ghosts.length, part = r.hit < r.tot;
+      html += `<td class="${bad ? "no" : part ? "mid" : "ok"}">` +
+        (bad ? "유령 " + r.ghosts.join(",") : "없음") +
+        (part ? `<br>마커 ${r.hit}/${r.tot}` : "") + "</td>";
+    }
+    html += "</tr>";
+  }
+  document.getElementById("out").innerHTML = html + "</table>" +
+    "<p>유령 = QR 때문에 생긴 없는 마커 번호. 마커 n/8 은 바닥 마커가 덜 읽힌 것.</p>";
+
+  for (const lum of [0, 120]) {
+    const c = frame(tex[0], mods, 300, lum, 0, BLOCK);
+    c.className = "peek"; c.title = "밝기 " + lum;
+    document.getElementById("peek").appendChild(c);
+  }
+  window.__res = res; window.__done = true;
+})().catch(e => { document.getElementById("out").textContent = "실패: " + e;
+  log(String(e.stack || e)); window.__done = "err"; });
+</script>
+</body></html>
