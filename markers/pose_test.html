@@ -34,6 +34,7 @@ function genPara(w, h) {
   [0,0,0,0,f,f,w/2,h/2,1].forEach((v,i)=>d.setFloat64(104+i*8,v));
   return { url: URL.createObjectURL(new Blob([b])), f };
 }
+const S = 0.10;                 // 검은 사각형 한 변 (m). a-marker 의 size 와 같다
 const PARAM = genPara(CW, CH);
 const PARA_URL = PARA === "orig" ? "camera_para.dat" : PARAM.url;
 // 그림을 만들 때 쓰는 카메라도 같은 초점거리로 둔다. 그래야 정답이 D 가 된다.
@@ -89,35 +90,98 @@ const load = s => new Promise((r,j)=>{const i=new Image();i.onload=()=>r(i);i.on
     setTimeout(t,200);};t();});
   log(`캔버스 ${CW}x${CH}  카메라모델 ${PARA}  f=${F.toFixed(1)}px  ` +
       `화각 긴변 ${(2*Math.atan(Math.max(CW,CH)/2/F)*180/Math.PI).toFixed(1)}도`);
+  // 그림이 실제로 몇 픽셀로 그려졌는지 먼저 확인한다. 가정과 다르면 여기서 드러난다.
+  log(`검은 사각형 ${(S*100).toFixed(1)}cm 를 1m 에 두면 ${(S*F).toFixed(0)}px 로 그려져야 한다`);
 
-  let seen = false;
-  ctrl.addEventListener("getMarker", e => { if (e.data.marker.idMatrix === 0) seen = true; });
+  // 🔴 검출된 네 모서리를 직접 재서, 핀홀 식으로 나와야 할 거리를 계산한다.
+  //    그 값이 정답과 맞는데 요소 위치만 틀리면 AR.js 의 변환이 범인이고,
+  //    그 값부터 틀리면 ARToolKit 의 포즈가 범인이다.
+  let hit = null;
+  ctrl.addEventListener("getMarker", e => {
+    const m = e.data.marker;
+    const v = m.vertex || [];
+    let px = 0;
+    for (let i = 0; i < 4; i++) {
+      const a = v[i], b = v[(i + 1) % 4];
+      if (a && b) px += Math.hypot(a[0] - b[0], a[1] - b[1]) / 4;
+    }
+    hit = { id: m.idMatrix, px, v: JSON.stringify(v) };
+  });
 
-  const S = 0.10;
+  // 🔴 그림을 픽셀로 직접 잰다. 검출기가 말하는 모서리와 다르면 좌표계가 다른 것이다.
+  function measureDark(cv) {
+    const c = document.createElement("canvas");
+    c.width = cv.width; c.height = cv.height;
+    const g = c.getContext("2d");
+    g.drawImage(cv, 0, 0);
+    const d = g.getImageData(0, 0, c.width, c.height).data;
+    let x0 = 1e9, y0 = 1e9, x1 = -1, y1 = -1;
+    for (let y = 0; y < c.height; y += 2) {
+      for (let x = 0; x < c.width; x += 2) {
+        if (d[(y * c.width + x) * 4] < 100) {
+          if (x < x0) x0 = x; if (x > x1) x1 = x;
+          if (y < y0) y0 = y; if (y > y1) y1 = y;
+        }
+      }
+    }
+    return x1 < 0 ? null : { w: x1 - x0, h: y1 - y0 };
+  }
+  {
+    const cv = shot(S, 1.0, 0);
+    const m = measureDark(cv);
+    log(`그림 캔버스 ${cv.width}x${cv.height}, 1m 에서 검은 영역 ` +
+        (m ? `${m.w}x${m.h} px` : "없음"));
+  }
+
+  // 🔴 고침 두 가지
+  if (QS.get("fix") !== "0") {
+    // (1) 세로 캔버스에서 가로를 (세로/가로)^2 배로 늘리는 경로를 막는다
+    ctrl.orientation = "landscape";
+    // (2) 처음 본 순간 기본 폭 1.0 으로 등록된 것을 진짜 크기로 덮는다
+    const put = () => {
+      const e = ctrl.barcodeMarkers && ctrl.barcodeMarkers[0];
+      if (e && e.markerWidth !== S) e.markerWidth = S;
+    };
+    put(); setInterval(put, 50);
+    log("고침 적용: orientation=landscape, 마커 폭 " + S);
+  }
+
+  {   // 모서리 네 점을 날것으로 찍는다. 순서가 사각형을 한 바퀴 도는지 본다.
+    hit = null; ctrl.process(shot(S, 1.0, 0));
+    await new Promise(r => setTimeout(r, 30));
+    log("모서리 날것: " + (hit ? hit.v : "없음"));
+  }
+
   const rows = [];
   for (const D of [0.6, 1.0, 1.5, 2.0, 3.0]) {
     for (const tilt of [0, 30, 50]) {
-      seen = false;
+      hit = null;
       ctrl.process(shot(S, D, tilt));
       await new Promise(r => setTimeout(r, 30));
-      // 🔴 앱이 쓰는 값을 그대로 잰다. ArMarkerControls 가 size(0.10) 를 써서
-      //    요소의 object3D 를 놓는다. 원본 행렬을 직접 읽으면 size 가 안 들어간다.
       mk.object3D.updateMatrixWorld(true);
       const pos = new THREE.Vector3().setFromMatrixPosition(mk.object3D.matrixWorld);
-      const d = seen && pos.lengthSq() > 0 ? pos.length() : null;
-      rows.push({ D, tilt, d });
+      const d = hit && pos.lengthSq() > 0 ? pos.length() : null;
+      // 모서리에서 바로 낸 거리. 핀홀이면 이게 정답과 같아야 한다.
+      const dPx = hit && hit.px > 0 ? S * F / hit.px : null;
+      rows.push({ D, tilt, d, dPx, id: hit ? hit.id : null, px: hit ? hit.px : 0 });
       await new Promise(r => setTimeout(r, 0));
     }
   }
 
-  let html = "<table><tr><th>정답 거리</th><th>기울기</th><th>검출기가 말한 거리</th><th>비</th></tr>";
+  let html = "<table><tr><th>정답</th><th>기울기</th><th>번호</th><th>모서리 px</th>" +
+    "<th>모서리로 낸 거리</th><th>앱이 쓰는 거리</th><th>비</th></tr>";
   for (const r of rows) {
     const ratio = r.d ? r.d / r.D : null;
     const cls = !r.d ? "no" : Math.abs(ratio - 1) < 0.1 ? "ok" : Math.abs(ratio - 1) < 0.3 ? "mid" : "no";
+    const pxCls = !r.dPx ? "no" : Math.abs(r.dPx / r.D - 1) < 0.1 ? "ok" : "no";
     html += `<tr><td>${r.D.toFixed(2)} m</td><td>${r.tilt}도</td>` +
+            `<td>${r.id === null ? "-" : r.id}</td><td>${r.px.toFixed(1)}</td>` +
+            `<td class="${pxCls}">${r.dPx ? r.dPx.toFixed(2) + " m" : "-"}</td>` +
             `<td class="${cls}">${r.d ? r.d.toFixed(2) + " m" : "못 읽음"}</td>` +
             `<td class="${cls}">${ratio ? ratio.toFixed(2) + " 배" : "-"}</td></tr>`;
-    log(`정답 ${r.D}m ${r.tilt}도 -> ${r.d ? r.d.toFixed(2)+"m ("+(r.d/r.D).toFixed(2)+"배)" : "못 읽음"}`);
+    log(`정답 ${r.D}m ${r.tilt}도  번호 ${r.id}  ${r.px.toFixed(0)}px  ` +
+        `모서리로 ${r.dPx ? r.dPx.toFixed(2) : "-"}m  앱 ${r.d ? r.d.toFixed(2) : "-"}m` +
+        `${r.d ? " ("+(r.d/r.D).toFixed(2)+"배)" : ""}`);
   }
   document.getElementById("out").innerHTML = html + "</table>";
   window.__done = true;

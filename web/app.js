@@ -137,29 +137,6 @@ if (!PREVIEW && FIREBASE.databaseURL && !FIREBASE.databaseURL.includes("PASTE_")
 //    사람 없이 도는 전시라 바깥에 기대면 안 된다. web/vendor 에 받아 두었다.
 
 const chandelier = new Chandelier();
-// ── 진단: 설정값이 아니라 실제로 돌아가는 값을 읽는다 ──────────
-//
-// 🔴 패널의 "마커 한 변" 은 config 값을 그대로 찍을 뿐이라, AR.js 가 그 값을
-//    실제로 썼는지는 알려 주지 않는다. 예전에 AR.js 가 바코드 마커의 size 를
-//    버려서 월드가 10배 작았을 때도 패널은 멀쩡해 보였다. 그래서 검출기가
-//    쥐고 있는 값을 직접 꺼내 본다.
-function detectorSize() {
-  try {
-    for (const m of MARKERS) {
-      const el = document.querySelector(`#marker-${m.value}`);
-      const a = el && el.components && el.components["arjs-anchor"]
-        && el.components["arjs-anchor"]._arAnchor;
-      if (!a) continue;
-      // AR.js 버전마다 두는 자리가 다르다. 후보를 차례로 본다.
-      for (const o of [a.controls, a.markerControls, a._arMarkerControls, a]) {
-        const v = o && o.parameters && o.parameters.size;
-        if (Number.isFinite(v)) return { value: m.value, size: v, want: m.size };
-      }
-    }
-  } catch (e) {}
-  return null;
-}
-
 // 폰이 실제로 내준 영상 크기. 요청한 것과 다르면 포즈가 통째로 틀어진다.
 function videoSize() {
   try {
@@ -375,12 +352,60 @@ if (PREVIEW) {
 }
 
 const scene = document.querySelector("a-scene");
+// ── jsartoolkit 의 두 가지 결함을 바로잡는다 ──────────────────
+//
+// 둘 다 markers/pose_test.html 의 닫힌 고리 시험으로 확인했다. 알려진 거리에
+// 마커를 띄워 그림을 만들고 실제 검출기에 넣어 돌아오는 거리를 재는 시험이다.
+//
+// 🔴 (1) 세로 캔버스에서 그림을 가로로 늘려 복사한다.
+//        ARController 의 그림 복사 코드가 orientation === "portrait" 일 때
+//          g = canvas.height / canvas.width
+//          drawImage(img, (w - h*g)/2, 0, h*g, w*g)
+//        로 그린다. 캔버스가 960x1280 이면 가로를 1706px 로 늘린다. 비율로
+//        (세로/가로)^2 = 1.78 배다. 세로로 든 폰은 영상이 960x1280 이라 반드시
+//        이 분기를 탄다. 정사각형 마커가 가로로 1.78배 뭉개지고, ARToolKit 이
+//        정사각형을 거기 끼워 맞추려다 해가 발산한다. 현장에서 월드 원점이
+//        12m, 71m, 196km 로 튀고 NaN 까지 나온 것이 이것이다.
+//        시험에서 120x120 을 넣으면 212x118 로 들어갔고, landscape 로 두면
+//        118x118 로 제대로 들어갔다.
+//
+// 🔴 (2) 마커 폭이 1.0 으로 굳는다.
+//        trackBarcodeMarkerId 는 if (!this.barcodeMarkers[id]) 로 막혀 있어서
+//        이미 등록된 번호의 폭을 안 바꾼다. 그런데 검출 루프가 마커를 처음 본
+//        순간 폭 없이 먼저 등록해 버린다. 그러면 기본값 1.0 으로 굳고, 나중에
+//        AR.js 가 주는 진짜 크기(0.10)는 버려진다. 거리가 정확히 10배가 된다.
+//
+// 매 프레임 싸게 확인해서 틀어져 있으면 되돌린다. 마커가 새로 보일 때마다
+// 다시 굳을 수 있으므로 한 번만 고쳐서는 안 된다.
+let arFixed = false;
+function fixArController() {
+  const sys = scene && scene.systems && scene.systems.arjs;
+  const ctrl = sys && sys._arSession && sys._arSession.arContext
+    && sys._arSession.arContext.arController;
+  if (!ctrl) return;
+  if (ctrl.orientation !== "landscape") ctrl.orientation = "landscape";
+  const bm = ctrl.barcodeMarkers;
+  if (bm) {
+    for (const m of MARKERS) {
+      const e = bm[m.value];
+      if (e && e.markerWidth !== m.size) e.markerWidth = m.size;
+    }
+  }
+  if (!arFixed) {
+    arFixed = true;
+    console.info("[AR] 검출기 보정 적용: orientation=landscape, 마커 폭 복구");
+  }
+}
+
+
 const status = document.getElementById("status");
 const panel = document.getElementById("debug");
 if (DEBUG) panel.style.display = "block";
 
 // 렌더 루프는 A-Frame 이 돈다. 직접 setAnimationLoop 을 잡으면 충돌하므로
 // 컴포넌트의 tick 에 올린다.
+if (!PREVIEW) setInterval(fixArController, 250);   // 검출기가 생기기 전부터 돈다
+
 AFRAME.registerComponent("chandelier-driver", {
   init() {
     this.anchor = this.el.components["world-anchor"];
@@ -439,7 +464,20 @@ AFRAME.registerComponent("chandelier-driver", {
     if (!DEBUG) return;
 
     const p = this.anchor && this.anchor.started ? this.anchor.pos : null;
-    const ds = PREVIEW ? null : detectorSize();
+    // 🔴 설정값이 아니라 검출기가 실제로 쥐고 있는 마커 폭을 읽는다.
+    const aw = PREVIEW ? null : (() => {
+      try {
+        const sys = scene.systems.arjs;
+        const c = sys && sys._arSession && sys._arSession.arContext
+          && sys._arSession.arContext.arController;
+        if (!c || !c.barcodeMarkers) return null;
+        for (const m of MARKERS) {
+          const e = c.barcodeMarkers[m.value];
+          if (e) return { v: m.value, w: e.markerWidth, want: m.size, ori: c.orientation };
+        }
+      } catch (e) {}
+      return null;
+    })();
     const vs = PREVIEW ? null : videoSize();
     panel.textContent =
       `${VERSION}${PREVIEW ? "  preview" : ""}\n` +
@@ -451,8 +489,9 @@ AFRAME.registerComponent("chandelier-driver", {
       (PREVIEW ? "" : `실제 영상    ${vs}` +
         `${vs && vs !== `${AR_SOURCE.canvasW || AR_SOURCE.width}x${AR_SOURCE.canvasH || AR_SOURCE.height}` ? "  <- 캔버스와 다름" : "  OK"}\n`) +
       // 검출기가 쥐고 있는 실제 한 변. 준 값과 다르면 월드가 그 비율로 틀어진다.
-      (PREVIEW ? "" : `검출기 한 변 ${ds ? `${(ds.size * 100).toFixed(1)} cm (${ds.value}번, 준 값 ${(ds.want * 100).toFixed(1)})` : "아직 모름"}` +
-        `${ds && Math.abs(ds.size - ds.want) > 0.002 ? "  <- 안 먹었습니다" : ""}\n`) +
+      (PREVIEW ? "" : `검출기 한 변 ${aw ? `${(aw.w * 100).toFixed(1)} cm (${aw.v}번, 준 값 ${(aw.want * 100).toFixed(1)})` : "아직 모름"}` +
+        `${aw && Math.abs(aw.w - aw.want) > 0.002 ? "  <- 안 먹었습니다" : ""}` +
+        `${aw ? "  " + aw.ori : ""}\n`) +
       // 카메라에서 월드 원점까지. 그래픽이 작아 보이면 이 값이 커져 있다.
       (PREVIEW ? "" : `원점까지     ${p ? p.length().toFixed(2) + " m" : "-"}` +
         `   (화각 ${AR_SOURCE.fov.toFixed(1)}도)\n`) +
