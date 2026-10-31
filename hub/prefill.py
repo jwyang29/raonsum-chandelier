@@ -44,6 +44,10 @@ COUNTS = [int(v) for v in arg("--counts", "7,10,14,8,12,19,10,8,5,4").split(",")
 LAYERS = arg("--layers", len(COUNTS), int)
 PER    = arg("--per", 0, int)      # 0 이 아니면 COUNTS 대신 사인파로 만든다
 HOLDS  = arg("--hold", 5, int)
+# 올라가다 멈춘 것들이 퍼지는 범위 (0~1, 바닥에서 제 겹까지의 몫).
+# 넓으면 아래쪽이 성글어 보인다. 좁히면 한 덩어리로 모인다.
+HOLD_LO = arg("--holdlo", 0.55, float)
+HOLD_HI = arg("--holdhi", 0.75, float)
 SEED   = arg("--seed", 20261101, int)
 DRY    = "--dry" in sys.argv
 WIPE   = "--wipe" in sys.argv
@@ -136,13 +140,14 @@ def build():
             i += 1
 
     # 올라가다 멈춘 것들. 마지막 겹과 같은 주기에 둔다. 그 겹으로 올라가는 중이다.
-    # 0.35~0.84 면 바닥 기준 약 0.97m 에서 2.45m 사이에 선다. 천과 샹들리에
-    # 사이의 빈 구간이 바로 거기다.
+    # 퍼지는 범위는 --holdlo / --holdhi 로 준다. 넓으면 아래쪽이 성글어 보이고
+    # 좁히면 한 덩어리로 모인다. 겹 간격을 키워 샹들리에가 아래로 길어지면
+    # 이쪽을 좁혀야 둘이 겹치지 않는다.
     if HOLDS > 0:
         # 마지막 겹과 같은 주기에 둔다. 그 겹으로 올라가는 중이다.
         base = start_ms + last_idx * period_ms + period_ms - 60_000
         for k in range(HOLDS):
-            h = 0.35 + (0.84 - 0.35) * (k / max(1, HOLDS - 1))
+            h = HOLD_LO + (HOLD_HI - HOLD_LO) * (k / max(1, HOLDS - 1))
             out[f"{PREFIX}{i:04d}"] = crystal(rng, base + k, hold=h)
             i += 1
     return out, plan
