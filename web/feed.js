@@ -6,7 +6,7 @@
 //
 // ?mock=1 을 붙이면 Firebase 없이 가짜 크리스탈을 만들어 보낸다.
 
-import { FIREBASE, DB_PATH } from "./config.js?v=1101l";
+import { FIREBASE, DB_PATH } from "./config.js?v=1101m";
 
 const seen = new Set();
 

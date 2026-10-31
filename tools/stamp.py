@@ -16,7 +16,9 @@ if not VER:
     sys.exit("쓰는 법: python3 tools/stamp.py 1101l")
 
 WEB = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "web")
-pat = re.compile(r'(from\s+"\./)([A-Za-z0-9_\-/]+\.js)(\?v=[^"]*)?(")')
+# from "./x.js" 뿐 아니라 import "./x.js" (부수효과 전용) 와 import("./x.js") 도 잡는다.
+# marker_anchor.js 가 바로 그 형태라 한 번 놓쳤다. 가장 중요한 파일이었다.
+pat = re.compile(r'((?:from|import)\s*\(?\s*"\./)([A-Za-z0-9_\-/]+\.js)(\?v=[^"]*)?(")')
 n = 0
 for name in sorted(os.listdir(WEB)):
     if not name.endswith(".js"):
