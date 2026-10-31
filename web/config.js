@@ -618,6 +618,8 @@ export function applyRemoteCal(cal) {
   take("fov",  (v) => { AR_SOURCE.fov = v; }, 20, 140);
   take("gap",  (v) => { GEOMETRY.ringGap = v; }, 0.02, 1);
   take("smooth", (v) => { ANCHOR.smooth = v; }, 0.02, 1);
+  take("dead", (v) => { ANCHOR.deadMeters = v; }, 0, 0.3);
+  take("deadrot", (v) => { ANCHOR.deadDegrees = v; }, 0, 20);
   // 흩뿌리기. URL 로 준 것이 우선이다.
   if (!urlHas("scatter") && cal.scatter !== undefined) {
     setScatter(!!cal.scatter); hit.push("scatter=" + (cal.scatter ? 1 : 0));
@@ -663,6 +665,13 @@ export const ANCHOR = {
   // 포즈를 매 프레임 새로 푸니 잡음이 섞인다. 0.18 은 그 잡음을 꽤 따라간다.
   // ?smooth= 나 setcal --smooth 로 현장에서 맞춘다.
   smooth: num("smooth", 0.05),
+
+  // 🔴 이만큼 안 움직이면 아예 안 따라간다 (죽은 구간).
+  //    포즈를 매 프레임 새로 푸니 손을 가만히 둬도 몇 mm 씩 흔들린다. 저역
+  //    필터만으로는 그 잡음을 계속 쫓아다녀 "가만히 있어도 그래픽이 바뀐다" 가
+  //    된다. 문턱 안쪽이면 아예 안 움직이는 쪽이 눈에 훨씬 편하다.
+  deadMeters: num("dead", 0.03),     // 3cm
+  deadDegrees: num("deadrot", 1.5),  // 1.5도
   maxMarkers: 4,       // 동시에 평균낼 바닥 마커 수
 
   // 마커들 사이에 조형물이 있어 4개가 한꺼번에 안 보일 수 있다.

@@ -5,9 +5,9 @@
 // 측정에만 쓰고 장면은 마커 밖의 #world 에 두고 그 포즈를 매 프레임 갱신한다.
 // 보이는 마커가 둘 이상이면 평균을 낸다 (문서의 "2개 이상 보이면 평균").
 
-import { MARKERS, ANCHOR, AR_SOURCE, GEOMETRY } from "./config.js?v=1101t";
-import { solveMarkerAll, solvePlane, CV_TO_THREE } from "./pose.js?v=1101t";
-import { Gyro } from "./gyro.js?v=1101t";
+import { MARKERS, ANCHOR, AR_SOURCE, GEOMETRY } from "./config.js?v=1101u";
+import { solveMarkerAll, solvePlane, CV_TO_THREE } from "./pose.js?v=1101u";
+import { Gyro } from "./gyro.js?v=1101u";
 
 const DEG = Math.PI / 180;
 
@@ -451,6 +451,22 @@ AFRAME.registerComponent("world-anchor", {
   applyPose(p, q) {
     const obj = this.el.object3D;
     obj.visible = true;
+
+    // 🔴 문턱 안쪽이면 아예 안 움직인다.
+    //    포즈를 매 프레임 새로 푸니 손을 가만히 둬도 몇 mm 씩 흔들린다.
+    //    저역 필터는 그 잡음을 계속 쫓아다니므로 "가만히 있어도 그래픽이
+    //    바뀐다" 가 된다. 작은 변화는 버리는 쪽이 눈에 훨씬 편하다.
+    //    진짜로 움직이면 문턱을 넘으므로 따라간다.
+    if (this.started) {
+      const dp = this.pos.distanceTo(p);
+      const dq = 2 * Math.acos(Math.min(1, Math.abs(this.quat.dot(q)))) / DEG;
+      if (dp < ANCHOR.deadMeters && dq < ANCHOR.deadDegrees) {
+        obj.position.copy(this.pos);
+        obj.quaternion.copy(this.quat);
+        return;
+      }
+    }
+
     if (!this.started) {
       this.pos.copy(p);
       this.quat.copy(q);
