@@ -21,7 +21,7 @@ import { Detector } from "./detect.js";
 import { pickCamera, isDesktop } from "./campick.js";
 import { loadBlobs } from "./crystal.js";
 
-const VERSION = "build 1101a";   // 고칠 때마다 올린다. 폰이 옛 파일을 쓰고 있는지 이걸로 안다
+const VERSION = "build 1101b";   // 고칠 때마다 올린다. 폰이 옛 파일을 쓰고 있는지 이걸로 안다
 const params = new URLSearchParams(location.search);
 const DEBUG = params.get("debug") === "1";
 
@@ -497,7 +497,22 @@ AFRAME.registerComponent("chandelier-driver", {
         const c = sys && sys._arSession && sys._arSession.arContext
           && sys._arSession.arContext.arController;
         if (!c || !c.canvas) return null;
-        const o = { cw: c.canvas.width, ch: c.canvas.height, fx: "?", fy: "?" };
+        const o = { cw: c.canvas.width, ch: c.canvas.height, fx: "?", fy: "?", corners: "" };
+        // 🔴 검출기가 실제로 집은 네 모서리. 여기가 작으면 엉뚱한 것을 마커로
+        //    본 것이고, 크면 모서리는 맞는데 포즈 계산이 틀어진 것이다.
+        try {
+          const n = c.getMarkerNum ? c.getMarkerNum() : 0;
+          const parts = [];
+          for (let i = 0; i < n && parts.length < 3; i++) {
+            const mk = c.getMarker(i);
+            if (!mk || mk.idMatrix < 0 || !mk.vertex) continue;
+            const v = mk.vertex;
+            const w = Math.round(Math.max(Math.abs(v[0][0]-v[1][0]), Math.abs(v[1][0]-v[2][0])));
+            const h = Math.round(Math.max(Math.abs(v[0][1]-v[1][1]), Math.abs(v[1][1]-v[2][1])));
+            parts.push(`${mk.idMatrix}:${w}x${h}`);
+          }
+          o.corners = parts.join("  ");
+        } catch (e) {}
         const m = c.getCameraMatrix && c.getCameraMatrix();
         if (m) {                      // OpenGL 투영: m[0] = 2fx/W, m[5] = 2fy/H
           o.fx = Math.round(m[0] * o.cw / 2);
@@ -537,6 +552,8 @@ AFRAME.registerComponent("chandelier-driver", {
         `${ar && Math.abs(ar.fx - ar.fy) > 20 ? "  찌그러짐" : ""}\n`) +
       (PREVIEW ? "" : `검출기 한 변 ${aw ? `${(aw.w * 100).toFixed(1)} cm (준 값 ${(aw.want * 100).toFixed(1)})` : "아직 모름"}` +
         `${aw && Math.abs(aw.w - aw.want) > 0.002 ? "  안 먹음" : ""}  ${aw ? aw.ori : ""}\n`) +
+      // 🔴 집은 네 모서리의 픽셀 크기. 150 쯤이면 검출은 맞고 포즈만 틀린 것이다.
+      (PREVIEW ? "" : `모서리 px    ${ar && ar.corners ? ar.corners : "없음"}\n`) +
       `fps ${chandelier.fps ? chandelier.fps.toFixed(0) : "-"}  크리스탈 ${chandelier.items.length}  겹 ${chandelier.rings.size}`;
 
     panel.textContent = !DETAIL ? head : head + "\n\n" +
