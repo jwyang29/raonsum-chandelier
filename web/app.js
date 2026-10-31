@@ -38,6 +38,8 @@ const GUIDE = params.get("guide") === "1";
 const FILL = params.get("fill");
 const WANT_FILL = FILL !== null && FILL !== "0";
 const PREVIEW = params.get("preview") === "1";
+// 사람이 ?arw 를 직접 준 경우에는 영상 크기를 자동으로 고치지 않는다.
+const QS_HAS_ARW = params.has("arw") || params.has("arh");
 // 보정 패널은 ?cal=1 이나 ?debug=1 에서만 뜬다. 관객이 여는 주소에는 둘 다 없다.
 const CAL = params.get("cal") === "1" || params.get("debug") === "1";
 
@@ -304,6 +306,39 @@ if (PREVIEW) {
     ${markerTags}
     <a-entity id="world" world-anchor>${lights}</a-entity>
   </a-scene>`;
+
+  // 🔴 폰이 실제로 내주는 영상 크기로 AR.js 를 띄워야 한다.
+  //
+  //    세로로 든 폰은 카메라가 960x1280 을 준다. 그런데 1280x960 을 요청해
+  //    두면 AR.js 가 세로 영상을 가로 캔버스에 욱여넣는다. 정사각형 마커가
+  //    직사각형으로 찌그러지고 포즈가 통째로 깨진다. 현장에서 월드 원점이
+  //    25m 밖으로 날아갔고 마커끼리 10m 씩 어긋났다.
+  //
+  //    카메라를 먼저 열어 재고 끄는 방법도 있지만, 폰이 카메라를 놓아주기
+  //    전에 AR.js 가 다시 열다 실패하면 화면이 아예 안 뜬다. 그래서 일단
+  //    띄워 놓고, 영상 크기가 요청과 다르면 그 크기를 붙여 한 번만 다시 연다.
+  //    ?arw 를 직접 준 경우에는 사람이 고른 값이므로 건드리지 않는다.
+  if (!QS_HAS_ARW) {
+    let tries = 0;
+    const fit = setInterval(() => {
+      const v = document.querySelector("video");
+      if (!v || !v.videoWidth) { if (++tries > 60) clearInterval(fit); return; }
+      clearInterval(fit);
+      const w = v.videoWidth, h = v.videoHeight;
+      if (w === AR_SOURCE.width && h === AR_SOURCE.height) return;
+      // 무한 새로고침을 막는다. 한 세션에 두 번까지만.
+      let n = 0;
+      try { n = parseInt(sessionStorage.getItem("arfit") || "0", 10) || 0; } catch (e) {}
+      if (n >= 2) return;
+      try { sessionStorage.setItem("arfit", String(n + 1)); } catch (e) {}
+      console.warn(`[AR] 영상이 ${w}x${h} 입니다. 요청한 ` +
+        `${AR_SOURCE.width}x${AR_SOURCE.height} 와 달라 그 크기로 다시 엽니다.`);
+      const u = new URL(location.href);
+      u.searchParams.set("arw", String(w));
+      u.searchParams.set("arh", String(h));
+      location.replace(u.toString());
+    }, 250);
+  }
 }
 
 const scene = document.querySelector("a-scene");
