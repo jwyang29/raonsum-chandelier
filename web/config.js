@@ -333,6 +333,13 @@ export const SCHEDULE = {
 // 번호 26 은 다른 데 쓰지 않고 이 자리로 비워 두었다.
 export const HAS_CEILING_MARKER = QS.get("ceilingmarker") === "1";
 
+// 🔴 11/1~13 무인 기간의 예비 모양. 링으로 묶지 않고 허공에 흩뿌린다.
+//    링은 규칙적이라 위치가 조금만 어긋나도 눈에 띄는데, 흩뿌려 두면 맞출
+//    기준이 없어 몇 cm 어긋나도 모른다. AR 추적이 완벽하지 않은 동안 쓴다.
+//    ?scatter=1 로 켜고 ?scatter=0 으로 끈다. setcal --scatter 로 못박는다.
+export let SCATTER_ON = QS.get("scatter") === "1";
+export function setScatter(v) { SCATTER_ON = !!v; }
+
 const R = GEOMETRY.markerRing;
 
 // 천장에서 낚싯줄로 매단 마커 큐브. 옆면 넷에 서로 다른 바코드를 붙인다.
@@ -611,6 +618,10 @@ export function applyRemoteCal(cal) {
   take("fov",  (v) => { AR_SOURCE.fov = v; }, 20, 140);
   take("gap",  (v) => { GEOMETRY.ringGap = v; }, 0.02, 1);
   take("smooth", (v) => { ANCHOR.smooth = v; }, 0.02, 1);
+  // 흩뿌리기. URL 로 준 것이 우선이다.
+  if (!urlHas("scatter") && cal.scatter !== undefined) {
+    setScatter(!!cal.scatter); hit.push("scatter=" + (cal.scatter ? 1 : 0));
+  }
 
   refreshPedestal();                 // 자동으로 나오는 값들을 먼저 다시 잡는다
 

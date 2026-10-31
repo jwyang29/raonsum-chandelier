@@ -1,13 +1,54 @@
 // 크리스탈의 수명 주기. 천 중앙에서 태어나 나선으로 올라가 뼈대에 매달린다.
 // 생김새는 crystal.js 가 담당하고 여기서는 움직임과 성능 단계만 다룬다.
 
-import { GEOMETRY, MOTION, MAX_CRYSTALS, QUALITY, SCHEDULE } from "./config.js?v=1101p";
-import { makeCrystal, setQuality, disposeCrystal } from "./crystal.js?v=1101p";
-import { glassTime } from "./glass_material.js?v=1101p";
+import { GEOMETRY, MOTION, MAX_CRYSTALS, QUALITY, SCHEDULE, SCATTER_ON } from "./config.js?v=1101q";
+import { makeCrystal, setQuality, disposeCrystal } from "./crystal.js?v=1101q";
+import { glassTime } from "./glass_material.js?v=1101q";
 
 const smoothstep = (p) => p * p * (3 - 2 * p);
 const lerp = (a, b, t) => a + (b - a) * t;
 const GOLDEN = Math.PI * (3 - Math.sqrt(5));   // 슬롯이 겹치지 않게 퍼지는 각
+
+// ── 흩뿌리기 ──────────────────────────────────────────────────
+//
+// 🔴 11/1~13 무인 기간의 예비 모양이다.
+//
+//    링으로 묶인 샹들리에는 위치가 조금만 어긋나도 "틀어졌다" 가 바로 보인다.
+//    구조가 규칙적이라 눈이 어긋남을 금방 잡아낸다. 허공에 흩뿌려 두면 애초에
+//    맞출 기준이 없어서 몇 cm 어긋나도 아무도 모른다. AR 추적이 완벽하지
+//    않은 동안 쓰는 모양이다.
+//
+//    ⚠️ 자리는 반드시 기록에서 끌어내야 한다. Math.random 으로 두면 폰마다
+//       다른 그림이 나오고, 그러면 "같은 자리에 선 두 사람은 같은 것을 본다"
+//       가 깨진다. 이 작품에서 그건 양보할 수 없다.
+// ⚠️ 모듈을 읽는 시점에 값을 박으면 안 된다. 보정(cal)은 그 뒤에 들어온다.
+//    쓸 때마다 읽는다.
+const scatterOn = () => SCATTER_ON;
+
+// 기록 하나에서 0~1 사이 수를 뽑는다. 같은 기록이면 어느 폰에서나 같다.
+function hash01(data, salt) {
+  let h = 2166136261 ^ salt;
+  const str = `${data.t}|${data.press}|${data.speed}|${data.dir}|${data.n}`;
+  for (let i = 0; i < str.length; i++) {
+    h ^= str.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return ((h >>> 0) % 100000) / 100000;
+}
+
+// 흩뿌릴 자리. 좌대 위 공간에 고르게 퍼뜨린다.
+export function scatterSpot(data) {
+  const a = hash01(data, 1) * Math.PI * 2;
+  // sqrt 를 씌워야 원 안에 고르게 퍼진다. 안 씌우면 가운데로 몰린다.
+  const r = Math.sqrt(hash01(data, 2)) * GEOMETRY.ringRadiusMax;
+  const lo = GEOMETRY.ringMinY, hi = GEOMETRY.ceilingHeight;
+  return {
+    x: Math.cos(a) * r,
+    y: lo + hash01(data, 3) * (hi - lo),
+    z: Math.sin(a) * r,
+  };
+}
+
 const HOUR_MS = 3600000;
 
 // 한 겹이 머무는 시간. SCHEDULE.periodHours 로 정한다.
@@ -146,7 +187,8 @@ export class Chandelier {
   // 개수가 늘면 링이 넓어진다. 토러스를 다시 만들고 옛것은 버린다.
   // 크리스탈 하나가 더 걸릴 때마다 반지름이 span/2pi 만큼(약 1.4cm) 커진다.
   reshapeRing(layer, r) {
-    if (!SCHEDULE.showRings) return;
+    // 흩뿌리기에서는 링이 없으므로 가상 링도 그리지 않는다.
+    if (!SCHEDULE.showRings || scatterOn()) return;
     const geo = new THREE.TorusGeometry(r.radius, GEOMETRY.ringTube, 6, 48);
     geo.rotateX(Math.PI / 2);
     if (r.mesh) {
@@ -275,25 +317,47 @@ export class Chandelier {
       if (p < 1) {
         const e = smoothstep(p);
         // 올라가면서 감긴 나선을 풀어 슬롯 각으로 도착한다.
+        const tgt = scatterOn() ? (it.spot || (it.spot = scatterSpot(it.data))) : null;
         const angle = it.slotAngle + (1 - p) * MOTION.spiralTurns * Math.PI * 2;
         const radius = lerp(0, it.ring.radius, e)
                      + MOTION.spiralRadius * Math.sin(p * Math.PI) * 0.6;
-        it.mesh.position.set(
-          Math.cos(angle) * radius,
-          lerp(GEOMETRY.spawnY, it.targetY, e),
-          Math.sin(angle) * radius,
-        );
+        if (tgt) {
+          // 흩뿌리기에서는 제 자리로 곧장 올라간다. 나선은 그대로 둔다.
+          const rr = Math.hypot(tgt.x, tgt.z);
+          const aa = Math.atan2(tgt.z, tgt.x) + (1 - p) * MOTION.spiralTurns * Math.PI * 2;
+          const r2 = lerp(0, rr, e) + MOTION.spiralRadius * Math.sin(p * Math.PI) * 0.6;
+          it.mesh.position.set(
+            Math.cos(aa) * r2,
+            lerp(GEOMETRY.spawnY, tgt.y, e),
+            Math.sin(aa) * r2,
+          );
+        } else {
+          it.mesh.position.set(
+            Math.cos(angle) * radius,
+            lerp(GEOMETRY.spawnY, it.targetY, e),
+            Math.sin(angle) * radius,
+          );
+        }
       } else {
         if (!it.attached) it.attached = true;   // hold 가 있으면 여기 안 온다
         // 매달린 뒤 살짝 흔들린다.
         const s = Math.sin((now * Math.PI * 2) / MOTION.swaySeconds + it.phase);
         // 링이 넓어지면 이미 매달린 것들도 따라 나간다. 그래야 한 겹으로 보인다.
-        const R = it.ring.radius;
-        it.mesh.position.set(
-          Math.cos(it.slotAngle) * R + s * MOTION.swayAmplitude,
-          it.targetY,
-          Math.sin(it.slotAngle) * R + s * MOTION.swayAmplitude * 0.6,
-        );
+        if (scatterOn()) {
+          const p = it.spot || (it.spot = scatterSpot(it.data));
+          it.mesh.position.set(
+            p.x + s * MOTION.swayAmplitude,
+            p.y,
+            p.z + s * MOTION.swayAmplitude * 0.6,
+          );
+        } else {
+          const R = it.ring.radius;
+          it.mesh.position.set(
+            Math.cos(it.slotAngle) * R + s * MOTION.swayAmplitude,
+            it.targetY,
+            Math.sin(it.slotAngle) * R + s * MOTION.swayAmplitude * 0.6,
+          );
+        }
         it.mesh.rotation.y += 0.0015;
       }
     }

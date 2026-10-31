@@ -14,6 +14,7 @@
    python3 setcal.py --fov 65        렌즈 화각 (긴 변 기준, 도)
    python3 setcal.py --gap 0.24      겹 사이 간격 (m)
    python3 setcal.py --smooth 0.08   떨림 줄이기 (낮을수록 안정적)
+   python3 setcal.py --scatter 1     흩뿌리기 켜기 (0 이면 샹들리에)
    python3 setcal.py --clear
 
 ⚠️ 적은 것만 바뀐다. 안 적은 것은 그대로 둔다.
@@ -78,6 +79,11 @@ if fm:
     if len(fm) != 4:
         sys.exit("--fm 은 네 장을 전부 적어야 합니다. 0,7,44,63 순서입니다.")
     patch["fm"] = [[float(x) for x in t.split(",")] for t in fm]
+
+# 흩뿌리기 (1 켜기 / 0 끄기). 무인 기간의 예비 모양.
+sv = take("--scatter")
+if sv is not None:
+    patch["scatter"] = 1 if str(sv) in ("1", "on", "true") else 0
 
 cy = take("--cubey", str, many=True)
 if cy:
