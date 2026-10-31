@@ -106,6 +106,38 @@ if (!PREVIEW && FIREBASE.databaseURL && !FIREBASE.databaseURL.includes("PASTE_")
 //    사람 없이 도는 전시라 바깥에 기대면 안 된다. web/vendor 에 받아 두었다.
 
 const chandelier = new Chandelier();
+// ── 진단: 설정값이 아니라 실제로 돌아가는 값을 읽는다 ──────────
+//
+// 🔴 패널의 "마커 한 변" 은 config 값을 그대로 찍을 뿐이라, AR.js 가 그 값을
+//    실제로 썼는지는 알려 주지 않는다. 예전에 AR.js 가 바코드 마커의 size 를
+//    버려서 월드가 10배 작았을 때도 패널은 멀쩡해 보였다. 그래서 검출기가
+//    쥐고 있는 값을 직접 꺼내 본다.
+function detectorSize() {
+  try {
+    for (const m of MARKERS) {
+      const el = document.querySelector(`#marker-${m.value}`);
+      const a = el && el.components && el.components["arjs-anchor"]
+        && el.components["arjs-anchor"]._arAnchor;
+      if (!a) continue;
+      // AR.js 버전마다 두는 자리가 다르다. 후보를 차례로 본다.
+      for (const o of [a.controls, a.markerControls, a._arMarkerControls, a]) {
+        const v = o && o.parameters && o.parameters.size;
+        if (Number.isFinite(v)) return { value: m.value, size: v, want: m.size };
+      }
+    }
+  } catch (e) {}
+  return null;
+}
+
+// 폰이 실제로 내준 영상 크기. 요청한 것과 다르면 포즈가 통째로 틀어진다.
+function videoSize() {
+  try {
+    const v = document.querySelector("video");
+    if (v && v.videoWidth) return `${v.videoWidth}x${v.videoHeight}`;
+  } catch (e) {}
+  return "아직 모름";
+}
+
 const ANCHOR_HINT = ANCHOR.hintSeconds;
 
 // 형태 라이브러리와 장면이 둘 다 준비되기 전에 온 크리스탈은 모아둔다.
@@ -339,6 +371,8 @@ AFRAME.registerComponent("chandelier-driver", {
     if (!DEBUG) return;
 
     const p = this.anchor && this.anchor.started ? this.anchor.pos : null;
+    const ds = PREVIEW ? null : detectorSize();
+    const vs = PREVIEW ? null : videoSize();
     panel.textContent =
       `${VERSION}${PREVIEW ? "  preview" : ""}\n` +
       (PREVIEW ? "" : `보이는 마커  ${seen} / ${MARKERS.length}${this.anchor && this.anchor.source && this.anchor.source !== "floor" ? ` (${this.anchor.source === "cube" ? "큐브" : "천장"})` : ""}\n`) +
@@ -365,6 +399,13 @@ AFRAME.registerComponent("chandelier-driver", {
       `겹 간격      ${RING_GAP.toFixed(3)} m (한 겹 내려오는 높이)\n` +
       `링 반지름    ${GEOMETRY.ringRadiusMin.toFixed(2)}~${GEOMETRY.ringRadiusMax.toFixed(2)} m (개수에 따라)\n` +
       `인식해상도   ${AR_SOURCE.width}x${AR_SOURCE.height} @${AR_SOURCE.maxDetectionRate}/s\n` +
+      (PREVIEW ? "" : `실제 영상    ${vs}` +
+        `${vs && vs !== `${AR_SOURCE.width}x${AR_SOURCE.height}` ? "  <- 요청과 다름" : ""}\n`) +
+      // 검출기가 쥐고 있는 실제 한 변. 준 값과 다르면 월드가 그 비율로 틀어진다.
+      (PREVIEW ? "" : `검출기 한 변 ${ds ? `${(ds.size * 100).toFixed(1)} cm (${ds.value}번, 준 값 ${(ds.want * 100).toFixed(1)})` : "아직 모름"}` +
+        `${ds && Math.abs(ds.size - ds.want) > 0.002 ? "  <- 안 먹었습니다" : ""}\n`) +
+      // 카메라에서 월드 원점까지. 그래픽이 작아 보이면 이 값이 커져 있다.
+      (PREVIEW ? "" : `원점까지     ${p ? p.length().toFixed(2) + " m" : "-"}\n`) +
       `현장 보정    ${CAL_NOTE}`;
   },
 });
