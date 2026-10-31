@@ -174,14 +174,16 @@ export function solvePlane(pts, K) {
 
 // ── 마커 한 장의 모서리 네 점 ────────────────────────────────
 //
-// ⚠️ ARToolKit 이 네 모서리를 어느 차례로 주는지, 그리고 영상에서 시계인지
-//    반시계인지는 문서로 확정하기 어렵다. 그래서 짐작하지 않는다. 네 가지
-//    돌림과 두 가지 방향, 모두 여덟 가지를 넣어 보고 어긋남이 가장 작은 것을
-//    고른다. 한 번 고르면 같은 차례가 계속 쓰이므로 비용은 사실상 없다.
-const ORDERS = [];
-for (let flip = 0; flip < 2; flip++)
-  for (let rot = 0; rot < 4; rot++)
-    ORDERS.push({ flip, rot });
+// ⚠️ 정사각형은 90도씩 돌려도 자기 자신에 포개진다. 그래서 어느 모서리가
+//    어느 모서리인지를 "어긋남이 작은 쪽" 으로는 절대 못 가린다. 네 돌림의
+//    어긋남이 똑같이 0 이다. 뒤집기(거울)도 마찬가지다.
+//
+//    그래서 둘을 나눠 푼다.
+//      뒤집기  마커의 앞면이 카메라를 봐야 한다. 면 법선이 카메라 쪽으로
+//              오는 쪽이 맞다. 이건 혼자서도 가린다.
+//      돌림    혼자서는 못 가린다. 같은 묶음의 마커들이 같은 월드 원점을
+//              가리키는 돌림이 맞다. 그 판단은 marker_anchor 가 한다.
+//              여기서는 네 가지를 다 만들어 넘긴다.
 
 // 마커 로컬 평면에서의 네 모서리. 반시계.
 function localCorners(size) {
@@ -189,25 +191,42 @@ function localCorners(size) {
   return [[-h, -h], [h, -h], [h, h], [-h, h]];
 }
 
-// vertex: [[u,v] x4], size: 검은 사각형 한 변 (m)
-// 반환: { R, t, err, order }  마커 로컬 -> 카메라 (OpenCV 규약)
-export function solveMarker(vertex, size, K, hint) {
+function solveOrder(vertex, L, K, flip, rot) {
+  const pts = [];
+  for (let i = 0; i < 4; i++) {
+    const j = flip ? (rot + 3 - i) % 4 : (rot + i) % 4;
+    pts.push({ X: L[i][0], Y: L[i][1], u: vertex[j][0], v: vertex[j][1] });
+  }
+  return solvePlane(pts, K);
+}
+
+// 네 돌림의 포즈를 모두 낸다. 뒤집기는 여기서 가려 둔다.
+// 반환: [{R, t, err, rot} x4]  마커 로컬 -> 카메라 (OpenCV 규약)
+export function solveMarkerAll(vertex, size, K) {
   if (!vertex || vertex.length !== 4) return null;
   const L = localCorners(size);
-  let best = null;
-  const list = hint ? [hint, ...ORDERS] : ORDERS;
-  for (const o of list) {
-    const pts = [];
-    for (let i = 0; i < 4; i++) {
-      const j = o.flip ? (o.rot + 3 - i) % 4 : (o.rot + i) % 4;
-      pts.push({ X: L[i][0], Y: L[i][1], u: vertex[j][0], v: vertex[j][1] });
-    }
-    const p = solvePlane(pts, K);
-    if (!p) continue;
-    if (!best || p.err < best.err) { best = p; best.order = o; }
-    if (best.err < 0.5) break;        // 충분히 좋으면 더 볼 것 없다
+
+  // 🔴 뒤집기 고르기. R 의 셋째 열이 마커 면의 법선이다. 앞면을 보고 있으면
+  //    법선이 카메라 쪽, 곧 z 성분이 음수다. 양수면 거울상이므로 반대를 쓴다.
+  let flip = 0;
+  const probe = solveOrder(vertex, L, K, 0, 0);
+  if (!probe) return null;
+  if (probe.R[8] > 0) flip = 1;
+
+  const out = [];
+  for (let rot = 0; rot < 4; rot++) {
+    const p = solveOrder(vertex, L, K, flip, rot);
+    if (!p) return null;
+    p.rot = rot;
+    out.push(p);
   }
-  return best;
+  return out;
+}
+
+// 돌림을 하나로 정해 쓸 때 (마커가 하나만 보일 때 등)
+export function solveMarker(vertex, size, K, rot) {
+  const all = solveMarkerAll(vertex, size, K);
+  return all ? all[(rot | 0) & 3] : null;
 }
 
 // OpenCV 카메라 좌표를 three.js 카메라 좌표로. Y 와 Z 를 뒤집는다.

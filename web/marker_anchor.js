@@ -6,7 +6,7 @@
 // 보이는 마커가 둘 이상이면 평균을 낸다 (문서의 "2개 이상 보이면 평균").
 
 import { MARKERS, ANCHOR, AR_SOURCE } from "./config.js";
-import { solveMarker, CV_TO_THREE } from "./pose.js";
+import { solveMarkerAll, CV_TO_THREE } from "./pose.js";
 import { Gyro } from "./gyro.js";
 
 const DEG = Math.PI / 180;
@@ -98,7 +98,7 @@ AFRAME.registerComponent("world-anchor", {
     this.tmpM = new THREE.Matrix4();
     this.tmpQ = new THREE.Quaternion();
     this.byValue = new Map(this.slots.map((k) => [k.conf.value, k]));
-    this.orders = new Map();      // 마커마다 찾아 둔 모서리 차례
+    this.rot = 0;                 // 정사각형의 네 돌림 중 고른 것
     this.tmpS = new THREE.Vector3();
   },
 
@@ -114,25 +114,55 @@ AFRAME.registerComponent("world-anchor", {
     const K = { fx: f, fy: f, cx: w / 2, cy: h / 2 };
     let n = 0;
     try { n = ctrl.getMarkerNum(); } catch (e) { return out; }
+    // 1단계. 마커마다 네 돌림의 포즈를 모두 만든다.
+    const cand = [];                 // [{slot, mats:[Matrix4 x4]}]
     for (let i = 0; i < n; i++) {
       let mk;
       try { mk = ctrl.getMarker(i); } catch (e) { continue; }
       if (!mk || mk.idMatrix < 0 || !mk.vertex) continue;
       const slot = this.byValue.get(mk.idMatrix);
       if (!slot) continue;                          // 작품이 안 쓰는 번호
-      // 전에 찾은 모서리 차례를 먼저 넣어 본다. 거의 늘 그대로 맞는다.
-      const got = solveMarker(mk.vertex, slot.conf.size, K, this.orders.get(mk.idMatrix));
-      if (!got || !(got.err < 6)) continue;         // 너무 안 맞으면 버린다
-      this.orders.set(mk.idMatrix, got.order);
-      const P = new THREE.Matrix4().set(
-        got.R[0], got.R[1], got.R[2], got.t[0],
-        got.R[3], got.R[4], got.R[5], got.t[1],
-        got.R[6], got.R[7], got.R[8], got.t[2],
-        0, 0, 0, 1,
-      );
-      out.set(mk.idMatrix, new THREE.Matrix4()
-        .multiplyMatrices(CV_FIX, P).multiply(B_INV));
+      const all = solveMarkerAll(mk.vertex, slot.conf.size, K);
+      if (!all || !(all[0].err < 6)) continue;      // 너무 안 맞으면 버린다
+      const mats = all.map((g) => {
+        const P = new THREE.Matrix4().set(
+          g.R[0], g.R[1], g.R[2], g.t[0],
+          g.R[3], g.R[4], g.R[5], g.t[1],
+          g.R[6], g.R[7], g.R[8], g.t[2],
+          0, 0, 0, 1,
+        );
+        return new THREE.Matrix4().multiplyMatrices(CV_FIX, P).multiply(B_INV);
+      });
+      cand.push({ slot, mats });
     }
+    if (!cand.length) return out;
+
+    // 2단계. 🔴 돌림을 고른다.
+    //   정사각형이라 마커 혼자서는 네 방향을 구분 못 한다. 그런데 같은 묶음에
+    //   속한 마커들은 설치물에 함께 고정되어 있으므로, 맞는 돌림이면 모두가
+    //   같은 월드 원점을 가리킨다. 네 가지를 다 넣어 보고 가장 모이는 것을
+    //   고른다. 하나만 보일 때는 가릴 수 없으므로 전에 고른 것을 쓴다.
+    const pick = (rot) => {
+      const ps = cand.map((c) =>
+        new THREE.Vector3().setFromMatrixPosition(
+          this.tmpM.multiplyMatrices(c.mats[rot], c.slot.inv)));
+      let sp = 0;
+      for (let i = 0; i < ps.length; i++)
+        for (let j = i + 1; j < ps.length; j++)
+          sp = Math.max(sp, ps[i].distanceTo(ps[j]));
+      return sp;
+    };
+    let rot = this.rot | 0;
+    if (cand.length >= 2) {
+      let best = Infinity;
+      for (let r = 0; r < 4; r++) {
+        const sp = pick(r);
+        if (sp < best) { best = sp; rot = r; }
+      }
+      this.rot = rot;
+      this.rotSpread = best;
+    }
+    for (const c of cand) out.set(c.slot.conf.value, c.mats[rot]);
     return out;
   },
 

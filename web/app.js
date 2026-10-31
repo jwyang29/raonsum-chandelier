@@ -21,7 +21,7 @@ import { Detector } from "./detect.js";
 import { pickCamera, isDesktop } from "./campick.js";
 import { loadBlobs } from "./crystal.js";
 
-const VERSION = "build 1101d";   // 고칠 때마다 올린다. 폰이 옛 파일을 쓰고 있는지 이걸로 안다
+const VERSION = "build 1101e";   // 고칠 때마다 올린다. 폰이 옛 파일을 쓰고 있는지 이걸로 안다
 const params = new URLSearchParams(location.search);
 const DEBUG = params.get("debug") === "1";
 
@@ -566,6 +566,10 @@ AFRAME.registerComponent("chandelier-driver", {
         `${aw && Math.abs(aw.w - aw.want) > 0.002 ? "  안 먹음" : ""}  ${aw ? aw.ori : ""}\n`) +
       // 🔴 집은 네 모서리의 픽셀 크기. 150 쯤이면 검출은 맞고 포즈만 틀린 것이다.
       (PREVIEW ? "" : `모서리 px    ${ar && ar.corners ? ar.corners : "없음"}\n`) +
+      // 정사각형의 네 돌림 중 어느 것을 골랐나. 같은 묶음이 얼마나 모였나.
+      (PREVIEW ? "" : `돌림         ${this.anchor ? (this.anchor.rot | 0) * 90 + "도" : "-"}` +
+        `${this.anchor && this.anchor.rotSpread !== undefined
+            ? `  (모임 ${(this.anchor.rotSpread * 100).toFixed(1)} cm)` : "  (마커 하나라 못 고름)"}\n`) +
       `fps ${chandelier.fps ? chandelier.fps.toFixed(0) : "-"}  크리스탈 ${chandelier.items.length}  겹 ${chandelier.rings.size}`;
 
     panel.textContent = !DETAIL ? head : head + "\n\n" +
