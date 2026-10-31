@@ -38,8 +38,6 @@ const GUIDE = params.get("guide") === "1";
 const FILL = params.get("fill");
 const WANT_FILL = FILL !== null && FILL !== "0";
 const PREVIEW = params.get("preview") === "1";
-// 사람이 ?arw 를 직접 준 경우에는 영상 크기를 자동으로 고치지 않는다.
-const QS_HAS_ARW = params.has("arw") || params.has("arh");
 // 보정 패널은 ?cal=1 이나 ?debug=1 에서만 뜬다. 관객이 여는 주소에는 둘 다 없다.
 const CAL = params.get("cal") === "1" || params.get("debug") === "1";
 
@@ -299,7 +297,8 @@ if (PREVIEW) {
            renderer="antialias: true; alpha: true; logarithmicDepthBuffer: true"
            arjs="sourceType: webcam; detectionMode: mono_and_matrix; matrixCodeType: 3x3; trackingMethod: best;
                  sourceWidth: ${AR_SOURCE.width}; sourceHeight: ${AR_SOURCE.height};
-                 canvasWidth: ${AR_SOURCE.width}; canvasHeight: ${AR_SOURCE.height};
+                 canvasWidth: ${AR_SOURCE.canvasW || AR_SOURCE.width};
+                 canvasHeight: ${AR_SOURCE.canvasH || AR_SOURCE.height};
                  maxDetectionRate: ${AR_SOURCE.maxDetectionRate};
                  cameraParametersUrl: ./vendor/camera_para.dat;${CAM_PARAM}">
     <a-entity camera></a-entity>
@@ -318,24 +317,25 @@ if (PREVIEW) {
   //    전에 AR.js 가 다시 열다 실패하면 화면이 아예 안 뜬다. 그래서 일단
   //    띄워 놓고, 영상 크기가 요청과 다르면 그 크기를 붙여 한 번만 다시 연다.
   //    ?arw 를 직접 준 경우에는 사람이 고른 값이므로 건드리지 않는다.
-  if (!QS_HAS_ARW) {
+  {
     let tries = 0;
     const fit = setInterval(() => {
       const v = document.querySelector("video");
       if (!v || !v.videoWidth) { if (++tries > 60) clearInterval(fit); return; }
       clearInterval(fit);
       const w = v.videoWidth, h = v.videoHeight;
-      if (w === AR_SOURCE.width && h === AR_SOURCE.height) return;
-      // 무한 새로고침을 막는다. 한 세션에 두 번까지만.
-      let n = 0;
-      try { n = parseInt(sessionStorage.getItem("arfit") || "0", 10) || 0; } catch (e) {}
-      if (n >= 2) return;
-      try { sessionStorage.setItem("arfit", String(n + 1)); } catch (e) {}
-      console.warn(`[AR] 영상이 ${w}x${h} 입니다. 요청한 ` +
-        `${AR_SOURCE.width}x${AR_SOURCE.height} 와 달라 그 크기로 다시 엽니다.`);
+      const cw = AR_SOURCE.canvasW || AR_SOURCE.width;
+      const ch = AR_SOURCE.canvasH || AR_SOURCE.height;
+      if (w === cw && h === ch) return;                 // 이미 맞는다
+      // 같은 크기로 또 열지 않는다. 폰을 돌리면 영상이 바뀌므로 크기로 적는다.
+      let last = "";
+      try { last = sessionStorage.getItem("arfit") || ""; } catch (e) {}
+      if (last === `${w}x${h}`) return;
+      try { sessionStorage.setItem("arfit", `${w}x${h}`); } catch (e) {}
+      console.warn(`[AR] 영상 ${w}x${h}, 캔버스 ${cw}x${ch}. 캔버스를 영상에 맞춰 다시 엽니다.`);
       const u = new URL(location.href);
-      u.searchParams.set("arw", String(w));
-      u.searchParams.set("arh", String(h));
+      u.searchParams.set("cw", String(w));              // 요청(arw)은 건드리지 않는다
+      u.searchParams.set("ch", String(h));
       location.replace(u.toString());
     }, 250);
   }
@@ -433,9 +433,11 @@ AFRAME.registerComponent("chandelier-driver", {
       `${(GEOMETRY.ceilingHeight + PEDESTAL.height).toFixed(2)} m (바닥)\n` +
       `겹 간격      ${RING_GAP.toFixed(3)} m (한 겹 내려오는 높이)\n` +
       `링 반지름    ${GEOMETRY.ringRadiusMin.toFixed(2)}~${GEOMETRY.ringRadiusMax.toFixed(2)} m (개수에 따라)\n` +
-      `인식해상도   ${AR_SOURCE.width}x${AR_SOURCE.height} @${AR_SOURCE.maxDetectionRate}/s\n` +
+      `요청 영상    ${AR_SOURCE.width}x${AR_SOURCE.height} @${AR_SOURCE.maxDetectionRate}/s\n` +
+      (PREVIEW ? "" : `인식 캔버스  ${AR_SOURCE.canvasW || AR_SOURCE.width}x${AR_SOURCE.canvasH || AR_SOURCE.height}\n`) +
+      // 🔴 이 둘이 같아야 한다. 다르면 마커가 찌그러져 포즈가 발산한다.
       (PREVIEW ? "" : `실제 영상    ${vs}` +
-        `${vs && vs !== `${AR_SOURCE.width}x${AR_SOURCE.height}` ? "  <- 요청과 다름" : ""}\n`) +
+        `${vs && vs !== `${AR_SOURCE.canvasW || AR_SOURCE.width}x${AR_SOURCE.canvasH || AR_SOURCE.height}` ? "  <- 캔버스와 다름" : "  OK"}\n`) +
       // 검출기가 쥐고 있는 실제 한 변. 준 값과 다르면 월드가 그 비율로 틀어진다.
       (PREVIEW ? "" : `검출기 한 변 ${ds ? `${(ds.size * 100).toFixed(1)} cm (${ds.value}번, 준 값 ${(ds.want * 100).toFixed(1)})` : "아직 모름"}` +
         `${ds && Math.abs(ds.size - ds.want) > 0.002 ? "  <- 안 먹었습니다" : ""}\n`) +
