@@ -81,9 +81,11 @@ if fm:
     patch["fm"] = [[float(x) for x in t.split(",")] for t in fm]
 
 # 흩뿌리기 (1 켜기 / 0 끄기). 무인 기간의 예비 모양.
+# ⚠️ take 의 기본 변환은 float 다. 그대로 쓰면 "1" 이 1.0 -> "1.0" 이 되어
+#    문자열 비교에서 떨어진다. 숫자로 받아 0 이 아니면 켠 것으로 본다.
 sv = take("--scatter")
 if sv is not None:
-    patch["scatter"] = 1 if str(sv) in ("1", "on", "true") else 0
+    patch["scatter"] = 1 if float(sv) != 0 else 0
 
 cy = take("--cubey", str, many=True)
 if cy:
