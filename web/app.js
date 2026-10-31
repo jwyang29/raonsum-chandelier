@@ -21,7 +21,7 @@ import { Detector } from "./detect.js";
 import { pickCamera, isDesktop } from "./campick.js";
 import { loadBlobs } from "./crystal.js";
 
-const VERSION = "web_v1";
+const VERSION = "build 1101a";   // 고칠 때마다 올린다. 폰이 옛 파일을 쓰고 있는지 이걸로 안다
 const params = new URLSearchParams(location.search);
 const DEBUG = params.get("debug") === "1";
 
@@ -415,6 +415,17 @@ const status = document.getElementById("status");
 const panel = document.getElementById("debug");
 if (DEBUG) panel.style.display = "block";
 
+// 패널을 누르면 자세히 보기를 켜고 끈다. 그 폰에 남는다.
+let DETAIL = false;
+try { DETAIL = localStorage.getItem("dbgdetail") === "1"; } catch (e) {}
+if (DEBUG && panel) {
+  panel.style.cursor = "pointer";
+  panel.addEventListener("click", () => {
+    DETAIL = !DETAIL;
+    try { localStorage.setItem("dbgdetail", DETAIL ? "1" : "0"); } catch (e) {}
+  });
+}
+
 // 렌더 루프는 A-Frame 이 돈다. 직접 setAnimationLoop 을 잡으면 충돌하므로
 // 컴포넌트의 tick 에 올린다.
 // 🔴 뜨자마자 잡아야 한다. 늦으면 그 사이 프레임의 쓰레기 포즈가 박힌다.
@@ -511,50 +522,36 @@ AFRAME.registerComponent("chandelier-driver", {
       return null;
     })();
     const vs = PREVIEW ? null : videoSize();
-    panel.textContent =
-      `${VERSION}${PREVIEW ? "  preview" : ""}\n` +
-      // 🔴 진단 네 줄을 맨 위에 둔다. 보정 패널이 아래쪽을 덮어서, 아래에 두면
-      //    현장에서 사진을 찍어도 이 값들이 안 보인다. 실제로 그래서 못 봤다.
-      `요청 영상    ${AR_SOURCE.width}x${AR_SOURCE.height} @${AR_SOURCE.maxDetectionRate}/s\n` +
-      (PREVIEW ? "" : `인식 캔버스  ${AR_SOURCE.canvasW || AR_SOURCE.width}x${AR_SOURCE.canvasH || AR_SOURCE.height} (설정)\n`) +
-      // 🔴 설정이 아니라 검출기가 진짜로 쓰는 캔버스와 투영. 여기가 틀리면 거리가 통째로 틀어진다.
-      (PREVIEW ? "" : `검출기 내부  ${ar ? `${ar.cw}x${ar.ch}  fx ${ar.fx} fy ${ar.fy}` : "아직 모름"}` +
-        `${ar && Math.abs(ar.fx - ar.fy) > 20 ? "  <- 픽셀이 찌그러짐" : ""}\n`) +
-      // 🔴 이 둘이 같아야 한다. 다르면 마커가 찌그러져 포즈가 발산한다.
-      (PREVIEW ? "" : `실제 영상    ${vs}` +
-        `${vs && vs !== `${AR_SOURCE.canvasW || AR_SOURCE.width}x${AR_SOURCE.canvasH || AR_SOURCE.height}` ? "  <- 캔버스와 다름" : "  OK"}\n`) +
-      // 검출기가 쥐고 있는 실제 한 변. 준 값과 다르면 월드가 그 비율로 틀어진다.
-      (PREVIEW ? "" : `검출기 한 변 ${aw ? `${(aw.w * 100).toFixed(1)} cm (${aw.v}번, 준 값 ${(aw.want * 100).toFixed(1)})` : "아직 모름"}` +
-        `${aw && Math.abs(aw.w - aw.want) > 0.002 ? "  <- 안 먹었습니다" : ""}` +
-        `${aw ? "  " + aw.ori : ""}\n`) +
-      // 카메라에서 월드 원점까지. 그래픽이 작아 보이면 이 값이 커져 있다.
-      (PREVIEW ? "" : `원점까지     ${p ? p.length().toFixed(2) + " m" : "-"}` +
-        `   (화각 ${AR_SOURCE.fov.toFixed(1)}도)\n`) +
-
-      (PREVIEW ? "" : `보이는 마커  ${seen} / ${MARKERS.length}${this.anchor && this.anchor.source && this.anchor.source !== "floor" ? ` (${this.anchor.source === "cube" ? "큐브" : "천장"})` : ""}\n`) +
+    // 🔴 현장에서는 줄이 많으면 오히려 못 읽는다. 꼭 필요한 여섯 줄만 두고
+    //    나머지는 패널을 눌러 펼친다. 접힘 여부는 그 폰에 남는다.
+    const d2 = (v) => v.toFixed(2);
+    const head =
+      `${VERSION}${PREVIEW ? "  preview" : ""}${DETAIL ? "" : "   (눌러서 자세히)"}\n` +
+      (PREVIEW ? "" : `원점까지     ${p ? d2(p.length()) + " m" : "-"}\n`) +
+      (PREVIEW ? "" : `서로 어긋남  ${this.anchor ? (this.anchor.spread * 100).toFixed(1) : "0"} cm` +
+        `${this.anchor && this.anchor.spread > 0.08 ? "  틀림" : ""}` +
+        `${this.anchor && this.anchor.rejected ? "  버림" : ""}\n`) +
       (PREVIEW ? "" : `번호         ${this.anchor && this.anchor.seenValues.length
           ? this.anchor.seenValues.join(" ") : "없음"}\n`) +
-      // 마커끼리 얼마나 다른 자리를 주장하는가. 흔들림의 원인이 여기 보인다.
-      (PREVIEW ? "" : `서로 어긋남  ${this.anchor
-          ? (this.anchor.spread * 100).toFixed(1) : "0"} cm` +
-        `${this.anchor && this.anchor.spread > 0.08 ? "  <- 배치가 틀렸습니다" : ""}` +
-        // 둘만 보이는데 서로 너무 달라 그 프레임을 버렸다. 좌대 위의 QR 처럼
-        // 마커를 닮은 그림이 오검출되면 여기 뜬다.
-        `${this.anchor && this.anchor.rejected ? "  <- 안 믿고 버림" : ""}\n`) +
-      `크리스탈     ${chandelier.items.length} (cap ${chandelier.cap})\n` +
-      `품질 단계    ${chandelier.level}\n` +
-      `fps          ${chandelier.fps ? chandelier.fps.toFixed(1) : "재는 중"}\n` +
-      (PREVIEW ? "" : `월드 원점    ${p ? `${p.x.toFixed(3)} ${p.y.toFixed(3)} ${p.z.toFixed(3)}` : "아직 없음"}\n`) +
-      `겹           ${chandelier.rings.size}개 (그려진 ${SCHEDULE.periodHours}시간마다 1개)\n` +
-      `좌대         지름 ${PEDESTAL.diameter.toFixed(2)} m / 높이 ${PEDESTAL.height.toFixed(2)} m\n` +
-      `마커 한 변   ${(GEOMETRY.markerSize * 100).toFixed(1)} cm` +
-      `${GEOMETRY.markerSize !== 0.10 ? "  (msize 로 바꾼 값)" : ""}\n` +
-      `마커 반지름  ${GEOMETRY.markerRing.toFixed(3)} m\n` +
-      `천장 높이    ${GEOMETRY.ceilingHeight.toFixed(2)} m (상단면) / ` +
-      `${(GEOMETRY.ceilingHeight + PEDESTAL.height).toFixed(2)} m (바닥)\n` +
-      `겹 간격      ${RING_GAP.toFixed(3)} m (한 겹 내려오는 높이)\n` +
-      `링 반지름    ${GEOMETRY.ringRadiusMin.toFixed(2)}~${GEOMETRY.ringRadiusMax.toFixed(2)} m (개수에 따라)\n` +
-      `현장 보정    ${CAL_NOTE}`;
+      (PREVIEW ? "" : `검출기 내부  ${ar ? `${ar.cw}x${ar.ch}  fx ${ar.fx} fy ${ar.fy}` : "아직 모름"}` +
+        `${ar && Math.abs(ar.fx - ar.fy) > 20 ? "  찌그러짐" : ""}\n`) +
+      (PREVIEW ? "" : `검출기 한 변 ${aw ? `${(aw.w * 100).toFixed(1)} cm (준 값 ${(aw.want * 100).toFixed(1)})` : "아직 모름"}` +
+        `${aw && Math.abs(aw.w - aw.want) > 0.002 ? "  안 먹음" : ""}  ${aw ? aw.ori : ""}\n`) +
+      `fps ${chandelier.fps ? chandelier.fps.toFixed(0) : "-"}  크리스탈 ${chandelier.items.length}  겹 ${chandelier.rings.size}`;
+
+    panel.textContent = !DETAIL ? head : head + "\n\n" +
+      (PREVIEW ? "" : `요청 영상    ${AR_SOURCE.width}x${AR_SOURCE.height} @${AR_SOURCE.maxDetectionRate}/s\n`) +
+      (PREVIEW ? "" : `실제 영상    ${vs}` +
+        `${vs && ar && vs !== `${ar.cw}x${ar.ch}` ? "  <- 캔버스와 다름" : "  OK"}\n`) +
+      (PREVIEW ? "" : `보이는 마커  ${seen} / ${MARKERS.length}` +
+        `${this.anchor && this.anchor.source && this.anchor.source !== "floor" ? ` (${this.anchor.source === "cube" ? "큐브" : "천장"})` : ""}\n`) +
+      (PREVIEW ? "" : `월드 원점    ${p ? `${p.x.toFixed(2)} ${p.y.toFixed(2)} ${p.z.toFixed(2)}` : "아직 없음"}\n`) +
+      `화각         ${AR_SOURCE.fov.toFixed(1)} 도\n` +
+      `좌대         지름 ${d2(PEDESTAL.diameter)} / 높이 ${d2(PEDESTAL.height)} m\n` +
+      `마커 반지름  ${GEOMETRY.markerRing.toFixed(3)} m   한 변 ${(GEOMETRY.markerSize * 100).toFixed(1)} cm\n` +
+      `천장         ${d2(GEOMETRY.ceilingHeight)} m (상단면) / ${d2(GEOMETRY.ceilingHeight + PEDESTAL.height)} m (바닥)\n` +
+      `겹 간격      ${RING_GAP.toFixed(3)} m\n` +
+      `품질 ${chandelier.level}   현장 보정    ${CAL_NOTE}`;
   },
 });
 
