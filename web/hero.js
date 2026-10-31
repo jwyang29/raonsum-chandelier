@@ -9,9 +9,9 @@
 // ⚠️ 2MB 를 기다리는 동안 글과 목차는 이미 떠 있어야 한다. 그래서 이 모듈은
 //    페이지가 다 그려진 뒤에 불린다.
 
-import { loadBlobs, makeCrystal, setQuality, disposeCrystal } from "./crystal.js?v=1101q";
-import { glassTime } from "./glass_material.js?v=1101q";
-import { mockData } from "./feed.js?v=1101q";
+import { loadBlobs, makeCrystal, setQuality, disposeCrystal } from "./crystal.js?v=1101t";
+import { glassTime } from "./glass_material.js?v=1101t";
+import { mockData } from "./feed.js?v=1101t";
 
 const loadScript = (src) => new Promise((ok, no) => {
   const s = document.createElement("script");

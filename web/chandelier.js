@@ -1,9 +1,9 @@
 // 크리스탈의 수명 주기. 천 중앙에서 태어나 나선으로 올라가 뼈대에 매달린다.
 // 생김새는 crystal.js 가 담당하고 여기서는 움직임과 성능 단계만 다룬다.
 
-import { GEOMETRY, MOTION, MAX_CRYSTALS, QUALITY, SCHEDULE, SCATTER_ON } from "./config.js?v=1101q";
-import { makeCrystal, setQuality, disposeCrystal } from "./crystal.js?v=1101q";
-import { glassTime } from "./glass_material.js?v=1101q";
+import { GEOMETRY, MOTION, MAX_CRYSTALS, QUALITY, SCHEDULE, SCATTER_ON } from "./config.js?v=1101t";
+import { makeCrystal, setQuality, disposeCrystal } from "./crystal.js?v=1101t";
+import { glassTime } from "./glass_material.js?v=1101t";
 
 const smoothstep = (p) => p * p * (3 - 2 * p);
 const lerp = (a, b, t) => a + (b - a) * t;
@@ -24,6 +24,10 @@ const GOLDEN = Math.PI * (3 - Math.sqrt(5));   // 슬롯이 겹치지 않게 퍼
 // ⚠️ 모듈을 읽는 시점에 값을 박으면 안 된다. 보정(cal)은 그 뒤에 들어온다.
 //    쓸 때마다 읽는다.
 const scatterOn = () => SCATTER_ON;
+// 흩뿌릴 때 남길 비율과 키울 배수. ?scatterkeep= / ?scatterscale= 로 바꾼다.
+const SQ = new URLSearchParams(location.search);
+const SCATTER_KEEP  = parseFloat(SQ.get("scatterkeep"))  || 0.5;
+const SCATTER_SCALE = parseFloat(SQ.get("scatterscale")) || 1.3;
 
 // 기록 하나에서 0~1 사이 수를 뽑는다. 같은 기록이면 어느 폰에서나 같다.
 function hash01(data, salt) {
@@ -224,10 +228,16 @@ export class Chandelier {
   }
 
   add(data) {
+    // 🔴 흩뿌리기에서는 개수를 절반으로 줄이고 크기를 키운다.
+    //    한 덩어리로 뭉쳐 보이지 않게 숨을 틔우는 것이다. 어느 것을 남길지는
+    //    기록에서 뽑는다. 난수로 하면 폰마다 다른 것이 남아 그림이 달라진다.
+    if (scatterOn() && hash01(data, 7) >= SCATTER_KEEP) return null;
+
     if (this.items.length >= Math.min(this.cap, MAX_CRYSTALS)) this.evictOne();
 
     const mesh = makeCrystal(data, this.level);
     setQuality(mesh, this.level);
+    if (scatterOn()) mesh.scale.multiplyScalar(SCATTER_SCALE);
     mesh.position.set(0, GEOMETRY.spawnY, 0);
     this.root.add(mesh);
 
@@ -294,7 +304,9 @@ export class Chandelier {
       for (let k = 0; k < n && i < count; k++, i++) {
         const d = data();
         d.t = START_MS + L * periodMs() + periodMs() * 0.4;
-        this.add(d);
+        // ⚠️ add 는 흩뿌리기에서 걸러진 것에 null 을 돌려준다. 그걸 안 보고
+        //    바로 items 의 끝을 집으면 undefined 를 건드려 루프가 끊긴다.
+        if (!this.add(d)) continue;
         const it = this.items[this.items.length - 1];
         // 이미 다 올라가 매달린 상태로 둔다. riseSeconds 안쪽으로 흩으면 먼저 넣은
         // 것부터 아직 올라가는 중이라 첫 겹이 비어 보인다. 쌓인 모습을 보려는

@@ -11,17 +11,17 @@
 //   ?debug=1    마커 수, 크리스탈 수, 품질 단계, fps, 월드 원점을 표시한다
 //   ?rate=1200  가짜 크리스탈 생성 간격 (ms)
 
-import "./marker_anchor.js?v=1101q";
+import "./marker_anchor.js?v=1101t";
 import { MARKERS, GEOMETRY, PEDESTAL, SCHEDULE, CAL_KEY, AR_SOURCE, ANCHOR,
          MAX_CRYSTALS, DESK, FIREBASE, applyRemoteCal,
-         refreshPedestal, refreshMarkers } from "./config.js?v=1101q";
-import { Chandelier, RING_GAP, recomputeHeights, ringY } from "./chandelier.js?v=1101q";
-import { startFeed, mockData } from "./feed.js?v=1101q";
-import { Detector } from "./detect.js?v=1101q";
-import { pickCamera, isDesktop } from "./campick.js?v=1101q";
-import { loadBlobs } from "./crystal.js?v=1101q";
+         refreshPedestal, refreshMarkers, SCATTER_ON } from "./config.js?v=1101t";
+import { Chandelier, RING_GAP, recomputeHeights, ringY } from "./chandelier.js?v=1101t";
+import { startFeed, mockData } from "./feed.js?v=1101t";
+import { Detector } from "./detect.js?v=1101t";
+import { pickCamera, isDesktop } from "./campick.js?v=1101t";
+import { loadBlobs } from "./crystal.js?v=1101t";
 
-const VERSION = "build 1101q";   // 고칠 때마다 올린다. 폰이 옛 파일을 쓰고 있는지 이걸로 안다
+const VERSION = "build 1101t";   // 고칠 때마다 올린다. 폰이 옛 파일을 쓰고 있는지 이걸로 안다
 const params = new URLSearchParams(location.search);
 const DEBUG = params.get("debug") === "1";
 
@@ -263,6 +263,19 @@ function framePreview() {
   //    링 위치만 잡혀서 (높이 1.36m) 가로로 돌렸을 때 위아래가 잘렸다.
   //    링 높이와 반지름은 아는 값이다. 거기에 크리스탈이 삐져나오는 만큼만 더한다.
   const PAD = 0.20;
+  // 흩뿌리기에는 링이 없다. 흩뿌리는 부피를 그대로 쓴다.
+  if (SCATTER_ON) {
+    const H = (GEOMETRY.ceilingHeight - GEOMETRY.ringMinY) + PAD * 2;
+    const W = GEOMETRY.ringRadiusMax * 2 + PAD * 2;
+    const tanV0 = Math.tan(PREVIEW_FOV * Math.PI / 360);
+    const asp0 = Math.max(0.3, window.innerWidth / window.innerHeight);
+    camEl.setAttribute("position", {
+      x: 0,
+      y: (GEOMETRY.ceilingHeight + GEOMETRY.ringMinY) / 2,
+      z: Math.max(H / 2 / tanV0, W / 2 / (tanV0 * asp0)) * 1.1,
+    });
+    return;
+  }
   let rmax = GEOMETRY.ringRadiusMin, top = -Infinity, bot = Infinity;
   for (const [layer, ring] of chandelier.rings) {
     rmax = Math.max(rmax, ring.radius || 0);

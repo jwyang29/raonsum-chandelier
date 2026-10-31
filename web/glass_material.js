@@ -6,7 +6,7 @@
 // 그래서 프레넬, 얇은 막 간섭, 가짜 환경 반사, 반짝임을 직접 쓴다.
 // 렌더 타깃이 없어서 오래된 폰에서도 가볍다.
 
-import { GLASS } from "./config.js?v=1101q";
+import { GLASS } from "./config.js?v=1101t";
 
 export const glassTime = { value: 0 };   // chandelier 가 매 프레임 올린다
 

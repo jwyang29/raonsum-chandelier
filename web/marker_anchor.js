@@ -5,9 +5,9 @@
 // 측정에만 쓰고 장면은 마커 밖의 #world 에 두고 그 포즈를 매 프레임 갱신한다.
 // 보이는 마커가 둘 이상이면 평균을 낸다 (문서의 "2개 이상 보이면 평균").
 
-import { MARKERS, ANCHOR, AR_SOURCE, GEOMETRY } from "./config.js?v=1101q";
-import { solveMarkerAll, solvePlane, CV_TO_THREE } from "./pose.js?v=1101q";
-import { Gyro } from "./gyro.js?v=1101q";
+import { MARKERS, ANCHOR, AR_SOURCE, GEOMETRY } from "./config.js?v=1101t";
+import { solveMarkerAll, solvePlane, CV_TO_THREE } from "./pose.js?v=1101t";
+import { Gyro } from "./gyro.js?v=1101t";
 
 const DEG = Math.PI / 180;
 
