@@ -4,3 +4,6 @@ hub/secrets.env
 .DS_Store
 __pycache__/
 *.pyc
+
+# 현장 사진. 다른 사람이 찍혀 있어 올리지 않는다 (photo_test.html 이 로컬에서 쓴다)
+markers/_photos/

@@ -10,6 +10,7 @@
    python3 setcal.py --msize 0.098 --mring 0.415 --devh 0.22
    python3 setcal.py --fm 0,0.42,0 -0.41,0,2 0,-0.43,0 0.42,0,-1
    python3 setcal.py --cubey 1.22 2.10 3.00
+   python3 setcal.py --cuberot 90 0 0
    python3 setcal.py --clear
 
 ⚠️ 적은 것만 바뀐다. 안 적은 것은 그대로 둔다.
@@ -77,6 +78,11 @@ if fm:
 cy = take("--cubey", str, many=True)
 if cy:
     patch["cubeY"] = [float(v) for v in cy]
+
+# 큐브가 Y축으로 돌아가 달렸을 때. 세 개를 전부 적는다 (안 돌아갔으면 0).
+cr = take("--cuberot", str, many=True)
+if cr:
+    patch["cubeRot"] = [float(v) for v in cr]
 
 if not patch:
     sys.exit(__doc__)

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="utf-8"><title>현장 사진에서 마커 번호 읽기</title>
+<style>
+ body{margin:0;padding:18px;background:#12161c;color:#d8e0ea;font:13px/1.6 system-ui,sans-serif}
+ h1{font-size:15px;margin:0 0 10px} table{border-collapse:collapse;font:12px ui-monospace,monospace}
+ td,th{border:1px solid #2a323d;padding:5px 10px;text-align:left} th{color:#8b97a6;font-weight:500}
+ .hit{color:#7fd4c1} .miss{color:#e8736b}
+ #log{white-space:pre;color:#7f8b99;font:11.5px ui-monospace,monospace;margin-top:10px}
+</style>
+<script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js@3.4.5/aframe/build/aframe-ar.js"></script>
+</head><body>
+<h1>현장 사진을 실제 검출기에 넣어 어느 면이 어디를 보는지 읽는다</h1>
+<div id="out">재는 중</div><div id="log"></div>
+<script>
+const SHOTS = [
+  ["A_minusZ.jpg", "-Z 에서 봄", [56, 28, 50]],
+  ["B_plusZ.jpg",  "+Z 에서 봄", [42, 14, 21]],
+  ["C_plusX.jpg",  "+X 에서 봄", [49, 13, 52]],
+  ["D_minusX.jpg", "-X 에서 봄", [25, 41, 38]],
+];
+// 큐브별 번호. config.js 의 CUBE_CODES 와 같아야 한다. 순서는 +Z, +X, -Z, -X, 바닥
+const CUBE = {1:[21,52,50,38,11], 2:[14,13,28,41,19], 3:[42,49,56,25,22]};
+const SIDE = ["+Z","+X","-Z","-X","바닥"];
+const whose = (v) => { for (const k in CUBE) { const i = CUBE[k].indexOf(v);
+  if (i >= 0) return `큐브${k} 의 ${SIDE[i]} 면`; } return "작품 밖 번호"; };
+const log = (s) => document.getElementById("log").textContent += s + "\n";
+const load = (s) => new Promise((r,j)=>{const i=new Image();i.onload=()=>r(i);i.onerror=j;i.src=s;});
+
+(async () => {
+  const sc = document.createElement("a-scene");
+  sc.setAttribute("embedded",""); sc.setAttribute("vr-mode-ui","enabled: false");
+  const blank = document.createElement("canvas"); blank.width=1200; blank.height=1600;
+  const burl = URL.createObjectURL(await new Promise(r=>blank.toBlob(r)));
+  sc.setAttribute("arjs", "sourceType: image; sourceUrl: "+burl+
+    "; detectionMode: mono_and_matrix; matrixCodeType: 3x3; trackingMethod: best;"+
+    " sourceWidth: 1200; sourceHeight: 1600; canvasWidth: 1200; canvasHeight: 1600");
+  sc.style.cssText="position:fixed;left:-9999px;width:2px;height:2px";
+  const m=document.createElement("a-marker"); m.setAttribute("type","barcode");
+  m.setAttribute("value","0"); sc.appendChild(m);
+  sc.appendChild(document.createElement("a-entity")); document.body.appendChild(sc);
+
+  const ctrl = await new Promise((res,rej)=>{const t0=Date.now();const t=()=>{
+    const s=sc.systems&&sc.systems.arjs;
+    const c=s&&s._arSession&&s._arSession.arContext&&s._arSession.arContext.arController;
+    if(c) return res(c); if(Date.now()-t0>25000) return rej(new Error("검출기 없음"));
+    setTimeout(t,200);};t();});
+  log("문턱 모드 "+ctrl.getThresholdMode()+" 값 "+ctrl.getThreshold());
+
+  let seen = [];
+  ctrl.addEventListener("getMarker", e => { if (e.data.marker.idMatrix>=0) seen.push(e.data.marker.idMatrix); });
+
+  let html = "<table><tr><th>사진</th><th>검출된 번호</th><th>그게 무엇인가</th></tr>";
+  for (const [file, label, expect] of SHOTS) {
+    const img = await load("_photos/" + file);
+    const found = new Set();
+    // 사진이 크고 마커가 작다. 여러 배율로 넣어 본다.
+    for (const scale of [1.0, 1.4, 1.8, 2.4]) {
+      const W = Math.round(img.width*scale), H = Math.round(img.height*scale);
+      const c = document.createElement("canvas"); c.width=W; c.height=H;
+      const g = c.getContext("2d"); g.imageSmoothingQuality="high";
+      g.drawImage(img, 0, 0, W, H);
+      seen = [];
+      try { ctrl.process(c); } catch(e) { log(file+" "+scale+"x 실패 "+e); }
+      seen.forEach(v => found.add(v));
+      await new Promise(r=>setTimeout(r,0));
+    }
+    const list = [...found].sort((a,b)=>a-b);
+    html += `<tr><td>${label}<br><span style="color:#5d6670">${file}</span></td>` +
+            `<td>${list.join(", ") || "<span class='miss'>없음</span>"}</td><td>` +
+            list.map(v => `${v} = ${whose(v)}`).join("<br>") + "</td></tr>";
+    log(`${label}  기대 ${expect.join(",")}  ->  나온 것 ${list.join(",") || "없음"}`);
+  }
+  document.getElementById("out").innerHTML = html + "</table>";
+  window.__done = true;
+})().catch(e=>{document.getElementById("out").textContent="실패: "+e; log(String(e.stack||e)); window.__done="err";});
+</script>
+</body></html>

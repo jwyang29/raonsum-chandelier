@@ -362,10 +362,17 @@ export const CUBE_CODES = [[21, 52, 50, 38, 11], [14, 13, 28, 41, 19],
 //
 // 높이는 바닥 기준으로 적는다. 줄자가 그렇고, 천장에서 내려 매다는 것이라
 // 좌대 높이와 상관이 없다. 코드가 쓰는 y 는 좌대 상단면 기준이라 여기서 뺀다.
+// [바닥 기준 높이(m), 한 변(m), Y축으로 돌아간 각(도)]
+// 🔴 돌아간 각은 현장에서 실제로 매단 대로 적는다. 큐브1 은 90도 돌려 달렸다.
+//    markers/photo_test.html 로 현장 사진을 검출기에 넣어 확인했다.
+//    +Z 를 보아야 할 21 이 +X 를 보고, 52 가 -Z, 50 이 -X, 38 이 +Z 를 본다.
+//    네 면이 한 칸씩 밀렸으니 Y축 +90도다.
+// 높이는 천장 265cm 에 맞춘 값이다. 실제로 매단 높이는 현장에서 재서
+// setcal 의 --cubey 로 넣는다. 여기 값은 보정이 안 실릴 때의 대비다.
 const CUBE_PLAN = [
-  [1.25, 0.130],
-  [2.15, 0.135],
-  [3.05, 0.160],
+  [1.20, 0.130, 90],
+  [1.75, 0.135,  0],
+  [2.30, 0.160,  0],
 ];
 
 // ?cubes=0 이면 매단 큐브를 통째로 끈다. 바닥 네 장만 두고 시험할 때 쓴다.
@@ -374,15 +381,24 @@ const CUBES_ON = QS.get("cubes") !== "0";
 const cubeParam = (QS.get("cube") || "").trim();
 export const CUBES = !CUBES_ON ? [] : cubeParam
   ? cubeParam.split(";").map((t, i) => {
-      const [y, face, r, az] = t.split(",").map(Number);
-      return { y, face, r: r || 0, az: az || 0,
+      const [y, face, r, az, rot] = t.split(",").map(Number);
+      return { y, face, r: r || 0, az: az || 0, rot: rot || 0,
                codes: CUBE_CODES[i % CUBE_CODES.length] };
     }).filter((c) => Number.isFinite(c.y) && Number.isFinite(c.face))
-  : CUBE_PLAN.map(([floorY, face], i) => ({
+  : CUBE_PLAN.map(([floorY, face, rot], i) => ({
       y: floorY - PEDESTAL.height,   // 좌대 상단면 기준으로 바꾼다
-      floorY, face, r: 0, az: 0,
+      floorY, face, r: 0, az: 0, rot: rot || 0,
       codes: CUBE_CODES[i % CUBE_CODES.length],
     }));
+
+// 큐브가 Y축으로 돌아가 달렸을 때 면의 법선과 yaw 를 같이 돌린다.
+// three.js 의 Ry(t) 는 (x, z) 를 (x cos t + z sin t, -x sin t + z cos t) 로 보낸다.
+export function cubeFaceDir(face, rot) {
+  const [dx, dz, yaw] = CUBE_DIRS[face];
+  if (!rot) return [dx, dz, yaw];
+  const t = rot * Math.PI / 180, c = Math.cos(t), s = Math.sin(t);
+  return [dx * c + dz * s, -dx * s + dz * c, yaw + rot];
+}
 
 // 매단 자리. 비켜 매달아도 큐브는 돌리지 않는다. 면은 바닥 마커와 같은 네 방향을 본다.
 export const cubeCenter = (c) => [
@@ -416,12 +432,15 @@ export const cubeFaceFor = (d, frameW = 1280) =>
 const CUBE_DIRS = [[0, 1, 0], [1, 0, 90], [0, -1, 180], [-1, 0, 270]];
 const cubeMarkers = () => CUBES.flatMap((c) => {
   const [cx, , cz] = cubeCenter(c);
-  const faces = CUBE_DIRS.map(([dx, dz, yaw], i) => ({
-    value: c.codes[i],
-    size: c.face / 1.5,                 // 검은 사각형. 흰 여백이 25% 씩이다
-    pos: [cx + dx * c.face / 2, c.y, cz + dz * c.face / 2],
-    yaw, tilt: 90, kind: "cube", cube: CUBES.indexOf(c), face: i,
-  }));
+  const faces = CUBE_DIRS.map((_, i) => {
+    const [dx, dz, yaw] = cubeFaceDir(i, c.rot);
+    return {
+      value: c.codes[i],
+      size: c.face / 1.5,               // 검은 사각형. 흰 여백이 25% 씩이다
+      pos: [cx + dx * c.face / 2, c.y, cz + dz * c.face / 2],
+      yaw, tilt: 90, kind: "cube", cube: CUBES.indexOf(c), face: i,
+    };
+  });
 
   // 🔴 밑면. 이게 없으면 좌대 바로 앞에 선 관객이 올려다볼 때 기준이 없다.
   //    옆면은 세워져 있어서 가파르게 올려다보면 모서리로 보여 안 읽힌다.
@@ -433,7 +452,7 @@ const cubeMarkers = () => CUBES.flatMap((c) => {
     value: c.codes[4],
     size: c.face / 1.5,
     pos: [cx, c.y - c.face / 2, cz],
-    yaw: 0, tilt: 180, kind: "cube", cube: CUBES.indexOf(c), face: 4,
+    yaw: c.rot || 0, tilt: 180, kind: "cube", cube: CUBES.indexOf(c), face: 4,
   });
   return faces;
 });
@@ -505,11 +524,13 @@ export function refreshMarkers() {
       const [cx, , cz] = cubeCenter(c);
       if (m.face === 4) {
         m.pos[0] = cx; m.pos[1] = c.y - c.face / 2; m.pos[2] = cz;
+        m.yaw = c.rot || 0;
       } else {
-        const [dx, dz] = CUBE_DIRS[m.face];
+        const [dx, dz, yaw] = cubeFaceDir(m.face, c.rot);
         m.pos[0] = cx + dx * c.face / 2;
         m.pos[1] = c.y;
         m.pos[2] = cz + dz * c.face / 2;
+        m.yaw = yaw;
       }
       continue;
     }
@@ -581,6 +602,13 @@ export function applyRemoteCal(cal) {
       }
     });
     hit.push("cubeY");
+  }
+  // 돌아간 각. 매달고 보니 틀어졌을 때 배포 없이 고친다.
+  if (!urlHas("cube") && Array.isArray(cal.cubeRot)) {
+    cal.cubeRot.forEach((r, i) => {
+      if (CUBES[i] && Number.isFinite(r)) CUBES[i].rot = r;
+    });
+    hit.push("cubeRot");
   }
 
   refreshMarkers();
