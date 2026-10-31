@@ -479,6 +479,23 @@ AFRAME.registerComponent("chandelier-driver", {
     if (!DEBUG) return;
 
     const p = this.anchor && this.anchor.started ? this.anchor.pos : null;
+    // 🔴 검출기가 진짜로 쓰는 캔버스 크기와 투영 행렬을 읽는다.
+    const ar = PREVIEW ? null : (() => {
+      try {
+        const sys = scene.systems.arjs;
+        const c = sys && sys._arSession && sys._arSession.arContext
+          && sys._arSession.arContext.arController;
+        if (!c || !c.canvas) return null;
+        const o = { cw: c.canvas.width, ch: c.canvas.height, fx: "?", fy: "?" };
+        const m = c.getCameraMatrix && c.getCameraMatrix();
+        if (m) {                      // OpenGL 투영: m[0] = 2fx/W, m[5] = 2fy/H
+          o.fx = Math.round(m[0] * o.cw / 2);
+          o.fy = Math.round(m[5] * o.ch / 2);
+        }
+        return o;
+      } catch (e) {}
+      return null;
+    })();
     // 🔴 설정값이 아니라 검출기가 실제로 쥐고 있는 마커 폭을 읽는다.
     const aw = PREVIEW ? null : (() => {
       try {
@@ -499,7 +516,10 @@ AFRAME.registerComponent("chandelier-driver", {
       // 🔴 진단 네 줄을 맨 위에 둔다. 보정 패널이 아래쪽을 덮어서, 아래에 두면
       //    현장에서 사진을 찍어도 이 값들이 안 보인다. 실제로 그래서 못 봤다.
       `요청 영상    ${AR_SOURCE.width}x${AR_SOURCE.height} @${AR_SOURCE.maxDetectionRate}/s\n` +
-      (PREVIEW ? "" : `인식 캔버스  ${AR_SOURCE.canvasW || AR_SOURCE.width}x${AR_SOURCE.canvasH || AR_SOURCE.height}\n`) +
+      (PREVIEW ? "" : `인식 캔버스  ${AR_SOURCE.canvasW || AR_SOURCE.width}x${AR_SOURCE.canvasH || AR_SOURCE.height} (설정)\n`) +
+      // 🔴 설정이 아니라 검출기가 진짜로 쓰는 캔버스와 투영. 여기가 틀리면 거리가 통째로 틀어진다.
+      (PREVIEW ? "" : `검출기 내부  ${ar ? `${ar.cw}x${ar.ch}  fx ${ar.fx} fy ${ar.fy}` : "아직 모름"}` +
+        `${ar && Math.abs(ar.fx - ar.fy) > 20 ? "  <- 픽셀이 찌그러짐" : ""}\n`) +
       // 🔴 이 둘이 같아야 한다. 다르면 마커가 찌그러져 포즈가 발산한다.
       (PREVIEW ? "" : `실제 영상    ${vs}` +
         `${vs && vs !== `${AR_SOURCE.canvasW || AR_SOURCE.width}x${AR_SOURCE.canvasH || AR_SOURCE.height}` ? "  <- 캔버스와 다름" : "  OK"}\n`) +
