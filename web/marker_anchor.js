@@ -11,6 +11,10 @@ import { Gyro } from "./gyro.js";
 
 const DEG = Math.PI / 180;
 
+// ?rot=0..3 으로 돌림을 직접 못박는다. 자동으로 고른 것이 틀릴 때 쓴다.
+const ROT_Q = parseInt(new URLSearchParams(location.search).get("rot"), 10);
+const ROT_FIXED = Number.isFinite(ROT_Q) ? (ROT_Q & 3) : null;
+
 // 마커 로컬 좌표계에서 우리 월드 좌표계로 가는 변환을 미리 만들어 역행렬을 둔다.
 // AR.js 에서 마커 자식은 마커 면 위에 서고 +Y 가 면 바깥을 향한다.
 //
@@ -99,6 +103,7 @@ AFRAME.registerComponent("world-anchor", {
     this.tmpQ = new THREE.Quaternion();
     this.byValue = new Map(this.slots.map((k) => [k.conf.value, k]));
     this.rot = 0;                 // 정사각형의 네 돌림 중 고른 것
+    this.rotBy = new Map();       // 묶음(바닥/큐브/천장)마다 따로 기억한다
     this.tmpS = new THREE.Vector3();
   },
 
@@ -152,16 +157,23 @@ AFRAME.registerComponent("world-anchor", {
           sp = Math.max(sp, ps[i].distanceTo(ps[j]));
       return sp;
     };
-    let rot = this.rot | 0;
-    if (cand.length >= 2) {
-      let best = Infinity;
+    // 🔴 묶음마다 따로 기억한다. 바닥 넷과 매단 큐브는 서로 다른 물체이고,
+    //    한쪽에서 고른 돌림을 다른 쪽에 쓰면 그 묶음만 보일 때 월드가 돌아간다.
+    //    그리고 잘 모였을 때만 기억을 갱신한다. 어쩌다 나쁜 프레임에서 고른
+    //    값이 들어가면 그 뒤로 계속 그것을 쓰게 된다.
+    const kind = (cand[0].slot.conf.kind || "floor");
+    let rot = ROT_FIXED !== null ? ROT_FIXED : (this.rotBy.get(kind) | 0);
+    if (ROT_FIXED === null && cand.length >= 2) {
+      let best = Infinity, bestR = rot;
       for (let r = 0; r < 4; r++) {
         const sp = pick(r);
-        if (sp < best) { best = sp; rot = r; }
+        if (sp < best) { best = sp; bestR = r; }
       }
-      this.rot = rot;
       this.rotSpread = best;
+      if (best < 0.20) { rot = bestR; this.rotBy.set(kind, rot); }
+      else rot = bestR;                 // 기억은 안 하되 이번 프레임은 최선을 쓴다
     }
+    this.rot = rot;
     for (const c of cand) out.set(c.slot.conf.value, c.mats[rot]);
     return out;
   },

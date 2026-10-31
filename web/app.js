@@ -21,7 +21,7 @@ import { Detector } from "./detect.js";
 import { pickCamera, isDesktop } from "./campick.js";
 import { loadBlobs } from "./crystal.js";
 
-const VERSION = "build 1101e";   // 고칠 때마다 올린다. 폰이 옛 파일을 쓰고 있는지 이걸로 안다
+const VERSION = "build 1101f";   // 고칠 때마다 올린다. 폰이 옛 파일을 쓰고 있는지 이걸로 안다
 const params = new URLSearchParams(location.search);
 const DEBUG = params.get("debug") === "1";
 
@@ -556,7 +556,7 @@ AFRAME.registerComponent("chandelier-driver", {
       `${VERSION}${PREVIEW ? "  preview" : ""}${DETAIL ? "" : "   (눌러서 자세히)"}\n` +
       (PREVIEW ? "" : `원점까지     ${p ? d2(p.length()) + " m" : "-"}\n`) +
       (PREVIEW ? "" : `서로 어긋남  ${this.anchor ? (this.anchor.spread * 100).toFixed(1) : "0"} cm` +
-        `${this.anchor && this.anchor.spread > 0.08 ? "  틀림" : ""}` +
+        `${this.anchor && this.anchor.spread > 0.15 ? "  틀림" : ""}` +
         `${this.anchor && this.anchor.rejected ? "  버림" : ""}\n`) +
       (PREVIEW ? "" : `번호         ${this.anchor && this.anchor.seenValues.length
           ? this.anchor.seenValues.join(" ") : "없음"}\n`) +
