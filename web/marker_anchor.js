@@ -14,6 +14,8 @@ const DEG = Math.PI / 180;
 // ?rot=0..3 으로 돌림을 직접 못박는다. 자동으로 고른 것이 틀릴 때 쓴다.
 const ROT_Q = parseInt(new URLSearchParams(location.search).get("rot"), 10);
 const ROT_FIXED = Number.isFinite(ROT_Q) ? (ROT_Q & 3) : null;
+// 마커 반지름 자동 찾기. 기본은 꺼 둔다. 줄자로 잰 값이 더 정확하다.
+const RING_FIT = new URLSearchParams(location.search).get("ringfit") === "1";
 
 // 마커 로컬 좌표계에서 우리 월드 좌표계로 가는 변환을 미리 만들어 역행렬을 둔다.
 // AR.js 에서 마커 자식은 마커 면 위에 서고 +Y 가 면 바깥을 향한다.
@@ -256,22 +258,17 @@ AFRAME.registerComponent("world-anchor", {
         if (!moved) break;
       }
     }
-    // 🔴 마커 반지름을 앱이 직접 찾는다.
-    //
-    //    설정은 좌대 지름에서 계산한 50cm 인데, 가운데 조형물 때문에 실제로는
-    //    더 안쪽에 붙이게 된다. 그 차이가 그대로 어긋남이 된다. 1.5m 거리에서
-    //    8cm 는 화면에서 65px 이라 금방 커진다.
-    //
-    //    미지수가 배율 하나뿐이므로 훑어서 찾으면 된다. 줄자로 잴 필요가 없다.
-    //    잘 맞는 값을 찾으면 기억해 두고 매 프레임 다시 훑지 않는다.
-    if (best && bestRots && (this.ringFit === undefined || best.err > 4)) {
-      let bs = this.ringFit || 1, be = best.err;
-      for (let sc = 0.55; sc <= 1.45; sc += 0.01) {
+    // ⚠️ 배율 자동 찾기는 뺐다. 범위 끝으로 달아나 반지름 27.5cm 같은 값을
+    //    내놓았다. 어긋남이 배율만으로는 안 줄어드는 종류였기 때문이다.
+    //    줄자로 잰 값을 setcal --mring 으로 넣는 쪽이 정확하다.
+    //    ?ringfit=1 로 다시 켤 수는 있게 둔다.
+    if (RING_FIT && best && bestRots) {
+      let bs = 1, be = best.err, bp = best;
+      for (let sc = 0.85; sc <= 1.18; sc += 0.01) {
         const p = tryAll(bestRots, bestFlip, sc);
-        if (p && p.err < be) { be = p.err; bs = sc; best = p; }
+        if (p && p.err < be) { be = p.err; bs = sc; bp = p; }
       }
-      if (be < best.err || this.ringFit === undefined) this.ringFit = bs;
-      else this.ringFit = bs;
+      if (be < best.err * 0.8) { best = bp; this.ringFit = bs; }
     }
 
     // 실패해도 어긋남은 남긴다. 안 남기면 왜 안 되는지 볼 수가 없다.
@@ -279,7 +276,13 @@ AFRAME.registerComponent("world-anchor", {
     this.ringMeasured = (this.ringFit || 1) * GEOMETRY.markerRing;
     this.floorN = list.length;
     this.floorRots = bestRots ? bestRots.join("") : "";
-    if (!best || !(best.err < 8)) return null;
+    // 🔴 문턱을 어긋남 픽셀이 아니라 "실제로 몇 cm 틀어지는가" 로 잡는다.
+    //    59px 은 1.3m 거리에서 6cm 다. 아무도 못 알아챈다. 그런데 8px(=1cm)에서
+    //    버리게 해 놓으니 훨씬 나쁜 장별 평균으로 떨어졌고, 거기서 90도 오차가
+    //    나서 월드가 1m 씩 튀었다. 완벽을 쫓다가 더 나쁜 길로 간 것이다.
+    const distM = best ? Math.hypot(best.t[0], best.t[1], best.t[2]) : 0;
+    this.floorCm = best ? (best.err / K.fx) * distM * 100 : null;
+    if (!best || !(this.floorCm < 15)) return null;
 
     // 평면 기저 e1=+X, e2=+Z, e3=e1 x e2 = -Y 이므로
     // 월드 회전의 열은 x:r1, y:-r3, z:r2 다.
