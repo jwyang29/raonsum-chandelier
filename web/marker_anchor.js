@@ -145,36 +145,44 @@ AFRAME.registerComponent("world-anchor", {
     // 2단계. 🔴 돌림을 고른다.
     //   정사각형이라 마커 혼자서는 네 방향을 구분 못 한다. 그런데 같은 묶음에
     //   속한 마커들은 설치물에 함께 고정되어 있으므로, 맞는 돌림이면 모두가
-    //   같은 월드 원점을 가리킨다. 네 가지를 다 넣어 보고 가장 모이는 것을
-    //   고른다. 하나만 보일 때는 가릴 수 없으므로 전에 고른 것을 쓴다.
-    const pick = (rot) => {
-      const ps = cand.map((c) =>
+    //   같은 월드 원점을 가리킨다. 네 가지를 다 넣어 보고 가장 모이는 것을 고른다.
+    //
+    //   ⚠️ 반드시 묶음 안에서만 비교해야 한다. 바닥 넷과 매단 큐브는 서로 다른
+    //      물체라 섞어 놓고 비교하면 네 방향 어느 것도 모이지 않는다. 그러면
+    //      엉뚱한 값이 뽑혀 월드가 통째로 돌아간다.
+    //   ⚠️ 한 장만 보이는 묶음은 가릴 수 없다. 그 묶음에서 전에 고른 것을 쓰고,
+    //      그것도 없으면 가장 최근에 확정된 값을 쓴다. 0 으로 두면 안 된다.
+    const byKind = new Map();
+    for (const c of cand) {
+      const k = c.slot.conf.kind || "floor";
+      if (!byKind.has(k)) byKind.set(k, []);
+      byKind.get(k).push(c);
+    }
+    const spreadOf = (list, rot) => {
+      const ps = list.map((c) =>
         new THREE.Vector3().setFromMatrixPosition(
-          this.tmpM.multiplyMatrices(c.mats[rot], c.slot.inv)));
+          new THREE.Matrix4().multiplyMatrices(c.mats[rot], c.slot.inv)));
       let sp = 0;
       for (let i = 0; i < ps.length; i++)
         for (let j = i + 1; j < ps.length; j++)
           sp = Math.max(sp, ps[i].distanceTo(ps[j]));
       return sp;
     };
-    // 🔴 묶음마다 따로 기억한다. 바닥 넷과 매단 큐브는 서로 다른 물체이고,
-    //    한쪽에서 고른 돌림을 다른 쪽에 쓰면 그 묶음만 보일 때 월드가 돌아간다.
-    //    그리고 잘 모였을 때만 기억을 갱신한다. 어쩌다 나쁜 프레임에서 고른
-    //    값이 들어가면 그 뒤로 계속 그것을 쓰게 된다.
-    const kind = (cand[0].slot.conf.kind || "floor");
-    let rot = ROT_FIXED !== null ? ROT_FIXED : (this.rotBy.get(kind) | 0);
-    if (ROT_FIXED === null && cand.length >= 2) {
-      let best = Infinity, bestR = rot;
-      for (let r = 0; r < 4; r++) {
-        const sp = pick(r);
-        if (sp < best) { best = sp; bestR = r; }
+    for (const [kind, list] of byKind) {
+      let rot = ROT_FIXED !== null ? ROT_FIXED
+        : (this.rotBy.has(kind) ? this.rotBy.get(kind) : (this.rot | 0));
+      if (ROT_FIXED === null && list.length >= 2) {
+        let best = Infinity, bestR = rot;
+        for (let r = 0; r < 4; r++) {
+          const sp = spreadOf(list, r);
+          if (sp < best) { best = sp; bestR = r; }
+        }
+        rot = bestR;
+        if (best < 0.20) { this.rotBy.set(kind, rot); this.rot = rot; }
+        this.rotSpread = best;
       }
-      this.rotSpread = best;
-      if (best < 0.20) { rot = bestR; this.rotBy.set(kind, rot); }
-      else rot = bestR;                 // 기억은 안 하되 이번 프레임은 최선을 쓴다
+      for (const c of list) out.set(c.slot.conf.value, c.mats[rot]);
     }
-    this.rot = rot;
-    for (const c of cand) out.set(c.slot.conf.value, c.mats[rot]);
     return out;
   },
 
