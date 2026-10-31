@@ -14,14 +14,14 @@
 import "./marker_anchor.js";
 import { MARKERS, GEOMETRY, PEDESTAL, SCHEDULE, CAL_KEY, AR_SOURCE, ANCHOR,
          MAX_CRYSTALS, DESK, FIREBASE, applyRemoteCal,
-         refreshPedestal, refreshMarkers } from "./config.js";
-import { Chandelier, RING_GAP, recomputeHeights, ringY } from "./chandelier.js";
-import { startFeed, mockData } from "./feed.js";
-import { Detector } from "./detect.js";
-import { pickCamera, isDesktop } from "./campick.js";
-import { loadBlobs } from "./crystal.js";
+         refreshPedestal, refreshMarkers } from "./config.js?v=1101l";
+import { Chandelier, RING_GAP, recomputeHeights, ringY } from "./chandelier.js?v=1101l";
+import { startFeed, mockData } from "./feed.js?v=1101l";
+import { Detector } from "./detect.js?v=1101l";
+import { pickCamera, isDesktop } from "./campick.js?v=1101l";
+import { loadBlobs } from "./crystal.js?v=1101l";
 
-const VERSION = "build 1101k";   // 고칠 때마다 올린다. 폰이 옛 파일을 쓰고 있는지 이걸로 안다
+const VERSION = "build 1101l";   // 고칠 때마다 올린다. 폰이 옛 파일을 쓰고 있는지 이걸로 안다
 const params = new URLSearchParams(location.search);
 const DEBUG = params.get("debug") === "1";
 

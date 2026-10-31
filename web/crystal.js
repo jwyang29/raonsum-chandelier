@@ -7,8 +7,8 @@
 // 같은 변형끼리는 BufferGeometry 를 공유한다. 재질만 크리스탈마다 따로 둔다.
 // ⚠️ 그래서 크리스탈을 버릴 때 geometry 를 dispose 하면 안 된다.
 
-import { MAPPING, FORM, TINTS, GLASS } from "./config.js";
-import { makeGlass } from "./glass_material.js";
+import { MAPPING, FORM, TINTS, GLASS } from "./config.js?v=1101l";
+import { makeGlass } from "./glass_material.js?v=1101l";
 
 const lerp = (a, b, t) => a + (b - a) * t;
 const clamp01 = (v) => Math.max(0, Math.min(1, v));
