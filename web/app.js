@@ -410,6 +410,19 @@ AFRAME.registerComponent("chandelier-driver", {
     const vs = PREVIEW ? null : videoSize();
     panel.textContent =
       `${VERSION}${PREVIEW ? "  preview" : ""}\n` +
+      // 🔴 진단 네 줄을 맨 위에 둔다. 보정 패널이 아래쪽을 덮어서, 아래에 두면
+      //    현장에서 사진을 찍어도 이 값들이 안 보인다. 실제로 그래서 못 봤다.
+      `요청 영상    ${AR_SOURCE.width}x${AR_SOURCE.height} @${AR_SOURCE.maxDetectionRate}/s\n` +
+      (PREVIEW ? "" : `인식 캔버스  ${AR_SOURCE.canvasW || AR_SOURCE.width}x${AR_SOURCE.canvasH || AR_SOURCE.height}\n`) +
+      // 🔴 이 둘이 같아야 한다. 다르면 마커가 찌그러져 포즈가 발산한다.
+      (PREVIEW ? "" : `실제 영상    ${vs}` +
+        `${vs && vs !== `${AR_SOURCE.canvasW || AR_SOURCE.width}x${AR_SOURCE.canvasH || AR_SOURCE.height}` ? "  <- 캔버스와 다름" : "  OK"}\n`) +
+      // 검출기가 쥐고 있는 실제 한 변. 준 값과 다르면 월드가 그 비율로 틀어진다.
+      (PREVIEW ? "" : `검출기 한 변 ${ds ? `${(ds.size * 100).toFixed(1)} cm (${ds.value}번, 준 값 ${(ds.want * 100).toFixed(1)})` : "아직 모름"}` +
+        `${ds && Math.abs(ds.size - ds.want) > 0.002 ? "  <- 안 먹었습니다" : ""}\n`) +
+      // 카메라에서 월드 원점까지. 그래픽이 작아 보이면 이 값이 커져 있다.
+      (PREVIEW ? "" : `원점까지     ${p ? p.length().toFixed(2) + " m" : "-"}\n`) +
+
       (PREVIEW ? "" : `보이는 마커  ${seen} / ${MARKERS.length}${this.anchor && this.anchor.source && this.anchor.source !== "floor" ? ` (${this.anchor.source === "cube" ? "큐브" : "천장"})` : ""}\n`) +
       (PREVIEW ? "" : `번호         ${this.anchor && this.anchor.seenValues.length
           ? this.anchor.seenValues.join(" ") : "없음"}\n`) +
@@ -433,16 +446,6 @@ AFRAME.registerComponent("chandelier-driver", {
       `${(GEOMETRY.ceilingHeight + PEDESTAL.height).toFixed(2)} m (바닥)\n` +
       `겹 간격      ${RING_GAP.toFixed(3)} m (한 겹 내려오는 높이)\n` +
       `링 반지름    ${GEOMETRY.ringRadiusMin.toFixed(2)}~${GEOMETRY.ringRadiusMax.toFixed(2)} m (개수에 따라)\n` +
-      `요청 영상    ${AR_SOURCE.width}x${AR_SOURCE.height} @${AR_SOURCE.maxDetectionRate}/s\n` +
-      (PREVIEW ? "" : `인식 캔버스  ${AR_SOURCE.canvasW || AR_SOURCE.width}x${AR_SOURCE.canvasH || AR_SOURCE.height}\n`) +
-      // 🔴 이 둘이 같아야 한다. 다르면 마커가 찌그러져 포즈가 발산한다.
-      (PREVIEW ? "" : `실제 영상    ${vs}` +
-        `${vs && vs !== `${AR_SOURCE.canvasW || AR_SOURCE.width}x${AR_SOURCE.canvasH || AR_SOURCE.height}` ? "  <- 캔버스와 다름" : "  OK"}\n`) +
-      // 검출기가 쥐고 있는 실제 한 변. 준 값과 다르면 월드가 그 비율로 틀어진다.
-      (PREVIEW ? "" : `검출기 한 변 ${ds ? `${(ds.size * 100).toFixed(1)} cm (${ds.value}번, 준 값 ${(ds.want * 100).toFixed(1)})` : "아직 모름"}` +
-        `${ds && Math.abs(ds.size - ds.want) > 0.002 ? "  <- 안 먹었습니다" : ""}\n`) +
-      // 카메라에서 월드 원점까지. 그래픽이 작아 보이면 이 값이 커져 있다.
-      (PREVIEW ? "" : `원점까지     ${p ? p.length().toFixed(2) + " m" : "-"}\n`) +
       `현장 보정    ${CAL_NOTE}`;
   },
 });
