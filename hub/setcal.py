@@ -7,7 +7,7 @@
 
    python3 setcal.py --show
    python3 setcal.py --ped 1.10 --pedh 0.35 --floorceiling 3.25
-   python3 setcal.py --msize 0.098 --mring 0.415
+   python3 setcal.py --msize 0.098 --mring 0.415 --devh 0.22
    python3 setcal.py --fm 0,0.42,0 -0.41,0,2 0,-0.43,0 0.42,0,-1
    python3 setcal.py --cubey 1.22 2.10 3.00
    python3 setcal.py --clear
@@ -21,7 +21,7 @@ sys.path.insert(0, HERE)
 import hub_v1
 hub_v1.load_env_file()
 
-KEYS = ["ped", "pedh", "floorceiling", "ceiling", "headroom", "msize", "mring"]
+KEYS = ["ped", "pedh", "floorceiling", "ceiling", "headroom", "msize", "mring", "devh"]
 
 
 def take(name, cast=float, many=False):

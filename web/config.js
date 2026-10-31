@@ -146,7 +146,8 @@ export const GEOMETRY = {
   // 센싱 장치 (알루미늄 프레임 + ESP32 + ToF). 좌대 한가운데에 놓인다.
   // 마커가 이 위로 올라오면 안 되므로 마커 반지름의 안쪽 한계를 정한다.
   deviceSize: 0.40,
-  deviceHeight: 0.20,
+  // 실측 22cm. 천은 이 위에 덮인다. 크리스탈이 태어나는 높이가 여기서 나온다.
+  deviceHeight: num("devh", 0.22),
 
   // 장치 위에 씌운 천 한 변 길이. 관객이 누르는 면이다.
   clothSize: 0.33,
@@ -174,7 +175,10 @@ export const GEOMETRY = {
     : 3.08),
 
   // 크리스탈이 생겨나는 높이 (천 바로 위).
-  spawnY: 0.02,
+  // 🔴 좌대 상단면이 0 이고 장치가 그 위에 놓이므로, 장치 높이를 더해야
+  //    천에서 솟아오른다. 0.02 로 두면 장치 안에서 솟아나 보인다.
+  //    refreshPedestal 이 deviceHeight 에서 다시 잡는다.
+  spawnY: 0.24,
 
   // 링 반지름은 고정이 아니라 그 겹에 걸린 개수에서 나온다.
   // 겹치지 않고 한 바퀴에 놓이려면 둘레가 개수 x 폭 이상이어야 한다는 데서 온다.
@@ -229,6 +233,8 @@ export function refreshPedestal(report = false) {
     : (fits ? Math.floor(outer * 200) / 200 : inner);
 
   GEOMETRY.ringMinY = Math.max(0.3, GEOMETRY.headroom - PEDESTAL.height);
+  // 크리스탈은 천에서 솟는다. 천은 장치 위에 덮여 있다.
+  GEOMETRY.spawnY = GEOMETRY.deviceHeight + 0.02;
 
   // 이 배치가 들어가는 가장 작은 좌대. 안 들어가면 콘솔에 적어 준다.
   const needD = 2 * (Math.hypot(inner + half, half) + PEDESTAL.rimMargin);
@@ -552,6 +558,7 @@ export function applyRemoteCal(cal) {
     for (const m of MARKERS) if (m.kind === "floor") m.size = v;
   }, 0.02, 0.6);
   take("headroom", (v) => { GEOMETRY.headroom = v; }, 0.3, 6);
+  take("devh", (v) => { GEOMETRY.deviceHeight = v; }, 0, 1);
 
   refreshPedestal();                 // 자동으로 나오는 값들을 먼저 다시 잡는다
 

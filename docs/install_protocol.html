@@ -177,8 +177,10 @@ dl.codes dd{margin:0; color:var(--muted)}
 
 <div class="lede">
   <h1>Facets Between Us<br>설치 5시간</h1>
-  <p>순서를 틀리면 되돌릴 시간이 없습니다. 조명과 마커가 먼저고, 큐브는 마지막입니다.
-  T+2:05 의 점선 위까지만 끝내도 전시는 돌아갑니다.</p>
+  <p>순서를 틀리면 되돌릴 시간이 없습니다. 조명과 바닥 마커가 먼저고, 큐브가 그다음입니다.
+  현장 실측 천장 265cm 기준으로 숫자를 고쳐 적었습니다. 천장이 낮아 샹들리에가 머리 위로
+  올라갔기 때문에 <b>큐브는 선택이 아니라 필수</b>입니다. 큐브가 없으면 올려다보는 순간
+  추적이 끊깁니다.</p>
 </div>
 
 <!-- ═══════════ 출발 전 ═══════════ -->
@@ -299,20 +301,21 @@ dl.codes dd{margin:0; color:var(--muted)}
       <li><label><input type="checkbox" data-k="e4"><span><b>다른 폰에서 파라미터 없이</b> 열어 확인합니다. <code>현장 보정</code> 줄에 값이 떠야 합니다.</span></label></li>
       <li><label><input type="checkbox" data-k="e5"><span>마커를 완전히 고정합니다. 네 변을 투명테이프로 눌러 들뜨지 않게 합니다.</span></label></li>
     </ul>
-    <div class="cmd"><code>python3 hub/setcal.py --ped 1.02 --pedh 0.30 --floorceiling 3.25</code><button data-copy="python3 hub/setcal.py --ped 1.02 --pedh 0.30 --floorceiling 3.25">복사</button></div>
+    <div class="cmd"><code>python3 hub/setcal.py --ped 1.20 --pedh 0.20 --ceiling 2.30 --headroom 1.30</code><button data-copy="python3 hub/setcal.py --ped 1.20 --pedh 0.20 --ceiling 2.30 --headroom 1.30">복사</button></div>
+    <div class="note warn"><strong>현장 실측값입니다.</strong> 좌대 지름 120 cm, 높이 20 cm, 천장 265 cm. 마커 반지름은 <b>중심에서 50.0 cm</b> 입니다. 마주보는 것끼리 100.0 cm, 이웃끼리 70.7 cm.<br>머리 여유를 2.05 에서 <b>1.30</b> 으로 내렸습니다. 안 내리면 겹 간격이 4 cm 가 되어 크리스탈이 전부 겹쳐 뭉갭니다. 1.30 이면 겹 간격 8.0 cm 이고 지금 들어 있는 10겹이 바닥에서 <b>178~250 cm</b> 를 차지합니다.<br>🔴 <code>--ceiling 2.30</code> 은 <b>좌대 상단면 기준</b>입니다. 바닥 기준으로는 250 cm 이고, 실제 천장 265 cm 에서 15 cm 아래입니다. 실제 천장 높이를 그대로 넣으면 맨 위 링이 천장에 딱 붙어서 크리스탈 절반이 천장을 뚫고 나옵니다. 시뮬레이션으로 확인했습니다.</div>
     <div class="cmd"><code>python3 hub/setcal.py --show</code><button data-copy="python3 hub/setcal.py --show">복사</button></div>
     <div class="note warn"><strong>적은 것만 바뀝니다.</strong> 안 적은 항목은 그대로 남습니다. 꼬이면 <code>--clear</code> 로 전부 지우고 다시 시작하세요.</div>
   </div>
 </section>
 
-<div class="cut">여기까지면 전시가 돌아갑니다. 시간이 모자라면 아래는 버립니다</div>
+<div class="cut">큐브까지 해야 끝납니다. 셋 중 하나만 단다면 큐브3</div>
 
 <!-- ═══════════ 6 ═══════════ -->
 <section class="step">
   <div class="when">T+2:05<small>45분</small></div>
   <div class="body">
     <h2>큐브를 완성</h2>
-    <p class="why">반쯤 만들어 오신 것을 마무리합니다. 큐브는 관객이 폰을 들어 위를 볼 때 쓰입니다. 없으면 그 순간 자이로로만 버팁니다.</p>
+    <p class="why">반쯤 만들어 오신 것을 마무리합니다. 천장 265 cm 에서는 올려다보는 자세에서 바닥 마커가 하나도 안 걸립니다. 큐브가 없으면 샹들리에를 보는 내내 추적이 끊깁니다.</p>
     <ul class="checks">
       <li><label><input type="checkbox" data-k="f1"><span>면끼리 풀로 붙입니다. 한 변이 <b>13.0 / 13.5 / 16.0 cm</b> 입니다.</span></label></li>
       <li><label><input type="checkbox" data-k="f2"><span>모서리가 들뜨지 않게 합니다. 면이 휘면 마커가 비뚤어져 읽힙니다.</span></label></li>
@@ -327,12 +330,13 @@ dl.codes dd{margin:0; color:var(--muted)}
   <div class="body">
     <h2>큐브를 매단다</h2>
     <ul class="checks">
-      <li><label><input type="checkbox" data-k="g1"><span>바닥에서 <b>1.25 / 2.15 / 3.05 m</b>. 좌대 중심축 위에 수직으로 겹쳐 답니다.</span></label></li>
+      <li><label><input type="checkbox" data-k="g1"><span>바닥에서 <b>1.20 / 1.75 / 2.30 m</b>. 좌대 중심축 위에 수직으로 겹쳐 답니다. 벽에서 25 cm 띄우셨으니 중심축은 벽에서 85 cm 입니다.</span></label></li>
+      <li><label><input type="checkbox" data-k="g5"><span><b>큐브3 이 가장 중요합니다.</b> 2 m 거리에서 올려다볼 때 읽히는 마커가 큐브3 하나뿐입니다. 천장에서 19 cm 밖에 안 남으니 테이프 자리를 먼저 봅니다.</span></label></li>
       <li><label><input type="checkbox" data-k="g2"><span>낚싯줄을 <b>팽팽하게</b> 당겨 테이프로 고정합니다. 큐브가 흔들리면 바닥 마커가 안 보일 때 샹들리에도 같이 흔들립니다.</span></label></li>
       <li><label><input type="checkbox" data-k="g3"><span>매단 뒤 실제 높이를 다시 잽니다. 줄이 늘어나 계획보다 내려옵니다.</span></label></li>
       <li><label><input type="checkbox" data-k="g4"><span>실측 높이를 못박습니다</span></label></li>
     </ul>
-    <div class="cmd"><code>python3 hub/setcal.py --cubey 1.22 2.10 3.00</code><button data-copy="python3 hub/setcal.py --cubey 1.22 2.10 3.00">복사</button></div>
+    <div class="cmd"><code>python3 hub/setcal.py --cubey 1.20 1.75 2.30</code><button data-copy="python3 hub/setcal.py --cubey 1.20 1.75 2.30">복사</button></div>
   </div>
 </section>
 
