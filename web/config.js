@@ -94,6 +94,14 @@ export const AR_SOURCE = {
   height: num("arh", 960),
   canvasW: num("cw", 0) || null,     // 0 이면 영상 크기를 재서 맞춘다
   canvasH: num("ch", 0) || null,
+
+  // 🔴 렌즈 화각 (긴 변 기준, 도). 이 값이 틀리면 거리가 통째로 틀어진다.
+  //    vendor/camera_para.dat 의 55.4 도는 일반 웹캠 값이다. 아이폰 메인은
+  //    보통 63~65 도이고, 사파리가 초광각을 고르면 100 도를 넘는다. 그러면
+  //    초점거리가 몇 배씩 어긋나 포즈가 발산한다.
+  //    현장에서 줄자로 맞춘다. 좌대 중심에서 정확히 1m 떨어져 패널의
+  //    "원점까지" 가 1.00 이 되는 값이 그 폰의 화각이다.
+  fov: num("fov", 55.4),
   maxDetectionRate: num("arrate", 30),
 };
 
@@ -595,6 +603,7 @@ export function applyRemoteCal(cal) {
   }, 0.02, 0.6);
   take("headroom", (v) => { GEOMETRY.headroom = v; }, 0.3, 6);
   take("devh", (v) => { GEOMETRY.deviceHeight = v; }, 0, 1);
+  take("fov",  (v) => { AR_SOURCE.fov = v; }, 20, 140);
 
   refreshPedestal();                 // 자동으로 나오는 값들을 먼저 다시 잡는다
 

@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="utf-8"><title>검출기가 거리를 맞게 돌려주나</title>
+<style>
+ body{margin:0;padding:18px;background:#12161c;color:#d8e0ea;font:13px/1.6 system-ui,sans-serif}
+ h1{font-size:15px;margin:0 0 8px} p{color:#8b97a6;font-size:12px;margin:0 0 12px;max-width:800px}
+ table{border-collapse:collapse;font:12px ui-monospace,monospace;margin-bottom:12px}
+ td,th{border:1px solid #2a323d;padding:5px 10px;text-align:right} th{color:#8b97a6;font-weight:500}
+ td:first-child,th:first-child{text-align:left}
+ .ok{color:#7fd4c1} .no{color:#e8736b;font-weight:700} .mid{color:#e8b36b}
+ #log{white-space:pre;color:#7f8b99;font:11.5px ui-monospace,monospace}
+</style>
+<script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js@3.4.5/aframe/build/aframe-ar.js"></script>
+</head><body>
+<h1>검출기가 거리를 맞게 돌려주나 (닫힌 고리 시험)</h1>
+<p>알려진 거리 D 에 한 변 S 인 마커를 three.js 로 띄워 그림을 만들고, 그 그림을 실제
+ARToolKit 에 넣어 돌려주는 거리를 잰다. 그림을 만든 카메라와 검출기에 준 카메라 모델이
+같으면 D 가 그대로 나와야 한다. 세로 캔버스에서 틀어지는지를 본다.</p>
+<div id="out">재는 중</div><div id="log"></div>
+<script>
+const QS = new URLSearchParams(location.search);
+const CW = parseInt(QS.get("cw") || "960", 10);     // 인식 캔버스
+const CH = parseInt(QS.get("ch") || "1280", 10);
+const PARA = QS.get("para") || "gen";               // gen = 만든 것, orig = vendor 파일
+const SRC_LONG = 640, SRC_F = 609.3654;
+const log = s => document.getElementById("log").textContent += s + "\n";
+
+// 캔버스에 맞는 정사각 픽셀 모델을 만든다 (app.js 의 cameraParaFor 와 같은 식)
+function genPara(w, h) {
+  const f = SRC_F * Math.max(w, h) / SRC_LONG;
+  const b = new ArrayBuffer(176), d = new DataView(b);
+  d.setInt32(0, w); d.setInt32(4, h);
+  [f,0,w/2,0, 0,f,h/2,0, 0,0,1,0].forEach((v,i)=>d.setFloat64(8+i*8,v));
+  [0,0,0,0,f,f,w/2,h/2,1].forEach((v,i)=>d.setFloat64(104+i*8,v));
+  return { url: URL.createObjectURL(new Blob([b])), f };
+}
+const PARAM = genPara(CW, CH);
+const PARA_URL = PARA === "orig" ? "camera_para.dat" : PARAM.url;
+// 그림을 만들 때 쓰는 카메라도 같은 초점거리로 둔다. 그래야 정답이 D 가 된다.
+const F = PARAM.f;
+
+const load = s => new Promise((r,j)=>{const i=new Image();i.onload=()=>r(i);i.onerror=j;i.src=s;});
+
+(async () => {
+  const img = await load("src/0.png");
+  const THREE = window.THREE;
+
+  // ── 알려진 거리에 마커를 띄운 그림을 만든다 ──────────────
+  const rend = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+  rend.setPixelRatio(1); rend.setSize(CW, CH, false);
+  rend.setClearColor(0x9a9b98, 1);
+  const cam = new THREE.PerspectiveCamera(
+    2 * Math.atan(CH / 2 / F) * 180 / Math.PI, CW / CH, 0.01, 100);
+  const scene = new THREE.Scene();
+  const tex = new THREE.Texture(img); tex.needsUpdate = true;
+  tex.magFilter = THREE.LinearFilter; tex.minFilter = THREE.LinearMipmapLinearFilter;
+  const quad = new THREE.Mesh(new THREE.PlaneGeometry(1, 1),
+    new THREE.MeshBasicMaterial({ map: tex }));
+  scene.add(quad);
+
+  function shot(S, D, tiltDeg) {
+    // 검은 사각형이 S 다. 인쇄물(흰 여백 포함)은 S*1.5 이고 그림이 그 전체다.
+    quad.scale.set(S, S, 1);   // src/*.png 은 검은 사각형만이다
+    quad.position.set(0, 0, -D);
+    quad.rotation.set(tiltDeg * Math.PI / 180, 0, 0);
+    rend.render(scene, cam);
+    return rend.domElement;
+  }
+
+  // ── 검출기 ────────────────────────────────────────────
+  const blank = document.createElement("canvas"); blank.width = CW; blank.height = CH;
+  const sc = document.createElement("a-scene");
+  sc.setAttribute("embedded",""); sc.setAttribute("vr-mode-ui","enabled: false");
+  sc.setAttribute("arjs", "sourceType: image; sourceUrl: " +
+    URL.createObjectURL(await new Promise(r => blank.toBlob(r))) +
+    "; detectionMode: mono_and_matrix; matrixCodeType: 3x3; trackingMethod: best;" +
+    ` sourceWidth: ${CW}; sourceHeight: ${CH}; canvasWidth: ${CW}; canvasHeight: ${CH};` +
+    ` cameraParametersUrl: ${PARA_URL}`);
+  sc.style.cssText = "position:fixed;left:-9999px;width:2px;height:2px";
+  const mk = document.createElement("a-marker");
+  mk.setAttribute("type","barcode"); mk.setAttribute("value","0"); mk.setAttribute("size","0.10");
+  sc.appendChild(mk); sc.appendChild(document.createElement("a-entity"));
+  document.body.appendChild(sc);
+
+  const ctrl = await new Promise((res,rej)=>{const t0=Date.now();const t=()=>{
+    const s=sc.systems&&sc.systems.arjs;
+    const c=s&&s._arSession&&s._arSession.arContext&&s._arSession.arContext.arController;
+    if(c) return res(c); if(Date.now()-t0>25000) return rej(new Error("검출기 없음"));
+    setTimeout(t,200);};t();});
+  log(`캔버스 ${CW}x${CH}  카메라모델 ${PARA}  f=${F.toFixed(1)}px  ` +
+      `화각 긴변 ${(2*Math.atan(Math.max(CW,CH)/2/F)*180/Math.PI).toFixed(1)}도`);
+
+  let seen = false;
+  ctrl.addEventListener("getMarker", e => { if (e.data.marker.idMatrix === 0) seen = true; });
+
+  const S = 0.10;
+  const rows = [];
+  for (const D of [0.6, 1.0, 1.5, 2.0, 3.0]) {
+    for (const tilt of [0, 30, 50]) {
+      seen = false;
+      ctrl.process(shot(S, D, tilt));
+      await new Promise(r => setTimeout(r, 30));
+      // 🔴 앱이 쓰는 값을 그대로 잰다. ArMarkerControls 가 size(0.10) 를 써서
+      //    요소의 object3D 를 놓는다. 원본 행렬을 직접 읽으면 size 가 안 들어간다.
+      mk.object3D.updateMatrixWorld(true);
+      const pos = new THREE.Vector3().setFromMatrixPosition(mk.object3D.matrixWorld);
+      const d = seen && pos.lengthSq() > 0 ? pos.length() : null;
+      rows.push({ D, tilt, d });
+      await new Promise(r => setTimeout(r, 0));
+    }
+  }
+
+  let html = "<table><tr><th>정답 거리</th><th>기울기</th><th>검출기가 말한 거리</th><th>비</th></tr>";
+  for (const r of rows) {
+    const ratio = r.d ? r.d / r.D : null;
+    const cls = !r.d ? "no" : Math.abs(ratio - 1) < 0.1 ? "ok" : Math.abs(ratio - 1) < 0.3 ? "mid" : "no";
+    html += `<tr><td>${r.D.toFixed(2)} m</td><td>${r.tilt}도</td>` +
+            `<td class="${cls}">${r.d ? r.d.toFixed(2) + " m" : "못 읽음"}</td>` +
+            `<td class="${cls}">${ratio ? ratio.toFixed(2) + " 배" : "-"}</td></tr>`;
+    log(`정답 ${r.D}m ${r.tilt}도 -> ${r.d ? r.d.toFixed(2)+"m ("+(r.d/r.D).toFixed(2)+"배)" : "못 읽음"}`);
+  }
+  document.getElementById("out").innerHTML = html + "</table>";
+  window.__done = true;
+})().catch(e=>{document.getElementById("out").textContent="실패: "+e;log(String(e.stack||e));window.__done="err";});
+</script>
+</body></html>

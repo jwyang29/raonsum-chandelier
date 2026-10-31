@@ -68,10 +68,10 @@ const CAM_PARAM = CAM ? ` deviceId: ${CAM};` : "";
 //    그 값으로 캔버스 크기에 맞는 정사각 픽셀 모델을 만들어 쓴다.
 //    왜곡 계수는 0 으로 둔다. 640x480 용 계수를 다른 크기에 그대로 쓰면
 //    중심과 배율이 어긋나 오히려 더 틀어진다.
-const SRC_LONG = 640, SRC_F = 609.3654;      // vendor 파일에서 읽은 값
 function cameraParaFor(w, h) {
   try {
-    const f = SRC_F * Math.max(w, h) / SRC_LONG;
+    // 긴 변의 화각에서 초점거리를 낸다. 폰마다 다르므로 ?fov= 로 맞춘다.
+    const f = (Math.max(w, h) / 2) / Math.tan(AR_SOURCE.fov * Math.PI / 360);
     const buf = new ArrayBuffer(176);         // int32 x2 + double x12 + double x9
     const d = new DataView(buf);
     d.setInt32(0, w); d.setInt32(4, h);
@@ -454,7 +454,8 @@ AFRAME.registerComponent("chandelier-driver", {
       (PREVIEW ? "" : `검출기 한 변 ${ds ? `${(ds.size * 100).toFixed(1)} cm (${ds.value}번, 준 값 ${(ds.want * 100).toFixed(1)})` : "아직 모름"}` +
         `${ds && Math.abs(ds.size - ds.want) > 0.002 ? "  <- 안 먹었습니다" : ""}\n`) +
       // 카메라에서 월드 원점까지. 그래픽이 작아 보이면 이 값이 커져 있다.
-      (PREVIEW ? "" : `원점까지     ${p ? p.length().toFixed(2) + " m" : "-"}\n`) +
+      (PREVIEW ? "" : `원점까지     ${p ? p.length().toFixed(2) + " m" : "-"}` +
+        `   (화각 ${AR_SOURCE.fov.toFixed(1)}도)\n`) +
 
       (PREVIEW ? "" : `보이는 마커  ${seen} / ${MARKERS.length}${this.anchor && this.anchor.source && this.anchor.source !== "floor" ? ` (${this.anchor.source === "cube" ? "큐브" : "천장"})` : ""}\n`) +
       (PREVIEW ? "" : `번호         ${this.anchor && this.anchor.seenValues.length
