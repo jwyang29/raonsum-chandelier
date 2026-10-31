@@ -12,6 +12,7 @@
    python3 setcal.py --cubey 1.22 2.10 3.00
    python3 setcal.py --cuberot 90 0 0
    python3 setcal.py --fov 65        렌즈 화각 (긴 변 기준, 도)
+   python3 setcal.py --gap 0.24      겹 사이 간격 (m)
    python3 setcal.py --clear
 
 ⚠️ 적은 것만 바뀐다. 안 적은 것은 그대로 둔다.
@@ -23,7 +24,8 @@ sys.path.insert(0, HERE)
 import hub_v1
 hub_v1.load_env_file()
 
-KEYS = ["ped", "pedh", "floorceiling", "ceiling", "headroom", "msize", "mring", "devh", "fov"]
+KEYS = ["ped", "pedh", "floorceiling", "ceiling", "headroom", "msize", "mring", "devh",
+        "fov", "gap"]
 
 
 def take(name, cast=float, many=False):

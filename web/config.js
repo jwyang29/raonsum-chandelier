@@ -216,7 +216,9 @@ export const GEOMETRY = {
   // 첫날 링은 천장(ceilingHeight)에 있는 실제 뼈대이고, 그 아래는 전부 가상이다.
   // 링 사이 수직 간격 (m). null 이면 천장 높이와 전시 일수에서 자동으로 구한다.
   // 손으로 넣으면 전시 후반 링이 바닥 한계에 겹쳐 쌓이기 쉬우니 null 을 권한다.
-  ringGap: null,
+  // 겹 사이 간격 (m). 0 이면 천장과 맨 아래 링 사이를 maxRings 로 나눠 쓴다.
+  // ?gap= 나 setcal --gap 으로 직접 준다. 크게 주면 샹들리에가 아래로 길어진다.
+  ringGap: num("gap", 0) || null,
 
   // 바닥에서 샹들리에 맨 아래까지 띄울 높이 (m).
   // 사방에서 보는 작품이라 관객이 좌대를 돌며 팔 길이 안으로 들어온다.
@@ -255,7 +257,9 @@ export function refreshPedestal(report = false) {
   GEOMETRY.markerRing = MRING_FIXED !== null ? MRING_FIXED
     : (fits ? Math.floor(outer * 200) / 200 : inner);
 
-  GEOMETRY.ringMinY = Math.max(0.3, GEOMETRY.headroom - PEDESTAL.height);
+  // 간격을 크게 주면 맨 아래 링이 더 내려와야 한다. 0.3 으로 막아 두면
+  // 아래쪽 겹들이 한 자리에 포개진다. 바닥에 닿지만 않게 0.1 로 낮춘다.
+  GEOMETRY.ringMinY = Math.max(0.1, GEOMETRY.headroom - PEDESTAL.height);
   // 크리스탈은 천에서 솟는다. 천은 장치 위에 덮여 있다.
   GEOMETRY.spawnY = GEOMETRY.deviceHeight + 0.02;
 
@@ -604,6 +608,7 @@ export function applyRemoteCal(cal) {
   take("headroom", (v) => { GEOMETRY.headroom = v; }, 0.3, 6);
   take("devh", (v) => { GEOMETRY.deviceHeight = v; }, 0, 1);
   take("fov",  (v) => { AR_SOURCE.fov = v; }, 20, 140);
+  take("gap",  (v) => { GEOMETRY.ringGap = v; }, 0.02, 1);
 
   refreshPedestal();                 // 자동으로 나오는 값들을 먼저 다시 잡는다
 

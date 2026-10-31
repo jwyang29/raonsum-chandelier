@@ -205,34 +205,60 @@ AFRAME.registerComponent("world-anchor", {
   // 바닥 마커들의 모서리를 한 평면(월드 y=0)에 모아 한 번에 푼다.
   // 반환: 월드 -> 카메라 (three.js 규약) 행렬
   solveFloorPlane(list, K) {
-    const h2 = (v) => v / 2;
-    let best = null;
+    // 한 장의 네 모서리를 (돌림 r, 뒤집기 f) 로 짝지어 평면 점으로 만든다.
+    const ptsOf = (c, r, f) => {
+      const m = c.slot.conf;
+      const hh = m.size / 2;
+      const L = [[-hh, -hh], [hh, -hh], [hh, hh], [-hh, hh]];
+      const yaw = (m.yaw || 0) * DEG;
+      const cs = Math.cos(yaw), sn = Math.sin(yaw);
+      const out = [];
+      for (let i = 0; i < 4; i++) {
+        // pose.js 의 평면 좌표 (a, b) 는 마커 로컬 (a, 0, -b) 다.
+        const a = L[i][0], b = L[i][1];
+        const X = m.pos[0] + a * cs + (-b) * sn;
+        const Z = m.pos[2] - a * sn + (-b) * cs;
+        const j = f ? (r + 3 - i) % 4 : (r + i) % 4;
+        out.push({ X, Y: Z, u: c.vertex[j][0], v: c.vertex[j][1] });
+      }
+      return out;
+    };
+    const tryAll = (rots, flip) => {
+      const pts = [];
+      for (let k = 0; k < list.length; k++) pts.push(...ptsOf(list[k], rots[k], flip));
+      return solvePlane(pts, K);
+    };
+
+    let best = null, bestRots = null, bestFlip = 0;
     for (let flip = 0; flip < 2; flip++) {
-      for (let rot = 0; rot < 4; rot++) {
-        const pts = [];
-        for (const c of list) {
-          const m = c.slot.conf;
-          const hh = h2(m.size);
-          const L = [[-hh, -hh], [hh, -hh], [hh, hh], [-hh, hh]];
-          const yaw = (m.yaw || 0) * DEG;
-          const cs = Math.cos(yaw), sn = Math.sin(yaw);
-          for (let i = 0; i < 4; i++) {
-            // pose.js 의 평면 좌표 (a, b) 는 마커 로컬 (a, 0, -b) 다.
-            const a = L[i][0], b = L[i][1];
-            const lx = a, lz = -b;
-            const X = m.pos[0] + lx * cs + lz * sn;
-            const Z = m.pos[2] - lx * sn + lz * cs;
-            const j = flip ? (rot + 3 - i) % 4 : (rot + i) % 4;
-            pts.push({ X, Y: Z, u: c.vertex[j][0], v: c.vertex[j][1] });
-          }
-        }
-        const p = solvePlane(pts, K);
-        if (!p) continue;
-        if (!best || p.err < best.err) best = p;
+      for (let r = 0; r < 4; r++) {
+        const rots = new Array(list.length).fill(r);
+        const p = tryAll(rots, flip);
+        if (p && (!best || p.err < best.err)) { best = p; bestRots = rots; bestFlip = flip; }
       }
     }
+    // 🔴 네 장이 같은 방향으로 붙어 있지 않을 수 있다. 종이를 손으로 붙이면
+    //    한 장쯤 90도 돌아가기 쉽다. 그러면 모두 같은 돌림으로는 절대 안 맞는다.
+    //    한 장씩 돌려 보며 더 잘 맞는 쪽으로 옮긴다. 몇 번만 돌면 수렴한다.
+    if (best && bestRots) {
+      for (let pass = 0; pass < 3; pass++) {
+        let moved = false;
+        for (let k = 0; k < list.length; k++) {
+          for (let r = 0; r < 4; r++) {
+            if (r === bestRots[k]) continue;
+            const t = bestRots.slice(); t[k] = r;
+            const p = tryAll(t, bestFlip);
+            if (p && p.err < best.err - 1e-6) { best = p; bestRots = t; moved = true; }
+          }
+        }
+        if (!moved) break;
+      }
+    }
+    // 실패해도 어긋남은 남긴다. 안 남기면 왜 안 되는지 볼 수가 없다.
+    this.floorErr = best ? best.err : null;
+    this.floorN = list.length;
+    this.floorRots = bestRots ? bestRots.join("") : "";
     if (!best || !(best.err < 8)) return null;
-    this.floorErr = best.err;
 
     // 평면 기저 e1=+X, e2=+Z, e3=e1 x e2 = -Y 이므로
     // 월드 회전의 열은 x:r1, y:-r3, z:r2 다.
