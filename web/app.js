@@ -55,6 +55,37 @@ if (!PREVIEW && !CAM && isDesktop()) {
 }
 const CAM_PARAM = CAM ? ` deviceId: ${CAM};` : "";
 
+// ── 캔버스 크기에 맞는 카메라 파라미터를 만든다 ────────────────
+//
+// 🔴 vendor/camera_para.dat 은 640x480 (가로 4:3) 기준이다. ARToolKit 은 이걸
+//    캔버스 크기에 맞출 때 가로와 세로를 따로 늘린다 (arParamChangeSize).
+//    캔버스가 960x1280 (세로 3:4) 이면 fx 는 1.5배, fy 는 2.67배가 되어
+//    픽셀이 1.78대 1로 찌그러진 카메라 모델이 나온다. 영상은 멀쩡한데 모델이
+//    틀어져서 정사각형 마커를 맞추려던 해가 발산한다. 현장에서 마커 셋이
+//    보이는데 월드 원점이 12.8m, 마커끼리 25m 어긋났다.
+//
+//    폰을 돌려도 센서는 그대로다. 그래서 긴 변 기준 초점거리는 변하지 않는다.
+//    그 값으로 캔버스 크기에 맞는 정사각 픽셀 모델을 만들어 쓴다.
+//    왜곡 계수는 0 으로 둔다. 640x480 용 계수를 다른 크기에 그대로 쓰면
+//    중심과 배율이 어긋나 오히려 더 틀어진다.
+const SRC_LONG = 640, SRC_F = 609.3654;      // vendor 파일에서 읽은 값
+function cameraParaFor(w, h) {
+  try {
+    const f = SRC_F * Math.max(w, h) / SRC_LONG;
+    const buf = new ArrayBuffer(176);         // int32 x2 + double x12 + double x9
+    const d = new DataView(buf);
+    d.setInt32(0, w); d.setInt32(4, h);
+    [f, 0, w / 2, 0,  0, f, h / 2, 0,  0, 0, 1, 0]
+      .forEach((v, i) => d.setFloat64(8 + i * 8, v));
+    [0, 0, 0, 0, f, f, w / 2, h / 2, 1]
+      .forEach((v, i) => d.setFloat64(104 + i * 8, v));
+    return URL.createObjectURL(new Blob([buf], { type: "application/octet-stream" }));
+  } catch (e) {
+    console.warn("[AR] 카메라 파라미터를 못 만들었습니다. 기본 파일로 갑니다.", e);
+    return "./vendor/camera_para.dat";
+  }
+}
+
 // 🔴 AR.js 는 AR 모드일 때만 불러온다. <script> 로 머리에 박으면 안 된다.
 //
 //    A-Frame 시스템은 씬에 그 속성이 없어도 반드시 init 된다. 그래서 AR.js 가
@@ -300,7 +331,9 @@ if (PREVIEW) {
                  canvasWidth: ${AR_SOURCE.canvasW || AR_SOURCE.width};
                  canvasHeight: ${AR_SOURCE.canvasH || AR_SOURCE.height};
                  maxDetectionRate: ${AR_SOURCE.maxDetectionRate};
-                 cameraParametersUrl: ./vendor/camera_para.dat;${CAM_PARAM}">
+                 cameraParametersUrl: ${cameraParaFor(
+                   AR_SOURCE.canvasW || AR_SOURCE.width,
+                   AR_SOURCE.canvasH || AR_SOURCE.height)};${CAM_PARAM}">
     <a-entity camera></a-entity>
     ${markerTags}
     <a-entity id="world" world-anchor>${lights}</a-entity>
