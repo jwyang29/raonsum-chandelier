@@ -377,23 +377,36 @@ const scene = document.querySelector("a-scene");
 //
 // 매 프레임 싸게 확인해서 틀어져 있으면 되돌린다. 마커가 새로 보일 때마다
 // 다시 굳을 수 있으므로 한 번만 고쳐서는 안 된다.
+// 🔴 (3) 틀린 상태로 들어간 포즈가 계속 남는다.
+//        검출 루프는 마커를 전에도 봤으면 getTransMatSquareCont 로 이전 행렬에서
+//        이어서 푼다. 페이지가 뜨고 (1)(2)를 고치기 전까지의 몇 프레임 동안
+//        뭉개진 그림과 폭 1.0 으로 푼 쓰레기 포즈가 o.matrix 에 박히고, 그 뒤로는
+//        계속 그 근처에서만 맴돈다. 새로고침해도 매번 똑같이 재발한다.
+//        그래서 고칠 때 쌓인 행렬을 버리고 처음부터 다시 풀게 한다.
 let arFixed = false;
 function fixArController() {
   const sys = scene && scene.systems && scene.systems.arjs;
   const ctrl = sys && sys._arSession && sys._arSession.arContext
     && sys._arSession.arContext.arController;
   if (!ctrl) return;
-  if (ctrl.orientation !== "landscape") ctrl.orientation = "landscape";
+  let changed = false;
+  if (ctrl.orientation !== "landscape") { ctrl.orientation = "landscape"; changed = true; }
   const bm = ctrl.barcodeMarkers;
   if (bm) {
     for (const m of MARKERS) {
       const e = bm[m.value];
-      if (e && e.markerWidth !== m.size) e.markerWidth = m.size;
+      if (e && e.markerWidth !== m.size) { e.markerWidth = m.size; changed = true; }
+    }
+    if (changed) {
+      for (const k in bm) {
+        bm[k].inPrevious = false;                       // 이어 풀지 말고 새로 풀어라
+        if (bm[k].matrix && bm[k].matrix.fill) bm[k].matrix.fill(0);
+      }
     }
   }
-  if (!arFixed) {
+  if (changed && !arFixed) {
     arFixed = true;
-    console.info("[AR] 검출기 보정 적용: orientation=landscape, 마커 폭 복구");
+    console.info("[AR] 검출기 보정: orientation=landscape, 마커 폭 복구, 쌓인 포즈 버림");
   }
 }
 
@@ -404,7 +417,9 @@ if (DEBUG) panel.style.display = "block";
 
 // 렌더 루프는 A-Frame 이 돈다. 직접 setAnimationLoop 을 잡으면 충돌하므로
 // 컴포넌트의 tick 에 올린다.
-if (!PREVIEW) setInterval(fixArController, 250);   // 검출기가 생기기 전부터 돈다
+// 🔴 뜨자마자 잡아야 한다. 늦으면 그 사이 프레임의 쓰레기 포즈가 박힌다.
+//    19개를 훑는 가벼운 반복이라 매 프레임 돌려도 괜찮다.
+if (!PREVIEW) setInterval(fixArController, 16);
 
 AFRAME.registerComponent("chandelier-driver", {
   init() {
