@@ -609,6 +609,7 @@ export function applyRemoteCal(cal) {
   take("devh", (v) => { GEOMETRY.deviceHeight = v; }, 0, 1);
   take("fov",  (v) => { AR_SOURCE.fov = v; }, 20, 140);
   take("gap",  (v) => { GEOMETRY.ringGap = v; }, 0.02, 1);
+  take("smooth", (v) => { ANCHOR.smooth = v; }, 0.02, 1);
 
   refreshPedestal();                 // 자동으로 나오는 값들을 먼저 다시 잡는다
 
@@ -646,7 +647,10 @@ export function applyRemoteCal(cal) {
 
 // 마커 포즈가 떨릴 때 쓰는 저역 통과 필터. 0 에 가까우면 둔하고 안정적.
 export const ANCHOR = {
-  smooth: 0.18,        // 0~1, 프레임당 따라가는 비율
+  // 0~1, 프레임당 따라가는 비율. 낮을수록 안정적이고 반응이 느리다.
+  // 포즈를 매 프레임 새로 푸니 잡음이 섞인다. 0.18 은 그 잡음을 꽤 따라간다.
+  // ?smooth= 나 setcal --smooth 로 현장에서 맞춘다.
+  smooth: num("smooth", 0.10),
   maxMarkers: 4,       // 동시에 평균낼 바닥 마커 수
 
   // 마커들 사이에 조형물이 있어 4개가 한꺼번에 안 보일 수 있다.

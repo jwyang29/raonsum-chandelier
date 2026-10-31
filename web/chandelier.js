@@ -1,9 +1,9 @@
 // 크리스탈의 수명 주기. 천 중앙에서 태어나 나선으로 올라가 뼈대에 매달린다.
 // 생김새는 crystal.js 가 담당하고 여기서는 움직임과 성능 단계만 다룬다.
 
-import { GEOMETRY, MOTION, MAX_CRYSTALS, QUALITY, SCHEDULE } from "./config.js?v=1101m";
-import { makeCrystal, setQuality, disposeCrystal } from "./crystal.js?v=1101m";
-import { glassTime } from "./glass_material.js?v=1101m";
+import { GEOMETRY, MOTION, MAX_CRYSTALS, QUALITY, SCHEDULE } from "./config.js?v=1101n";
+import { makeCrystal, setQuality, disposeCrystal } from "./crystal.js?v=1101n";
+import { glassTime } from "./glass_material.js?v=1101n";
 
 const smoothstep = (p) => p * p * (3 - 2 * p);
 const lerp = (a, b, t) => a + (b - a) * t;
