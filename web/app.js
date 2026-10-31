@@ -21,7 +21,7 @@ import { Detector } from "./detect.js";
 import { pickCamera, isDesktop } from "./campick.js";
 import { loadBlobs } from "./crystal.js";
 
-const VERSION = "build 1101i";   // 고칠 때마다 올린다. 폰이 옛 파일을 쓰고 있는지 이걸로 안다
+const VERSION = "build 1101j";   // 고칠 때마다 올린다. 폰이 옛 파일을 쓰고 있는지 이걸로 안다
 const params = new URLSearchParams(location.search);
 const DEBUG = params.get("debug") === "1";
 
@@ -571,6 +571,7 @@ AFRAME.registerComponent("chandelier-driver", {
       (PREVIEW ? "" : `바닥 통짜   ${this.anchor && this.anchor.floorN
           ? `${this.anchor.floorN}장  어긋남 ${this.anchor.floorErr === null ? "?" : this.anchor.floorErr.toFixed(1)} px` +
             `  돌림 ${this.anchor.floorRots || "?"}` +
+            `${this.anchor.ringMeasured ? `  반지름 ${(this.anchor.ringMeasured * 100).toFixed(1)}cm` : ""}` +
             `${this.anchor.floorErr !== null && this.anchor.floorErr < 8 ? "  쓴다" : "  버림"}`
           : "아직 (바닥 두 장 이상 담으세요)"}\n`) +
       (PREVIEW ? "" : `돌림         ${this.anchor ? (this.anchor.rot | 0) * 90 + "도" : "-"}` +

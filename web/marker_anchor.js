@@ -5,7 +5,7 @@
 // 측정에만 쓰고 장면은 마커 밖의 #world 에 두고 그 포즈를 매 프레임 갱신한다.
 // 보이는 마커가 둘 이상이면 평균을 낸다 (문서의 "2개 이상 보이면 평균").
 
-import { MARKERS, ANCHOR, AR_SOURCE } from "./config.js";
+import { MARKERS, ANCHOR, AR_SOURCE, GEOMETRY } from "./config.js";
 import { solveMarkerAll, solvePlane, CV_TO_THREE } from "./pose.js";
 import { Gyro } from "./gyro.js";
 
@@ -206,7 +206,8 @@ AFRAME.registerComponent("world-anchor", {
   // 반환: 월드 -> 카메라 (three.js 규약) 행렬
   solveFloorPlane(list, K) {
     // 한 장의 네 모서리를 (돌림 r, 뒤집기 f) 로 짝지어 평면 점으로 만든다.
-    const ptsOf = (c, r, f) => {
+    // sc 는 마커 반지름의 배율이다. 실제로 붙인 자리가 설정값과 다를 때 쓴다.
+    const ptsOf = (c, r, f, sc) => {
       const m = c.slot.conf;
       const hh = m.size / 2;
       const L = [[-hh, -hh], [hh, -hh], [hh, hh], [-hh, hh]];
@@ -216,16 +217,17 @@ AFRAME.registerComponent("world-anchor", {
       for (let i = 0; i < 4; i++) {
         // pose.js 의 평면 좌표 (a, b) 는 마커 로컬 (a, 0, -b) 다.
         const a = L[i][0], b = L[i][1];
-        const X = m.pos[0] + a * cs + (-b) * sn;
-        const Z = m.pos[2] - a * sn + (-b) * cs;
+        const X = m.pos[0] * sc + a * cs + (-b) * sn;
+        const Z = m.pos[2] * sc - a * sn + (-b) * cs;
         const j = f ? (r + 3 - i) % 4 : (r + i) % 4;
         out.push({ X, Y: Z, u: c.vertex[j][0], v: c.vertex[j][1] });
       }
       return out;
     };
-    const tryAll = (rots, flip) => {
+    const SC = this.ringFit || 1;
+    const tryAll = (rots, flip, sc) => {
       const pts = [];
-      for (let k = 0; k < list.length; k++) pts.push(...ptsOf(list[k], rots[k], flip));
+      for (let k = 0; k < list.length; k++) pts.push(...ptsOf(list[k], rots[k], flip, sc === undefined ? SC : sc));
       return solvePlane(pts, K);
     };
 
@@ -254,8 +256,27 @@ AFRAME.registerComponent("world-anchor", {
         if (!moved) break;
       }
     }
+    // 🔴 마커 반지름을 앱이 직접 찾는다.
+    //
+    //    설정은 좌대 지름에서 계산한 50cm 인데, 가운데 조형물 때문에 실제로는
+    //    더 안쪽에 붙이게 된다. 그 차이가 그대로 어긋남이 된다. 1.5m 거리에서
+    //    8cm 는 화면에서 65px 이라 금방 커진다.
+    //
+    //    미지수가 배율 하나뿐이므로 훑어서 찾으면 된다. 줄자로 잴 필요가 없다.
+    //    잘 맞는 값을 찾으면 기억해 두고 매 프레임 다시 훑지 않는다.
+    if (best && bestRots && (this.ringFit === undefined || best.err > 4)) {
+      let bs = this.ringFit || 1, be = best.err;
+      for (let sc = 0.55; sc <= 1.45; sc += 0.01) {
+        const p = tryAll(bestRots, bestFlip, sc);
+        if (p && p.err < be) { be = p.err; bs = sc; best = p; }
+      }
+      if (be < best.err || this.ringFit === undefined) this.ringFit = bs;
+      else this.ringFit = bs;
+    }
+
     // 실패해도 어긋남은 남긴다. 안 남기면 왜 안 되는지 볼 수가 없다.
     this.floorErr = best ? best.err : null;
+    this.ringMeasured = (this.ringFit || 1) * GEOMETRY.markerRing;
     this.floorN = list.length;
     this.floorRots = bestRots ? bestRots.join("") : "";
     if (!best || !(best.err < 8)) return null;
