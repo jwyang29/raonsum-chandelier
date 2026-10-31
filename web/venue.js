@@ -7,10 +7,10 @@
 // 여기서만 쓰는 수치를 따로 들고 있지 않아야 미리보기와 실물이 어긋나지 않는다.
 
 import { GEOMETRY, PEDESTAL, SCHEDULE, MARKERS, GLASS, MAX_CRYSTALS,
-         CUBES, cubeFaceFor, refreshPedestal, refreshMarkers } from "./config.js?v=1101n";
-import { Chandelier, recomputeHeights, ringY, RING_GAP, ringRadius } from "./chandelier.js?v=1101n";
-import { mockData } from "./feed.js?v=1101n";
-import { loadBlobs } from "./crystal.js?v=1101n";
+         CUBES, cubeFaceFor, refreshPedestal, refreshMarkers } from "./config.js?v=1101p";
+import { Chandelier, recomputeHeights, ringY, RING_GAP, ringRadius } from "./chandelier.js?v=1101p";
+import { mockData } from "./feed.js?v=1101p";
+import { loadBlobs } from "./crystal.js?v=1101p";
 
 const params = new URLSearchParams(location.search);
 // 0 이 뜻이 있는 값은 || 로 받으면 안 된다
