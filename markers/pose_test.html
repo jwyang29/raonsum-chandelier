@@ -31,7 +31,13 @@ function genPara(w, h) {
   const b = new ArrayBuffer(176), d = new DataView(b);
   d.setInt32(0, w); d.setInt32(4, h);
   [f,0,w/2,0, 0,f,h/2,0, 0,0,1,0].forEach((v,i)=>d.setFloat64(8+i*8,v));
-  [0,0,0,0,f,f,w/2,h/2,1].forEach((v,i)=>d.setFloat64(104+i*8,v));
+  // ?dist=zero 면 0 으로, 아니면 원본 계수를 배율만 맞춰 쓴다
+  const k = f / 609.3654;
+  const DZ = new URLSearchParams(location.search).get("dist") === "zero";
+  (DZ ? [0,0,0,0, f, f, w/2, h/2, 1]
+      : [0.099172,-0.092120,-0.001883,0.001313,
+         591.409241*k, 588.648865*k, w/2, h/2, 0.970533])
+    .forEach((v,i)=>d.setFloat64(104+i*8,v));
   return { url: URL.createObjectURL(new Blob([b])), f };
 }
 const S = 0.10;                 // 검은 사각형 한 변 (m). a-marker 의 size 와 같다

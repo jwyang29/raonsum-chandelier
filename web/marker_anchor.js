@@ -5,7 +5,8 @@
 // 측정에만 쓰고 장면은 마커 밖의 #world 에 두고 그 포즈를 매 프레임 갱신한다.
 // 보이는 마커가 둘 이상이면 평균을 낸다 (문서의 "2개 이상 보이면 평균").
 
-import { MARKERS, ANCHOR } from "./config.js";
+import { MARKERS, ANCHOR, AR_SOURCE } from "./config.js";
+import { solveMarker, CV_TO_THREE } from "./pose.js";
 import { Gyro } from "./gyro.js";
 
 const DEG = Math.PI / 180;
@@ -27,6 +28,34 @@ function buildInverse(m) {
   q.setFromEuler(e);
   T.compose(new THREE.Vector3(...m.pos), q, new THREE.Vector3(1, 1, 1));
   return T.invert();
+}
+
+// ── 포즈를 직접 푼다 ──────────────────────────────────────────
+//
+// 🔴 AR.js 가 넣어 주는 마커 행렬을 쓰지 않는다. 검출(번호와 모서리)은 믿을
+//    만한데 포즈만 모서리와 모순되기 때문이다. 현장에서 모서리를 80px 로
+//    제대로 집으면서 거리를 43m 라고 했다. 모서리와 마커 크기와 초점거리가
+//    있으면 포즈는 우리가 푼다 (pose.js, 합성 그림으로 오차 0.00% 확인).
+//
+//    마커 로컬 축 규약이 둘이 다르다.
+//      pose.js   면이 XY 평면, +Z 가 면 바깥
+//      AR.js     면이 XZ 평면, +Y 가 면 바깥 (buildInverse 가 쓰는 규약)
+//    그래서 B 로 갈아탄다.  marker_local = B * pose_local
+//      B = [1 0 0 / 0 0 1 / 0 -1 0]   (회전이므로 역은 전치)
+const B_INV = new THREE.Matrix4().set(
+  1, 0, 0, 0,
+  0, 0, 1, 0,
+  0, -1, 0, 0,
+  0, 0, 0, 1,
+);
+// OpenCV 카메라( +Y 아래, +Z 앞 )를 three.js 카메라( +Y 위, -Z 앞 )로.
+const CV_FIX = new THREE.Matrix4().makeScale(
+  CV_TO_THREE[0], CV_TO_THREE[1], CV_TO_THREE[2]);
+
+function controllerOf(el) {
+  const sys = el.sceneEl && el.sceneEl.systems && el.sceneEl.systems.arjs;
+  const ctx = sys && sys._arSession && sys._arSession.arContext;
+  return (ctx && ctx.arController) || null;
 }
 
 AFRAME.registerComponent("world-anchor", {
@@ -68,7 +97,43 @@ AFRAME.registerComponent("world-anchor", {
 
     this.tmpM = new THREE.Matrix4();
     this.tmpQ = new THREE.Quaternion();
+    this.byValue = new Map(this.slots.map((k) => [k.conf.value, k]));
+    this.orders = new Map();      // 마커마다 찾아 둔 모서리 차례
     this.tmpS = new THREE.Vector3();
+  },
+
+  // 검출기가 집은 모서리로 마커마다 포즈를 푼다. 번호 -> 카메라 좌표 행렬.
+  solvePoses() {
+    const out = new Map();
+    const ctrl = this.ctrl || (this.ctrl = controllerOf(this.el));
+    if (!ctrl || !ctrl.canvas || !ctrl.getMarkerNum) return out;
+    const w = ctrl.canvas.width, h = ctrl.canvas.height;
+    if (!w || !h) return out;
+    // 초점거리는 긴 변의 화각에서 낸다. app.js 가 만드는 카메라 파라미터와 같은 식.
+    const f = (Math.max(w, h) / 2) / Math.tan(AR_SOURCE.fov * Math.PI / 360);
+    const K = { fx: f, fy: f, cx: w / 2, cy: h / 2 };
+    let n = 0;
+    try { n = ctrl.getMarkerNum(); } catch (e) { return out; }
+    for (let i = 0; i < n; i++) {
+      let mk;
+      try { mk = ctrl.getMarker(i); } catch (e) { continue; }
+      if (!mk || mk.idMatrix < 0 || !mk.vertex) continue;
+      const slot = this.byValue.get(mk.idMatrix);
+      if (!slot) continue;                          // 작품이 안 쓰는 번호
+      // 전에 찾은 모서리 차례를 먼저 넣어 본다. 거의 늘 그대로 맞는다.
+      const got = solveMarker(mk.vertex, slot.conf.size, K, this.orders.get(mk.idMatrix));
+      if (!got || !(got.err < 6)) continue;         // 너무 안 맞으면 버린다
+      this.orders.set(mk.idMatrix, got.order);
+      const P = new THREE.Matrix4().set(
+        got.R[0], got.R[1], got.R[2], got.t[0],
+        got.R[3], got.R[4], got.R[5], got.t[1],
+        got.R[6], got.R[7], got.R[8], got.t[2],
+        0, 0, 0, 1,
+      );
+      out.set(mk.idMatrix, new THREE.Matrix4()
+        .multiplyMatrices(CV_FIX, P).multiply(B_INV));
+    }
+    return out;
   },
 
   tick(time, dt) {
@@ -81,7 +146,11 @@ AFRAME.registerComponent("world-anchor", {
     // 위치를 주장해 월드가 떨린다. 보이는 것 중 가장 믿을 만한 묶음 하나만 쓴다.
     // ⚠️ 큐브 여럿은 같은 낚싯줄에 꿴 하나의 강체로 본다. 줄을 둘로 나눠
     //    매달면 여기서 줄마다 갈라야 한다.
-    const visible = this.slots.filter((s) => s.el && s.seen && s.el.object3D.visible);
+    // 검출기에서 바로 읽어 우리가 푼다. 결과는 마커 번호 -> 카메라 좌표 행렬.
+    this.poses = this.solvePoses();
+    const visible = this.poses.size
+      ? this.slots.filter((s) => this.poses.has(s.conf.value))
+      : this.slots.filter((s) => s.el && s.seen && s.el.object3D.visible);
     const by = (k) => visible.filter((s) => (s.conf.kind || "floor") === k);
     const group = ANCHOR.preferFloor
       ? (by("floor").length ? by("floor") : by("cube").length ? by("cube") : visible)
@@ -95,16 +164,21 @@ AFRAME.registerComponent("world-anchor", {
     // 포즈 오차가 크므로, 정면으로 크게 보이는 마커에 비중을 더 준다.
     const cands = [];
     for (const s of group) {
-      s.el.object3D.updateMatrixWorld();
-      this.tmpM.multiplyMatrices(s.el.object3D.matrixWorld, s.inv);
+      let mw = this.poses && this.poses.get(s.conf.value);
+      if (!mw) {
+        if (!s.el) continue;
+        s.el.object3D.updateMatrixWorld();
+        mw = s.el.object3D.matrixWorld;
+      }
+      this.tmpM.multiplyMatrices(mw, s.inv);
       const p = new THREE.Vector3(), q = new THREE.Quaternion(), sc = new THREE.Vector3();
       this.tmpM.decompose(p, q, sc);
 
-      // AR.js 는 카메라를 원점에 두고 마커를 움직인다. 마커 위치가 곧 시선 벡터다.
-      const mp = new THREE.Vector3().setFromMatrixPosition(s.el.object3D.matrixWorld);
+      // 카메라가 원점이고 마커가 움직인다. 마커 위치가 곧 시선 벡터다.
+      const mp = new THREE.Vector3().setFromMatrixPosition(mw);
       const dist = Math.max(0.05, mp.length());
       const nrm = new THREE.Vector3(0, 1, 0)
-        .applyQuaternion(new THREE.Quaternion().setFromRotationMatrix(s.el.object3D.matrixWorld));
+        .applyQuaternion(new THREE.Quaternion().setFromRotationMatrix(mw));
       const facing = Math.abs(nrm.dot(mp.clone().normalize()));
       const w = Math.pow(facing, ANCHOR.facingPower) / (dist * dist);
       cands.push({ p, q, w });

@@ -21,7 +21,7 @@ import { Detector } from "./detect.js";
 import { pickCamera, isDesktop } from "./campick.js";
 import { loadBlobs } from "./crystal.js";
 
-const VERSION = "build 1101b";   // 고칠 때마다 올린다. 폰이 옛 파일을 쓰고 있는지 이걸로 안다
+const VERSION = "build 1101d";   // 고칠 때마다 올린다. 폰이 옛 파일을 쓰고 있는지 이걸로 안다
 const params = new URLSearchParams(location.search);
 const DEBUG = params.get("debug") === "1";
 
@@ -77,7 +77,20 @@ function cameraParaFor(w, h) {
     d.setInt32(0, w); d.setInt32(4, h);
     [f, 0, w / 2, 0,  0, f, h / 2, 0,  0, 0, 1, 0]
       .forEach((v, i) => d.setFloat64(8 + i * 8, v));
-    [0, 0, 0, 0, f, f, w / 2, h / 2, 1]
+    // 🔴 왜곡 계수를 0 으로 지어내면 안 된다.
+    //    vertex 는 관측 좌표라 검출은 멀쩡해 보이지만, ARToolKit 은 포즈를 풀
+    //    때 이 계수로 보정한 이상 좌표를 쓴다. 지어낸 값을 넣으면 검출은 되는데
+    //    포즈만 깨진다. 현장에서 모서리는 80px 로 제대로 집는데 거리가 43m 로
+    //    나온 것이 이것이다.
+    //    vendor/camera_para.dat 의 실제 계수를 쓰고 배율만 맞춘다.
+    //    원본 (640x480): k1 k2 p1 p2 = 0.099172 -0.092120 -0.001883 0.001313
+    //                    fx fy = 591.409241 588.648865,  x0 y0 = 323.4479 237.6065
+    //                    s = 0.970533
+    //    k 와 s 는 정규화 좌표에서 도므로 배율과 무관하다. fx, fy 만 늘리고
+    //    중심은 새 캔버스 한가운데로 옮긴다.
+    const k = f / 609.3654;                 // 원본 초점거리 대비 배율
+    [0.099172, -0.092120, -0.001883, 0.001313,
+     591.409241 * k, 588.648865 * k, w / 2, h / 2, 0.970533]
       .forEach((v, i) => d.setFloat64(104 + i * 8, v));
     return URL.createObjectURL(new Blob([buf], { type: "application/octet-stream" }));
   } catch (e) {
@@ -397,12 +410,11 @@ function fixArController() {
       const e = bm[m.value];
       if (e && e.markerWidth !== m.size) { e.markerWidth = m.size; changed = true; }
     }
-    if (changed) {
-      for (const k in bm) {
-        bm[k].inPrevious = false;                       // 이어 풀지 말고 새로 풀어라
-        if (bm[k].matrix && bm[k].matrix.fill) bm[k].matrix.fill(0);
-      }
-    }
+    // ⚠️ 행렬을 0 으로 비우면 안 된다. getTransMatSquareCont 가 그 0 을 초기값으로
+    //    받아 영원히 0 을 내놓는다. 이어 풀지 말라고만 한다.
+    //    (이제 포즈는 marker_anchor 가 직접 푸니 이 경로는 쓰이지 않지만,
+    //     AR.js 가 자기 요소를 갱신하는 데 여전히 돈다.)
+    if (changed) for (const k in bm) bm[k].inPrevious = false;
   }
   if (changed && !arFixed) {
     arFixed = true;
