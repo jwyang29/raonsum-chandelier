@@ -6,7 +6,7 @@
 // 보이는 마커가 둘 이상이면 평균을 낸다 (문서의 "2개 이상 보이면 평균").
 
 import { MARKERS, ANCHOR, AR_SOURCE } from "./config.js";
-import { solveMarkerAll, CV_TO_THREE } from "./pose.js";
+import { solveMarkerAll, solvePlane, CV_TO_THREE } from "./pose.js";
 import { Gyro } from "./gyro.js";
 
 const DEG = Math.PI / 180;
@@ -138,7 +138,7 @@ AFRAME.registerComponent("world-anchor", {
         );
         return new THREE.Matrix4().multiplyMatrices(CV_FIX, P).multiply(B_INV);
       });
-      cand.push({ slot, mats });
+      cand.push({ slot, mats, vertex: mk.vertex });
     }
     if (!cand.length) return out;
 
@@ -168,6 +168,22 @@ AFRAME.registerComponent("world-anchor", {
           sp = Math.max(sp, ps[i].distanceTo(ps[j]));
       return sp;
     };
+    // 🔴 한 평면에 놓인 마커들은 통째로 푼다.
+    //
+    //    사각형 한 장은 정면에 가까울수록 서로 다른 두 자세가 똑같이 잘
+    //    들어맞는다 (평면 표적의 고질적인 모호성). 그래서 프레임마다 둘
+    //    사이를 오가고, 월드의 중심이 기울어지며 흔들린다. 장당 풀어 평균내도
+    //    각자 흔들리므로 안 없어진다.
+    //
+    //    바닥 네 장은 1m 에 걸쳐 흩어져 있다. 열여섯 점을 한 호모그래피로
+    //    풀면 자세가 하나로 결정된다. 덤으로 돌림도 저절로 정해진다. 번호마다
+    //    자리가 다르므로 90도 돌린 대응은 아예 안 맞기 때문이다.
+    const flat = byKind.get("floor");
+    if (flat && flat.length >= 2) {
+      const w = this.solveFloorPlane(flat, K);
+      if (w) { out.set("__world_floor", w); this.rotSpread = 0; }
+    }
+
     for (const [kind, list] of byKind) {
       let rot = ROT_FIXED !== null ? ROT_FIXED
         : (this.rotBy.has(kind) ? this.rotBy.get(kind) : (this.rot | 0));
@@ -184,6 +200,50 @@ AFRAME.registerComponent("world-anchor", {
       for (const c of list) out.set(c.slot.conf.value, c.mats[rot]);
     }
     return out;
+  },
+
+  // 바닥 마커들의 모서리를 한 평면(월드 y=0)에 모아 한 번에 푼다.
+  // 반환: 월드 -> 카메라 (three.js 규약) 행렬
+  solveFloorPlane(list, K) {
+    const h2 = (v) => v / 2;
+    let best = null;
+    for (let flip = 0; flip < 2; flip++) {
+      for (let rot = 0; rot < 4; rot++) {
+        const pts = [];
+        for (const c of list) {
+          const m = c.slot.conf;
+          const hh = h2(m.size);
+          const L = [[-hh, -hh], [hh, -hh], [hh, hh], [-hh, hh]];
+          const yaw = (m.yaw || 0) * DEG;
+          const cs = Math.cos(yaw), sn = Math.sin(yaw);
+          for (let i = 0; i < 4; i++) {
+            // pose.js 의 평면 좌표 (a, b) 는 마커 로컬 (a, 0, -b) 다.
+            const a = L[i][0], b = L[i][1];
+            const lx = a, lz = -b;
+            const X = m.pos[0] + lx * cs + lz * sn;
+            const Z = m.pos[2] - lx * sn + lz * cs;
+            const j = flip ? (rot + 3 - i) % 4 : (rot + i) % 4;
+            pts.push({ X, Y: Z, u: c.vertex[j][0], v: c.vertex[j][1] });
+          }
+        }
+        const p = solvePlane(pts, K);
+        if (!p) continue;
+        if (!best || p.err < best.err) best = p;
+      }
+    }
+    if (!best || !(best.err < 8)) return null;
+    this.floorErr = best.err;
+
+    // 평면 기저 e1=+X, e2=+Z, e3=e1 x e2 = -Y 이므로
+    // 월드 회전의 열은 x:r1, y:-r3, z:r2 다.
+    const R = best.R, t = best.t;
+    const M = new THREE.Matrix4().set(
+      R[0], -R[2], R[1], t[0],
+      R[3], -R[5], R[4], t[1],
+      R[6], -R[8], R[7], t[2],
+      0, 0, 0, 1,
+    );
+    return new THREE.Matrix4().multiplyMatrices(CV_FIX, M);
   },
 
   tick(time, dt) {
@@ -209,6 +269,22 @@ AFRAME.registerComponent("world-anchor", {
     // 지금 무엇이 보이는지. 바닥 네 장만 깔았는데 큐브 번호가 뜨면 오검출이다.
     this.seenValues = visible.map((s) => s.conf.value);
     this.usingCeiling = this.source === "ceiling";
+
+    // 🔴 바닥을 통째로 푼 결과가 있으면 그것 하나만 쓴다. 장당 풀어 평균내는
+    //    것보다 훨씬 안정적이다 (열여섯 점이 1m 에 걸쳐 있어 자세가 하나로
+    //    결정된다). 이때는 어긋남을 잴 것도 없다.
+    const direct = this.poses && this.poses.get("__world_floor");
+    if (direct && this.source === "floor") {
+      this.holding = false;
+      this.heldSeconds = 0;
+      const p = new THREE.Vector3(), q = new THREE.Quaternion(), sc = new THREE.Vector3();
+      direct.decompose(p, q, sc);
+      this.spread = 0;
+      this.rejected = false;
+      this.visibleCount = group.length;
+      this.applyPose(p, q);
+      return;
+    }
 
     // 마커마다 믿을 만한 정도를 매긴다. AR.js 는 비스듬히 보이는 평면에서
     // 포즈 오차가 크므로, 정면으로 크게 보이는 마커에 비중을 더 준다.
@@ -318,22 +394,27 @@ AFRAME.registerComponent("world-anchor", {
     this.heldSeconds = 0;
 
     accP.multiplyScalar(1 / accW);
-    obj.visible = true;
+    this.applyPose(accP, accQ);
+  },
 
+  // 새로 잰 포즈를 화면에 먹인다. 통짜 풀이와 장별 평균이 같은 길을 쓴다.
+  applyPose(p, q) {
+    const obj = this.el.object3D;
+    obj.visible = true;
     if (!this.started) {
-      this.pos.copy(accP);
-      this.quat.copy(accQ);
+      this.pos.copy(p);
+      this.quat.copy(q);
       this.started = true;
-    } else if (this.pos.distanceTo(accP) > ANCHOR.snapMeters) {
+    } else if (this.pos.distanceTo(p) > ANCHOR.snapMeters) {
       // 사방에서 보는 작품이라 관객이 좌대를 돌며 마커를 놓쳤다 다시 잡는다.
       // 그 사이 걸어간 거리는 자이로가 모르므로 다시 잡은 포즈가 크게 다를 수
       // 있다. 이때 저역 필터로 따라가면 샹들리에가 공중을 가로질러 미끄러져
       // 온다. 한 번에 끊어서 맞추는 쪽이 덜 어색하다.
-      this.pos.copy(accP);
-      this.quat.copy(accQ);
+      this.pos.copy(p);
+      this.quat.copy(q);
     } else {
-      this.pos.lerp(accP, ANCHOR.smooth);
-      this.quat.slerp(accQ, ANCHOR.smooth);
+      this.pos.lerp(p, ANCHOR.smooth);
+      this.quat.slerp(q, ANCHOR.smooth);
     }
     obj.position.copy(this.pos);
     obj.quaternion.copy(this.quat);
