@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg"
+     width="546.0mm" height="718.0mm" viewBox="0 0 546.0 718.0">
+  <style>
+    .cut  { fill: none; stroke: #000; stroke-width: 0.1; }
+    .note { fill: #9aa0a6; font-family: sans-serif; }
+  </style>
+  <line class="cut" x1="8.00" y1="8.00" x2="8.00" y2="710.00"/>
+  <line class="cut" x1="168.00" y1="8.00" x2="168.00" y2="322.00"/>
+  <line class="cut" x1="328.00" y1="8.00" x2="328.00" y2="168.00"/>
+  <line class="cut" x1="488.00" y1="8.00" x2="488.00" y2="162.00"/>
+  <line class="cut" x1="322.00" y1="168.00" x2="322.00" y2="322.00"/>
+  <line class="cut" x1="476.00" y1="168.00" x2="476.00" y2="322.00"/>
+  <line class="cut" x1="143.00" y1="322.00" x2="143.00" y2="586.00"/>
+  <line class="cut" x1="278.00" y1="322.00" x2="278.00" y2="586.00"/>
+  <line class="cut" x1="408.00" y1="322.00" x2="408.00" y2="452.00"/>
+  <line class="cut" x1="538.00" y1="322.00" x2="538.00" y2="452.00"/>
+  <line class="cut" x1="407.00" y1="457.00" x2="407.00" y2="586.00"/>
+  <line class="cut" x1="536.00" y1="457.00" x2="536.00" y2="586.00"/>
+  <line class="cut" x1="138.00" y1="586.00" x2="138.00" y2="710.00"/>
+  <line class="cut" x1="268.00" y1="586.00" x2="268.00" y2="710.00"/>
+  <line class="cut" x1="392.00" y1="586.00" x2="392.00" y2="710.00"/>
+  <line class="cut" x1="516.00" y1="586.00" x2="516.00" y2="710.00"/>
+  <line class="cut" x1="8.00" y1="8.00" x2="488.00" y2="8.00"/>
+  <line class="cut" x1="8.00" y1="168.00" x2="476.00" y2="168.00"/>
+  <line class="cut" x1="328.00" y1="162.00" x2="488.00" y2="162.00"/>
+  <line class="cut" x1="8.00" y1="322.00" x2="538.00" y2="322.00"/>
+  <line class="cut" x1="8.00" y1="457.00" x2="536.00" y2="457.00"/>
+  <line class="cut" x1="278.00" y1="452.00" x2="538.00" y2="452.00"/>
+  <line class="cut" x1="8.00" y1="586.00" x2="536.00" y2="586.00"/>
+  <line class="cut" x1="8.00" y1="710.00" x2="516.00" y2="710.00"/>
+  <circle class="cut" cx="75.50" cy="19.00" r="1.00"/>
+  <circle class="cut" cx="100.50" cy="19.00" r="1.00"/>
+  <circle class="cut" cx="63.00" cy="333.00" r="1.00"/>
+  <circle class="cut" cx="88.00" cy="333.00" r="1.00"/>
+  <circle class="cut" cx="330.50" cy="333.00" r="1.00"/>
+  <circle class="cut" cx="355.50" cy="333.00" r="1.00"/>
+</svg>
