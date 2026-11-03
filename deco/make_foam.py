@@ -26,7 +26,11 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 CONFIG = os.path.join(HERE, "..", "web", "config.js")
 OUT = os.path.join(HERE, "..", "markers", "print")
 
-GAP = 6.0        # 조각 사이 여백 (mm). 재단 날이 지나갈 자리
+# 조각 사이 여백 (mm).
+# 🔴 칼날(커팅플로터)은 날이 얇아 6mm 면 넉넉하다. 그런데 CNC 라우터는 날이
+#    3~6mm 라 그만큼을 통째로 갉아먹는다. 어느 쪽으로 갈지 모를 때는 넓은
+#    쪽으로 둔다. 판을 조금 더 쓰는 값으로 다시 자르는 일을 막는다.
+GAP = 12.0
 HOLE = 2.0       # 낚싯줄 구멍 지름 (mm)
 HOLE_SPAN = 25.0 # 구멍 두 개 사이 (mm)
 MARGIN = 12.0    # 판 가장자리 여백
@@ -124,10 +128,54 @@ def write(t):
     p = os.path.join(OUT, f"RAONSUM_cube_foam_{t:.0f}mm.svg")
     io.open(p, "w", encoding="utf-8").write(svg)
     print(f"  {os.path.basename(p)}   판 {W:.0f} x {H:.0f} mm")
+    write_dxf(t, edges, H)
     for i, E in enumerate(cube_edges(), 1):
         print(f"      큐브{i}  바깥 {E:.0f}mm  큰 면 {E:.0f}x{E:.0f}  "
               f"중간 {E:.0f}x{E-2*t:.0f}  작은 면 {E-2*t:.0f}x{E-2*t:.0f}")
     return p
+
+
+def write_dxf(t, edges, H):
+    """같은 조각을 DXF 로도 뽑는다.
+
+    재단 업체는 SVG 보다 DXF 나 AI 를 달라는 곳이 많다. 선만 들어 있으면
+    되므로 LINE 과 CIRCLE 만 쓴 최소 형식으로 적는다. 설명 글씨는 넣지
+    않는다. 자르는 선 말고 다른 것이 섞이면 사고가 난다.
+
+    ⚠️ DXF 는 y 가 위로 가고 SVG 는 아래로 간다. 뒤집어 적는다.
+    """
+    ents = []
+    def line(x1, y1, x2, y2):
+        ents.append("0\nLINE\n8\nCUT\n10\n%.3f\n20\n%.3f\n11\n%.3f\n21\n%.3f"
+                    % (x1, H - y1, x2, H - y2))
+    def box(x, y, w, h):
+        line(x, y, x + w, y); line(x + w, y, x + w, y + h)
+        line(x + w, y + h, x, y + h); line(x, y + h, x, y)
+    def circ(cx, cy, d):
+        ents.append("0\nCIRCLE\n8\nCUT\n10\n%.3f\n20\n%.3f\n40\n%.3f"
+                    % (cx, H - cy, d / 2))
+
+    y = MARGIN
+    for i, E in enumerate(edges, 1):
+        inner = round(E - 2 * t, 1)
+        pieces = [(E, E, True), (E, E, False), (E, inner, False),
+                  (E, inner, False), (inner, inner, False), (inner, inner, False)]
+        y += 11
+        x = MARGIN
+        for w, h, holes in pieces:
+            box(x, y, w, h)
+            if holes:
+                cy = y + 10
+                circ(x + w / 2 - HOLE_SPAN / 2, cy, HOLE)
+                circ(x + w / 2 + HOLE_SPAN / 2, cy, HOLE)
+            x += w + GAP
+        y += max(p[1] for p in pieces) + GAP
+
+    body = "\n".join(ents)
+    dxf = ("0\nSECTION\n2\nENTITIES\n" + body + "\n0\nENDSEC\n0\nEOF\n")
+    p = os.path.join(OUT, "RAONSUM_cube_foam_%.0fmm.dxf" % t)
+    io.open(p, "w", encoding="utf-8").write(dxf)
+    print("  %s   (업체가 DXF 를 달라고 하면 이것)" % os.path.basename(p))
 
 
 ts = []
