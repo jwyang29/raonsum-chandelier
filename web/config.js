@@ -120,7 +120,9 @@ export const FIREBASE = {
 };
 
 // 읽을 경로. 허브가 쓰는 경로와 같아야 합니다 (hub/hub_v1.py 의 RTDB_PATH).
-export const DB_PATH = "crystals";
+// ?dbpath=crystals_test 로 다른 자리를 읽는다. 전시가 돌아가는 동안
+// 센서를 시험할 때 쓴다. 관객이 보는 crystals 를 건드리지 않는다.
+export const DB_PATH = QS.get("dbpath") || "crystals";
 
 // 화면에 유지할 최대 크리스탈 수.
 // ⚠️ 한 시간에 한 겹이 되면서 겹이 48개까지 늘었다. 120 으로 두면 겹당 2~3개만

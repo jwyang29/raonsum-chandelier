@@ -38,6 +38,45 @@ sys.path.insert(0, PLAYGROUND_DIR)
 # --check 는 트래커가 필요 없다. playground 가 없는 자리에서도 연결은 봐야 하므로
 # 여기서 바로 끝내지 않고 실제로 돌릴 때 끝낸다.
 PLAYGROUND_ERR = None
+
+
+def _stub_pygame():
+    """pygame 이 없어도 트래커를 불러올 수 있게 가짜를 끼운다.
+
+    🔴 playground_v24.py 는 원래 화면에 그려 가며 쓰는 도구라 맨 위에서
+       pygame 을 불러온다. 그런데 허브는 추적 계산만 쓰고 화면은 안 그린다.
+       pygame 을 깔지 않으면 import 에서 바로 막힌다.
+
+       현장에서 이걸로 막히면 설치가 멈춘다. 실제로 여기서 한 번 막혔다.
+       그래서 없으면 가짜를 끼워 넣는다. 그리는 함수는 허브가 부르지 않으므로
+       아무 일도 하지 않는 껍데기로 충분하다. 진짜 pygame 이 깔려 있으면
+       그걸 쓴다.
+    """
+    try:
+        import pygame  # noqa: F401
+        return False
+    except ImportError:
+        pass
+    import types
+
+    class _Any(types.ModuleType):
+        def __getattr__(self, name):
+            if name.isupper():          # 상수 자리
+                return 0
+            def _noop(*a, **k):
+                return _Any(name)
+            return _noop
+
+    mod = _Any("pygame")
+    for sub in ("draw", "display", "font", "time", "event", "key", "image",
+                "mouse", "transform", "surfarray", "locals", "gfxdraw"):
+        sys.modules["pygame." + sub] = _Any("pygame." + sub)
+    sys.modules["pygame"] = mod
+    return True
+
+
+STUBBED_PYGAME = _stub_pygame()
+
 try:
     from playground_v24 import (Tracker, stroke_feeling, BAUD,
                                 SPEED_FAST_CMS, PRESS_HARD_MM, PRESS_VARIED_MM)
@@ -46,7 +85,10 @@ except ImportError as e:
                       f"  찾은 경로: {PLAYGROUND_DIR}\n"
                       f"  PLAYGROUND_DIR 를 실제 위치로 고치세요.")
 
-RTDB_PATH = "crystals"   # web/config.js 의 DB_PATH 와 같아야 한다
+# web/config.js 의 DB_PATH 와 같아야 한다.
+# 🔴 전시가 돌아가는 동안 센서를 시험할 때는 --path 로 다른 자리에 쓴다.
+#    안 그러면 시험용 크리스탈이 관객 화면에 섞인다.
+RTDB_PATH = "crystals"
 HERE = os.path.dirname(os.path.abspath(__file__))
 
 
@@ -279,7 +321,13 @@ class Uploader:
         if not dry and self.auth.mode == "없음":
             print(f"[{VERSION}] ⚠️ 쓰기 권한이 없습니다. 규칙이 잠겨 있으면 전부 실패합니다.")
 
-    def _endpoint(self, path=RTDB_PATH):
+    def _endpoint(self, path=None):
+        # 🔴 기본값에 RTDB_PATH 를 바로 쓰면 안 된다. 파이썬은 기본값을 함수를
+        #    만들 때 한 번만 묶는다. 그래서 --path 로 전역을 바꿔도 여기는
+        #    예전 값("crystals")을 계속 쓴다. 실제로 그 바람에 시험용 크리스탈
+        #    6개가 전시용 자리에 들어갔다. 부를 때마다 읽는다.
+        if path is None:
+            path = RTDB_PATH
         url = f"{self.url}/{path}.json"
         a = self.auth.value()
         return url + (f"?auth={a}" if a else "")
@@ -413,10 +461,21 @@ def main():
     ap.add_argument("--port", help="ESP32 시리얼 포트")
     ap.add_argument("--mock", help="재생할 recordings CSV")
     ap.add_argument("--dry", action="store_true", help="업로드 없이 출력만")
+    ap.add_argument("--path", default=None,
+                    help="쓸 자리. 시험할 때는 crystals_test 처럼 따로 둔다")
     ap.add_argument("--fast", action="store_true", help="mock 을 실시간 대기 없이 빠르게")
     ap.add_argument("--check", action="store_true",
                     help="ESP32 없이 Firebase 읽기/쓰기/지우기만 확인")
     args = ap.parse_args()
+    # 🔴 --path 는 모듈 전역을 갈아끼운다. _endpoint 와 --check 가 전부 이걸
+    #    본다. 시험용 자리를 쓰면 화면에 크게 알린다. 전시용에 섞어 쓰면
+    #    되돌리기 어렵기 때문이다.
+    if args.path:
+        global RTDB_PATH
+        RTDB_PATH = args.path
+        print(f"[{VERSION}] 🔴 시험용 자리에 씁니다: {RTDB_PATH}")
+        print(f"[{VERSION}]    관객이 보는 crystals 는 건드리지 않습니다")
+        print(f"[{VERSION}]    웹에서는 ?dbpath={RTDB_PATH}&feed=live 로 봅니다")
     load_env_file()
 
     if args.check:

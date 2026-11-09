@@ -6,7 +6,7 @@
 //
 // ?mock=1 을 붙이면 Firebase 없이 가짜 크리스탈을 만들어 보낸다.
 
-import { FIREBASE, DB_PATH } from "./config.js?v=1101u";
+import { FIREBASE, DB_PATH } from "./config.js?v=1109a";
 
 const seen = new Set();
 
@@ -29,7 +29,11 @@ export function startFeed(onCrystal, onStatus) {
   const params = new URLSearchParams(location.search);
 
 
-  if (params.get("mock") === "1" || params.get("preview") === "1") {
+  // 🔴 미리보기는 기본이 가짜 피드다. 센서를 시험할 때는 그러면 안 된다.
+  //    ?feed=live 를 붙이면 미리보기에서도 진짜 DB 를 읽는다. 마커 없이
+  //    센서에서 웹까지만 확인할 때 쓴다.
+  const live = params.get("feed") === "live";
+  if (!live && (params.get("mock") === "1" || params.get("preview") === "1")) {
     const rate = Number(params.get("rate")) || (params.get("preview") === "1" ? 1500 : 4000);
     onStatus(`mock 피드, ${rate}ms 간격`);
     onCrystal(mockData());
