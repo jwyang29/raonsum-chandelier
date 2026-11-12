@@ -31,7 +31,7 @@ for name in sorted(os.listdir(WEB)):
         n += len(pat.findall(s))
         print("  " + name)
 
-for name in ("ar.html", "index.html", "venue.html", "camtest.html"):
+for name in ("ar.html", "index.html", "venue.html", "camtest.html", "glasstest.html"):
     p = os.path.join(WEB, name)
     if not os.path.exists(p):
         continue

@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>유리 질감 비교</title>
+<!--
+  🔴 재질을 고칠 때 AR 로 확인하면 안 된다. 마커를 잡고 폰을 들고 있는 동안은
+     크리스탈이 작고 흔들려서, 하이라이트가 잘렸는지 색이 갈라졌는지 보이지
+     않는다. 크게 띄워 놓고 천천히 돌려야 보인다.
+
+  🔴 그리고 반드시 흰 배경에서도 봐야 한다. 전시장이 화이트큐브다. 검정에서
+     맞춘 유리는 흰 벽 앞에서 통째로 사라진다.
+
+  왼쪽은 2026-11-12 이전 모습으로 고정해 둔다. 오른쪽만 슬라이더로 움직인다.
+  맞는 값을 찾으면 web/config.js 의 GLASS 에 박는다.
+-->
+<style>
+  :root { --fg: #fff; --panel: rgba(12,16,22,.86); --line: #2b3440; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; overflow: hidden; background: #000; }
+  body { font: 13px/1.5 -apple-system, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif; }
+  #stage { position: fixed; inset: 0; }
+  canvas { display: block; }
+
+  .tag {
+    position: fixed; top: 10px; z-index: 5; padding: 5px 9px; border-radius: 3px;
+    font: 600 11px/1 ui-monospace, Menlo, monospace; letter-spacing: .1em;
+    background: rgba(0,0,0,.55); color: #9fb3c8; pointer-events: none;
+  }
+  #tagL { left: 12px; }
+  #tagR { color: #7fd4c1; }
+  #split { position: fixed; top: 0; bottom: 0; width: 1px; z-index: 4;
+           background: rgba(127,212,193,.35); pointer-events: none; }
+
+  #panel {
+    position: fixed; right: 10px; top: 10px; z-index: 6; width: 232px;
+    max-height: calc(100% - 20px); overflow: auto;
+    padding: 11px 12px 13px; border-radius: 8px;
+    background: var(--panel); color: #d8e0ea; border: 1px solid var(--line);
+  }
+  #panel h2 { margin: 0 0 9px; font-size: 12px; color: #8b97a6; font-weight: 500; }
+  .row { margin-bottom: 9px; }
+  .row label { display: flex; justify-content: space-between; font-size: 11px;
+                color: #8b97a6; margin-bottom: 3px; }
+  .row label b { color: #7fd4c1; font-weight: 600;
+                 font-family: ui-monospace, Menlo, monospace; }
+  .row input[type=range] { width: 100%; accent-color: #7fd4c1; }
+  .btns { display: flex; gap: 5px; margin: 11px 0 9px; }
+  .btns button, #copy {
+    flex: 1; padding: 7px 0; border-radius: 5px; cursor: pointer; font: inherit;
+    font-size: 11.5px; background: #1f2630; color: #d8e0ea; border: 1px solid var(--line);
+  }
+  .btns button.on { background: #7fd4c1; color: #08111a; border-color: #7fd4c1; }
+  #copy { width: 100%; margin-top: 2px; }
+  #copy:active { background: #2a323d; }
+  #out { margin: 9px 0 0; font: 10.5px/1.5 ui-monospace, Menlo, monospace;
+         color: #7f8b99; white-space: pre-wrap; word-break: break-all; }
+  #fps { position: fixed; left: 12px; bottom: 10px; z-index: 6; color: #6f7b89;
+         font: 11px/1 ui-monospace, Menlo, monospace; }
+</style>
+</head>
+<body>
+<div id="stage"></div>
+<div id="split"></div>
+<div class="tag" id="tagL">BEFORE  11-12 이전</div>
+<div class="tag" id="tagR">AFTER  지금</div>
+<div id="fps"></div>
+
+<div id="panel">
+  <h2>오른쪽만 바뀝니다</h2>
+  <div class="btns" id="bg">
+    <button data-bg="black" class="on">검정</button>
+    <button data-bg="white">흰 벽</button>
+    <button data-bg="room">전시장</button>
+  </div>
+  <div class="btns" id="spin">
+    <button data-spin="1" class="on">돌리기</button>
+    <button data-spin="0">멈춤</button>
+  </div>
+  <div class="btns" id="kind">
+    <button data-kind="arc" class="on">arc</button>
+    <button data-kind="loop">loop</button>
+    <button data-kind="ribbon">ribbon</button>
+  </div>
+  <div id="sliders"></div>
+  <button id="copy">지금 값을 주소로 복사</button>
+  <p id="out"></p>
+</div>
+
+<script src="./vendor/aframe.min.js?v=2"></script>
+<script type="module">
+import { GLASS, TINTS } from "./config.js?v=1112b";
+import { makeGlass, glassTime } from "./glass_material.js?v=1112b";
+import { loadBlobs } from "./crystal.js?v=1112b";
+
+// 🔴 왼쪽에 쓸 예전 값. 셰이더에서 안 쓰이던 셋은 꺼 두고, 날카로움은
+//    그때 박혀 있던 96 으로, 하이라이트는 잘리게(rolloff 0) 둔다.
+//    이게 11월 12일까지 관객이 실제로 보던 화면이다.
+const BEFORE = { specPower: 96, dispersion: 0, flash: 0, rolloff: 0 };
+
+// 슬라이더로 만질 것. [열쇠, 이름, 최소, 최대, 눈금, 주소에 붙이는 이름]
+const KNOBS = [
+  ["sparkle",    "반짝임 세기",      0,   4,    0.05, "sparkle"],
+  ["specPower",  "하이라이트 날카로움", 8, 400,  1,    "specpow"],
+  ["dispersion", "분산 (색 갈라짐)",  0,   0.12, 0.002, "disp"],
+  ["flash",      "가장자리 섬광",     0,   2,    0.02, "flash"],
+  ["rolloff",    "하이라이트 눕히기",  0,   1,    0.01, "rolloff"],
+  ["absorb",     "두께로 먹는 빛",    0,   0.9,  0.01, "absorb"],
+  ["irid",       "무지개",          0,   1.4,  0.01, "irid"],
+  ["alphaCore",  "가운데 불투명도",   0,   1,    0.01, "acore"],
+];
+
+const live = {};
+for (const [k] of KNOBS) live[k] = GLASS[k];
+
+const stage = document.getElementById("stage");
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(Math.min(2, devicePixelRatio));
+stage.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(42, 1, 0.01, 100);
+camera.position.set(0, 0, 3.0);
+
+// 배경. 전시장은 화이트큐브라 흰 벽을 반드시 봐야 한다.
+const BG = { black: 0x000000, white: 0xf2f2f0, room: 0xd8d6d0 };
+function setBg(name) {
+  scene.background = new THREE.Color(BG[name]);
+  const dark = name === "black";
+  for (const t of ["tagL", "tagR", "fps"]) {
+    document.getElementById(t).style.color = dark ? "" : "#2a3038";
+  }
+}
+
+const left = new THREE.Group();
+const right = new THREE.Group();
+scene.add(left, right);
+
+let spin = true;
+
+// 🔴 여러 개를 한 화면에 놓으면 서로 겹쳐서 재질을 못 본다. 하나만 크게
+//    띄우고 단추로 바꾼다. 재질을 보는 자리지 배치를 보는 자리가 아니다.
+const rightMats = [];
+let LIB = null;
+let RADIUS = 0.5;   // 지금 띄운 형태의 경계구 반지름
+
+function build(kind) {
+  for (const g of [left, right]) {
+    for (const m of [...g.children]) { m.material.dispose(); g.remove(m); }
+  }
+  rightMats.length = 0;
+
+  const pool = (LIB && LIB[kind]) || (LIB && LIB.arc) || [];
+  if (!pool.length) return;
+  const geo = pool[0];
+
+  for (const [group, before] of [[left, true], [right, false]]) {
+    const mat = makeGlass({
+      tint: TINTS[1], opacity: 0.62, irid: live.irid, phase: 0.37, quality: 1,
+    });
+    if (before) {
+      for (const k in BEFORE) {
+        const u = "u" + k[0].toUpperCase() + k.slice(1);
+        if (mat.uniforms[u]) mat.uniforms[u].value = BEFORE[k];
+      }
+    } else {
+      rightMats.push(mat);
+    }
+    const mesh = new THREE.Mesh(geo, mat);
+    // 구운 형태는 원점에 맞춰져 있지 않다. 가운데를 집어 돌려야 흔들리지 않는다.
+    geo.computeBoundingBox();
+    const c = new THREE.Vector3();
+    geo.boundingBox.getCenter(c);
+    mesh.position.copy(c).multiplyScalar(-1);
+    const pivot = new THREE.Object3D();
+    pivot.add(mesh);
+    group.add(pivot);
+  }
+  geo.computeBoundingSphere();
+  RADIUS = geo.boundingSphere.radius || 0.5;
+  layout();
+  apply();
+}
+
+// 패널이 덮는 자리를 빼고 남은 폭을 반으로 나눈다.
+const PANEL = 256;
+function layout() {
+  const w = innerWidth, h = innerHeight;
+  renderer.setSize(w, h);
+  camera.aspect = w / h;
+  camera.updateProjectionMatrix();
+
+  const stageW = Math.max(240, w - PANEL);
+  const halfPx = stageW / 4;                       // 각 칸의 한가운데
+  // 화면 가로 절반이 월드에서 몇 m 인지
+  const worldHalf = Math.tan(camera.fov * Math.PI / 360) * camera.position.z * camera.aspect;
+  const perPx = worldHalf / (w / 2);
+
+  left.position.x  = (halfPx - w / 2) * perPx;
+  right.position.x = (stageW / 2 + halfPx - w / 2) * perPx;
+
+  // 🔴 한 칸에 꽉 차되 잘리지 않게. 경계구를 칸의 가로와 세로 중 좁은 쪽에
+  //    맞춘다. 어림짐작으로 scale 을 주면 형태를 바꿀 때마다 잘린다.
+  const cellHalf = (stageW / 4) * perPx;                                  // 칸의 가로 반
+  const vertHalf = Math.tan(camera.fov * Math.PI / 360) * camera.position.z;  // 세로 반
+  const scale = Math.min(cellHalf, vertHalf) * 0.82 / RADIUS;
+  for (const g of [left, right]) g.scale.setScalar(scale);
+
+  document.getElementById("split").style.left = (stageW / 2) + "px";
+  document.getElementById("tagL").style.left = (halfPx - 56) + "px";
+  document.getElementById("tagR").style.left = (stageW / 2 + halfPx - 42) + "px";
+}
+addEventListener("resize", layout);
+
+// ── 슬라이더 ────────────────────────────────────────────────
+const box = document.getElementById("sliders");
+for (const [key, label, min, max, step] of KNOBS) {
+  const row = document.createElement("div");
+  row.className = "row";
+  row.innerHTML =
+    `<label>${label}<b id="v-${key}"></b></label>` +
+    `<input type="range" id="s-${key}" min="${min}" max="${max}" step="${step}">`;
+  box.appendChild(row);
+  const s = row.querySelector("input");
+  s.value = live[key];
+  s.addEventListener("input", () => { live[key] = parseFloat(s.value); apply(); });
+}
+
+function apply() {
+  for (const mat of rightMats) {
+    for (const [key] of KNOBS) {
+      const u = "u" + key[0].toUpperCase() + key.slice(1);
+      if (mat.uniforms[u]) mat.uniforms[u].value = live[key];
+    }
+  }
+  for (const [key] of KNOBS) {
+    const el = document.getElementById("v-" + key);
+    if (el) el.textContent = (+live[key]).toFixed(key === "specPower" ? 0 : 3);
+  }
+  const q = KNOBS.filter(([k]) => live[k] !== GLASS[k])
+                 .map(([k, , , , , q]) => `${q}=${+live[k]}`).join("&");
+  document.getElementById("out").textContent = q
+    ? "?" + q
+    : "지금은 config.js 의 기본값 그대로입니다";
+}
+
+document.getElementById("copy").addEventListener("click", () => {
+  const q = KNOBS.filter(([k]) => live[k] !== GLASS[k])
+                 .map(([k, , , , , q]) => `${q}=${+live[k]}`).join("&");
+  const url = location.origin + location.pathname.replace("glasstest.html", "ar.html")
+            + (q ? "?" + q : "");
+  navigator.clipboard.writeText(url).then(
+    () => { document.getElementById("out").textContent = "복사했습니다\n" + url; },
+    () => { document.getElementById("out").textContent = url; });
+});
+
+for (const b of document.querySelectorAll("#bg button")) {
+  b.addEventListener("click", () => {
+    document.querySelectorAll("#bg button").forEach((x) => x.classList.remove("on"));
+    b.classList.add("on");
+    setBg(b.dataset.bg);
+  });
+}
+for (const b of document.querySelectorAll("#kind button")) {
+  b.addEventListener("click", () => {
+    document.querySelectorAll("#kind button").forEach((x) => x.classList.remove("on"));
+    b.classList.add("on");
+    build(b.dataset.kind);
+  });
+}
+for (const b of document.querySelectorAll("#spin button")) {
+  b.addEventListener("click", () => {
+    document.querySelectorAll("#spin button").forEach((x) => x.classList.remove("on"));
+    b.classList.add("on");
+    spin = b.dataset.spin === "1";
+  });
+}
+
+// ── 돌린다 ──────────────────────────────────────────────────
+let t0 = performance.now(), frames = 0, fpsAt = t0, turn = 0;
+function frame(now) {
+  requestAnimationFrame(frame);
+  const dt = (now - t0) / 1000; t0 = now;
+  glassTime.value = now / 1000;
+  if (spin) turn += dt * 0.5;
+  for (const g of [left, right]) {
+    for (const p of g.children) { p.rotation.y = turn; p.rotation.x = turn * 0.31; }
+  }
+  renderer.render(scene, camera);
+
+  frames++;
+  if (now - fpsAt > 1000) {
+    document.getElementById("fps").textContent =
+      Math.round(frames * 1000 / (now - fpsAt)) + " fps";
+    frames = 0; fpsAt = now;
+  }
+}
+
+loadBlobs().then((lib) => {
+  LIB = lib;
+  build("arc");
+  layout();
+  setBg("black");
+  apply();
+  requestAnimationFrame(frame);
+}).catch((e) => {
+  document.getElementById("out").textContent = "형태를 못 불러왔습니다: " + e.message;
+});
+</script>
+</body>
+</html>
