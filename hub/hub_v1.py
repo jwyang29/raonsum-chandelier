@@ -386,6 +386,9 @@ class Uploader:
             why = {404: "주소가 틀렸거나 Realtime Database 를 아직 안 만들었습니다",
                    401: "규칙의 .read 가 true 가 아닙니다",
                    403: "규칙의 .read 가 true 가 아닙니다"}.get(code, "")
+            # 망이 끊긴 것과 규칙 문제는 고치는 방법이 전혀 다르다. 갈라서 알려 준다.
+            if isinstance(e, urllib.error.URLError) and not code:
+                why = "인터넷에 못 닿습니다. 와이파이를 확인하세요"
             print(f"  ✗ 읽기 실패 ({e}). {why}")
             return 1
 

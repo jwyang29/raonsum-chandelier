@@ -48,6 +48,17 @@ url = up._endpoint("cal")
 print(f"[setcal] {up.url}/cal.json   권한 {up.auth.mode}")
 
 
+def offline(e):
+    """🔴 망이 끊겼을 때 파이썬 역추적을 통째로 쏟지 않는다.
+
+    현장에서 와이파이가 흔들릴 때 이 화면을 보면 무엇이 잘못됐는지 알 수가
+    없다. 고칠 수 있는 것인지 아닌지만 한 줄로 알려 준다.
+    """
+    sys.exit("\n[setcal] 인터넷에 못 닿습니다. 보정값은 그대로 있습니다.\n"
+             "  와이파이를 확인하고 다시 돌리세요.\n"
+             f"  ({e.reason if hasattr(e, 'reason') else e})")
+
+
 def read():
     try:
         with urllib.request.urlopen(f"{up.url}/cal.json", timeout=15) as r:
@@ -57,6 +68,8 @@ def read():
             sys.exit("읽기가 막혀 있습니다. 콘솔 규칙 탭에 hub/firebase_rules.json 을\n"
                      "다시 붙여넣고 게시하세요. cal 이 읽기 공개여야 관객 폰이 받습니다.")
         raise
+    except urllib.error.URLError as e:
+        offline(e)
 
 
 if "--show" in sys.argv:
@@ -64,7 +77,10 @@ if "--show" in sys.argv:
     sys.exit(0)
 
 if "--clear" in sys.argv:
-    urllib.request.urlopen(urllib.request.Request(url, method="DELETE"), timeout=15).read()
+    try:
+        urllib.request.urlopen(urllib.request.Request(url, method="DELETE"), timeout=15).read()
+    except urllib.error.URLError as e:
+        offline(e)
     print("[setcal] 지웠습니다. 앱이 코드의 기본값으로 돌아갑니다.")
     sys.exit(0)
 
@@ -101,7 +117,10 @@ if not patch:
 
 req = urllib.request.Request(url, data=json.dumps(patch).encode(), method="PATCH",
                              headers={"Content-Type": "application/json"})
-urllib.request.urlopen(req, timeout=15).read()
+try:
+    urllib.request.urlopen(req, timeout=15).read()
+except urllib.error.URLError as e:
+    offline(e)
 print("[setcal] 적었습니다:", json.dumps(patch, ensure_ascii=False))
 print("[setcal] 지금 /cal 전체:")
 print(json.dumps(read(), indent=1, ensure_ascii=False))
