@@ -31,13 +31,17 @@ for name in sorted(os.listdir(WEB)):
         n += len(pat.findall(s))
         print("  " + name)
 
-for name in ("ar.html", "index.html"):
+for name in ("ar.html", "index.html", "venue.html", "camtest.html"):
     p = os.path.join(WEB, name)
     if not os.path.exists(p):
         continue
     s = io.open(p, encoding="utf-8").read()
     out = re.sub(r'(src="\./)([A-Za-z0-9_\-/]+\.js)(\?v=[^"]*)?(")',
                  lambda m: m.group(1) + m.group(2) + "?v=" + VER + m.group(4), s)
+    # 🔴 html 안의 인라인 모듈도 import 한다. src= 만 보면 index.html 의
+    #    import("./visit.js") 가 영영 안 붙는다. marker_anchor.js 를 놓쳤던
+    #    것과 똑같은 구멍이라 두 번째로 막는다.
+    out = pat.sub(lambda m: m.group(1) + m.group(2) + "?v=" + VER + m.group(4), out)
     if out != s:
         io.open(p, "w", encoding="utf-8").write(out)
         print("  " + name)

@@ -11,17 +11,18 @@
 //   ?debug=1    마커 수, 크리스탈 수, 품질 단계, fps, 월드 원점을 표시한다
 //   ?rate=1200  가짜 크리스탈 생성 간격 (ms)
 
-import "./marker_anchor.js?v=1109a";
+import "./marker_anchor.js?v=1112a";
 import { MARKERS, GEOMETRY, PEDESTAL, SCHEDULE, CAL_KEY, AR_SOURCE, ANCHOR,
          MAX_CRYSTALS, DESK, FIREBASE, applyRemoteCal,
-         refreshPedestal, refreshMarkers, SCATTER_ON } from "./config.js?v=1109a";
-import { Chandelier, RING_GAP, recomputeHeights, ringY } from "./chandelier.js?v=1109a";
-import { startFeed, mockData } from "./feed.js?v=1109a";
-import { Detector } from "./detect.js?v=1109a";
-import { pickCamera, isDesktop } from "./campick.js?v=1109a";
-import { loadBlobs } from "./crystal.js?v=1109a";
+         refreshPedestal, refreshMarkers, SCATTER_ON } from "./config.js?v=1112a";
+import { Chandelier, RING_GAP, recomputeHeights, ringY } from "./chandelier.js?v=1112a";
+import { startFeed, mockData } from "./feed.js?v=1112a";
+import { Detector } from "./detect.js?v=1112a";
+import { pickCamera, isDesktop } from "./campick.js?v=1112a";
+import { loadBlobs } from "./crystal.js?v=1112a";
+import { Guide } from "./guide.js?v=1112a";
 
-const VERSION = "build 1109a";   // 고칠 때마다 올린다. 폰이 옛 파일을 쓰고 있는지 이걸로 안다
+const VERSION = "build 1112a";   // 고칠 때마다 올린다. 폰이 옛 파일을 쓰고 있는지 이걸로 안다
 const params = new URLSearchParams(location.search);
 const DEBUG = params.get("debug") === "1";
 
@@ -296,6 +297,10 @@ function framePreview() {
 // 폰을 돌리면 비율이 뒤집힌다. 그때 다시 잡는다.
 if (PREVIEW) window.addEventListener("resize", () => setTimeout(framePreview, 120));
 
+// 샹들리에 한가운데 높이. 미리보기 카메라와 관람 안내가 같이 쓴다.
+// 흩뿌리기든 샹들리에든 크리스탈이 차지하는 구간은 같다.
+const MID_Y = (GEOMETRY.ringMinY + GEOMETRY.ceilingHeight) / 2;
+
 const lights = `
       <a-entity light="type: ambient; intensity: 0.75"></a-entity>
       <a-entity light="type: directional; intensity: 0.55" position="1 3 1"></a-entity>`;
@@ -307,7 +312,7 @@ if (PREVIEW) {
                material="color: #16202c; opacity: 0.7"></a-plane>`;
 
   // 거리는 띄워 놓고 재서 맞춘다 (framePreview). 여기 값은 첫 프레임용 어림이다.
-  const midY = (GEOMETRY.ringMinY + GEOMETRY.ceilingHeight) / 2;
+  const midY = MID_Y;
 
   document.getElementById("app").innerHTML = `
   <a-scene background="color: #0b0f14" vr-mode-ui="enabled: false"
@@ -436,6 +441,9 @@ function fixArController() {
 }
 
 
+// 관람 안내. 문구를 고르고 깜빡임을 눌러 준다 (web/guide.js)
+const guide = new Guide();
+
 const status = document.getElementById("status");
 const panel = document.getElementById("debug");
 if (DEBUG) panel.style.display = "block";
@@ -476,7 +484,9 @@ AFRAME.registerComponent("chandelier-driver", {
         if (hint) hint.style.display = "none";
         console.log(`[gyro] ${ok ? "켜짐" : "거부됨. 마커 밖에서는 화면에 고정됩니다"}`);
       };
-      if (gyro.needsPermission) {
+      // boot.js 의 시작 버튼 안에서 이미 받아 뒀으면 바로 켠다.
+      // 그 길로 들어온 관객에게 "화면을 한 번 누르세요" 는 쓸데없는 말이다.
+      if (gyro.needsPermission && !window.__gyroGranted) {
         if (hint) hint.style.display = "block";
         document.addEventListener("click", begin, { once: true });
         document.addEventListener("touchend", begin, { once: true, passive: true });
@@ -493,6 +503,34 @@ AFRAME.registerComponent("chandelier-driver", {
       getMeshes: () => chandelier.items.map((it) => it.mesh),
     });
   },
+  /** 샹들리에 한가운데가 지금 화면 어디에 있는지 본다.
+   *
+   *  🔴 AR 에서는 카메라가 원점에 가만히 있고 월드가 움직인다. 그래서 폰이
+   *     얼마나 기울었는지를 카메라에서 직접 읽을 수 없다. 기울기를 재려고
+   *     자이로를 쓰면 자이로를 거부한 폰에서 안내가 통째로 죽는다.
+   *     대신 샹들리에를 화면에 투영해서 위로 벗어나 있으면 들어 올리라고
+   *     한다. 보고 싶은 것이 화면 밖인지를 바로 묻는 쪽이 정확하다.
+   *
+   *  돌려주는 ny 는 화면 세로 위치다. 1 이 위 끝, -1 이 아래 끝이다.
+   */
+  lookAt() {
+    const cam = scene && scene.camera;
+    if (!cam) return { behind: false, ny: null };
+    if (!this.tmpV) this.tmpV = new THREE.Vector3();
+    const v = this.tmpV.set(0, MID_Y, 0);
+    this.el.object3D.localToWorld(v);
+    // 카메라 좌표에서 z 가 양수면 등 뒤다 (카메라는 -z 쪽을 본다).
+    // project() 만 쓰면 뒤에 있는 점이 w 가 음수라 좌우가 뒤집혀 나온다.
+    if (v.clone().applyMatrix4(cam.matrixWorldInverse).z > 0) {
+      return { behind: true, ny: null };
+    }
+    v.project(cam);
+    // 🔴 뜬 직후 한두 프레임은 투영 행렬이 아직 안 서서 NaN 이 나온다.
+    //    NaN 은 어떤 비교에도 거짓이라 그냥 두면 조용히 안내 하나가 빠진다.
+    //    못 쟀다고 분명히 말하고 넘어간다.
+    return { behind: false, ny: Number.isFinite(v.y) ? v.y : null };
+  },
+
   tick(time) {
     const now = time / 1000;
     chandelier.update(now);
@@ -507,11 +545,24 @@ AFRAME.registerComponent("chandelier-driver", {
     // 자이로는 돌아간 각도만 알고 걸어간 거리는 모르므로, 오래 버티면
     // 조금씩 어긋난다. 그때만 좌대를 다시 비춰 달라고 한다.
     const held = this.anchor ? this.anchor.heldSeconds : 0;
-    status.textContent = PREVIEW
-      ? "미리보기입니다. 드래그로 둘러보고 WASD 로 움직이세요"
-      : !this.anchor || !this.anchor.started ? "좌대의 마커를 화면에 담아 주세요"
-      : held > ANCHOR_HINT ? "좌대를 한 번 비추면 위치가 다시 맞습니다"
-      : "";
+    const live = !!(this.anchor && this.anchor.started);
+
+    // 흔들림 없이 보고 있는 시간. 권유성 문구를 꺼내는 기준이다.
+    // 마커를 놓친 동안은 다시 0 부터 센다.
+    if (!live || held > 0.3 || this.calmSince === undefined) this.calmSince = now;
+
+    const look = live ? this.lookAt() : { behind: false, ny: null };
+    status.textContent = guide.update({
+      preview: PREVIEW,
+      started: live,
+      held,
+      hint: ANCHOR_HINT,
+      // 월드 원점은 좌대 윗면 한가운데다. 카메라가 원점이므로 길이가 곧 거리다.
+      dist: live ? this.anchor.pos.length() : null,
+      behind: look.behind,
+      ny: look.ny,
+      settled: now - this.calmSince,
+    }, now);
     if (!DEBUG) return;
 
     const p = this.anchor && this.anchor.started ? this.anchor.pos : null;

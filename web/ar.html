@@ -38,6 +38,45 @@
       pointer-events: none;
     }
     .a-enter-vr, .a-enter-ar { display: none !important; }
+
+    /* 관람 안내 첫 화면.
+       🔴 카메라 권한을 여기서 미룬다. 지금까지는 페이지가 뜨자마자 물었다.
+          왜 묻는지 모르는 채로 받는 창은 거절당한다. 무인 전시에서 한 번
+          거절하면 다시 묻는 길이 없다. 그래서 설명을 읽고 누른 뒤에 묻는다.
+       🔴 그리고 이 버튼 한 번이 아이폰 자이로 권한의 사용자 제스처가 된다.
+          전에는 "화면을 한 번 누르세요" 를 따로 띄웠다. */
+    #intro {
+      position: fixed; inset: 0; z-index: 40; display: flex; flex-direction: column;
+      justify-content: flex-end; gap: 0; background: #000; color: #fff;
+      padding: 0 20px calc(28px + env(safe-area-inset-bottom));
+      font: 15px/1.7 -apple-system, "Helvetica Neue", "Apple SD Gothic Neo",
+            "Noto Sans KR", Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+    #intro.gone { display: none; }
+    #intro h1 {
+      margin: 0 0 auto; padding-top: 18vh;
+      font-weight: 800; font-size: clamp(38px, 12vw, 64px); line-height: .9;
+      letter-spacing: -.045em;
+    }
+    #intro h1 span { display: block; }
+    #intro ol { list-style: none; margin: 0 0 26px; padding: 0; }
+    #intro li {
+      display: grid; grid-template-columns: 34px 1fr; align-items: baseline;
+      gap: 10px; padding: 13px 0; border-top: 1px solid #2b2b2b;
+    }
+    #intro li:last-child { border-bottom: 1px solid #2b2b2b; }
+    #intro li b { font: 600 11px/1.6 ui-monospace, "SF Mono", Menlo, monospace;
+                  color: #73de9f; letter-spacing: .08em; }
+    #intro li span { font-size: 16px; letter-spacing: -.01em; }
+    #intro button {
+      width: 100%; padding: 17px 0; margin: 0 0 14px; cursor: pointer;
+      background: #73de9f; color: #06130c; border: 0; border-radius: 2px;
+      font: 700 17px/1 inherit; letter-spacing: -.01em;
+      -webkit-tap-highlight-color: transparent;
+    }
+    #intro button:active { background: #5bc686; }
+    #intro .note { margin: 0; color: #7a7a7a; font-size: 12.5px; line-height: 1.6; }
     #cal {
       display: none; position: fixed; left: 8px; bottom: 8px; z-index: 12;
       padding: 10px 12px; border-radius: 8px; background: rgba(10,14,20,.86);
@@ -92,7 +131,7 @@
       color: #8b97a6; font-size: 10px;
     }
   </style>
-  <script src="./camerafix.js?v=1109a"></script>
+  <script src="./camerafix.js?v=1112a"></script>
   <script src="./vendor/aframe.min.js?v=2"></script>
   <!-- 🔴 AR.js 는 여기서 불러오지 않는다. app.js 가 AR 모드일 때만 불러온다.
        이유는 app.js 의 loadScript 위 주석 참고. ?preview=1 이 깨진다. -->
@@ -128,6 +167,17 @@
     </div>
     <div class="hint" id="cal-hint"></div>
   </div>
+  <div id="intro" hidden>
+    <h1><span>Facets</span><span>Between Us</span></h1>
+    <ol>
+      <li><b>01</b><span>좌대 위의 작은 마커를 비추세요</span></li>
+      <li><b>02</b><span>그대로 폰을 천천히 들어 올리세요</span></li>
+      <li><b>03</b><span>천장에 샹들리에가 떠 있습니다</span></li>
+    </ol>
+    <button id="intro-go" type="button">시작하기</button>
+    <p class="note">카메라는 마커 위치를 읽는 데만 씁니다.<br>
+       사진과 영상은 어디에도 저장되지 않습니다.</p>
+  </div>
   <script>
     // ?diag=1 이면 비디오 상태를 화면에 찍는다 (카메라가 안 보일 때 원인 추적용)
     if (new URLSearchParams(location.search).get("diag") === "1") {
@@ -136,7 +186,9 @@
       document.head.appendChild(s);
     }
   </script>
-  <!-- ?v= 를 올려야 폰이 옛 파일을 안 쓴다. app.js 를 고치면 같이 올린다. -->
-  <script type="module" src="./app.js?v=1109a"></script>
+  <!-- ?v= 를 올려야 폰이 옛 파일을 안 쓴다. app.js 를 고치면 같이 올린다.
+       🔴 app.js 를 여기서 바로 부르지 않는다. 뜨는 순간 카메라를 물어서다.
+          boot.js 가 안내를 먼저 띄우고, 시작을 누르면 그때 불러온다. -->
+  <script type="module" src="./boot.js?v=1112a"></script>
 </body>
 </html>

@@ -8,6 +8,20 @@
       ".write": "auth != null"
     },
 
+    "visits": {
+      "__주석": "방문 집계. 값은 밀리초 시각 하나뿐이다. 관객을 구분할 수 있는 것은 아무것도 안 남긴다.",
+      ".read": true,
+
+      "$day": {
+        "$page": {
+          "$id": {
+            "__주석": "누구나 새로 만들 수만 있다. 이미 있는 칸은 못 건드린다 (!data.exists). 지우는 것도 막힌다. 날짜 모양과 페이지 이름도 여기서 걸러서, 아무 경로나 만들어 두는 것을 막는다. 열린 쓰기라 작정하면 부풀릴 수 있지만, 3주짜리 전시의 방문 수라 그 위험을 받기로 했다.",
+            ".write": "!data.exists() && newData.isNumber() && newData.val() > 0 && $day.matches(/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/) && ($page == 'home' || $page == 'ar' || $page == 'start')"
+          }
+        }
+      }
+    },
+
     "crystals": {
       ".read": true,
       ".write": "auth != null",
