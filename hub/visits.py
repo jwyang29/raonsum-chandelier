@@ -22,6 +22,7 @@
 import json
 import os
 import sys
+import unicodedata
 import urllib.error
 import urllib.request
 
@@ -32,6 +33,20 @@ import hub_v1
 hub_v1.load_env_file()
 
 PAGES = [("home", "열람"), ("ar", "AR"), ("start", "시작")]
+
+
+# 🔴 파이썬의 자릿수는 글자 수를 센다. 한글은 터미널에서 두 칸을 먹으므로
+#    f"{'날짜':<12}" 은 눈으로 보면 네 칸이 밀린다. 실제 폭으로 맞춘다.
+def width(s):
+    return sum(2 if unicodedata.east_asian_width(c) in "WF" else 1 for c in s)
+
+
+def left(s, n):
+    return s + " " * max(0, n - width(s))
+
+
+def right(s, n):
+    return " " * max(0, n - width(s)) + s
 
 
 def offline(e):
@@ -92,8 +107,9 @@ def main():
     if keep:
         names = names[-keep:]
 
-    print(f"{'날짜':<12}{'열람':>7}{'AR':>7}{'시작':>7}")
-    print("-" * 33)
+    bar = "-" * 33
+    print(left("날짜", 12) + "".join(right(t, 7) for _, t in PAGES))
+    print(bar)
     total = {k: 0 for k, _ in PAGES}
     for day in names:
         row = []
@@ -102,10 +118,10 @@ def main():
             n = len(got) if isinstance(got, dict) else 0
             total[key] += n
             row.append(n)
-        print(f"{day:<12}{row[0]:>7}{row[1]:>7}{row[2]:>7}")
+        print(left(day, 12) + "".join(right(str(v), 7) for v in row))
 
-    print("-" * 33)
-    print(f"{'합계':<12}{total['home']:>7}{total['ar']:>7}{total['start']:>7}")
+    print(bar)
+    print(left("합계", 12) + "".join(right(str(total[k]), 7) for k, _ in PAGES))
 
     if total["home"]:
         to_ar = total["ar"] / total["home"] * 100
