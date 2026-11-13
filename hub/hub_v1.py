@@ -7,9 +7,18 @@ Tracker.on_clean 훅에 갠트리 대신 Firebase 업로드를 붙인 것이다.
 위치 추정(FabricEstimator, 오차 1.9cm)과 stroke_feeling 은 손대지 않는다.
 
 실행:
-    python3 hub_v1.py --port /dev/cu.usbserial-0001
-    python3 hub_v1.py --mock ../../../Desktop/playground/recordings/rec_20261019_133143.csv
+    python3 hub_v1.py                   포트를 알아서 찾아 전시용으로 올린다
+    python3 hub_v1.py --selftest        센서만 본다. 안 올린다
+    python3 hub_v1.py --check           ESP32 없이 Firebase 만 본다
+    python3 hub_v1.py --ports           보이는 포트와 ESP32 자리만 찍는다
+    python3 hub_v1.py --path crystals_test   시험 자리에 올린다
+    python3 hub_v1.py --port /dev/cu.usbserial-0001   포트를 직접 적을 때
+    python3 hub_v1.py --mock <csv>              녹화를 재생한다
     python3 hub_v1.py --mock <csv> --dry        업로드 없이 JSON 만 출력
+
+🔴 포트 이름을 외워 치지 않아도 된다. D, 를 보내는 포트를 찾아서 연다.
+🔴 끊기면 다시 붙는다. 6초 동안 값이 없어도 끊긴 것으로 보고 다시 연다.
+🔴 못 올린 것은 hub/outbox.json 에 받쳐 두고 다음에 켤 때 마저 올린다.
 
 환경변수 (업로드할 때만 필요).
 hub/secrets.env 에 적어 두면 알아서 읽는다. export 를 매번 칠 필요 없다:
@@ -297,6 +306,90 @@ class Auth:
         return self.token
 
 
+# ---------------------------------------------------------------
+#  현장에서 보이는 한 줄
+#
+#  🔴 지금까지는 획이 끝날 때만 출력이 나왔다. 그래서 아무 일도 안 일어나면
+#     센서가 죽은 건지, 기준 거리를 아직 잡는 중인지, 망이 끊긴 건지,
+#     아니면 그냥 아무도 안 그린 건지 구분할 수가 없었다. 세 시간짜리
+#     시연에서 그 상태로 서 있으면 고칠 방법이 없다.
+#     그래서 한 줄을 계속 덮어쓰며 보여 준다.
+# ---------------------------------------------------------------
+WIDTH = 92
+
+
+class Status:
+    def __init__(self):
+        # 파이프로 넘길 때는 끄다. \r 이 로그 파일을 쓰레기로 만든다.
+        self.on = sys.stdout.isatty()
+        self.drawn = False
+        self.at = 0.0
+
+    def show(self, text, every=0.4):
+        if not self.on:
+            return
+        now = time.time()
+        if now - self.at < every:
+            return
+        self.at = now
+        sys.stdout.write("\r" + text[:WIDTH].ljust(WIDTH))
+        sys.stdout.flush()
+        self.drawn = True
+
+    def clear(self):
+        if self.on and self.drawn:
+            sys.stdout.write("\r" + " " * WIDTH + "\r")
+            sys.stdout.flush()
+            self.drawn = False
+
+
+STATUS = Status()
+
+
+def say(*a):
+    """상태 줄을 지우고 보통 출력을 한 뒤, 다음 show 가 다시 그리게 둔다."""
+    STATUS.clear()
+    print(*a)
+
+
+def status_line(tracker, up, strokes):
+    """센서, 기준 거리, 손, 업로드를 한 줄에."""
+    try:
+        snap = tracker.snapshot()
+    except Exception:
+        return "..."
+    alive = sum(1 for b in snap["baseline"] if b is not None)
+    if snap["calibrating"]:
+        base = f"기준 잡는 중 {snap['calib_n']}"
+    elif alive == 0:
+        base = "기준 없음"
+    else:
+        base = "기준 OK"
+    hand = "손 ●" if snap.get("finger") else "손 ·"
+    rate = snap.get("rate") or 0
+    q = f"  대기 {len(up.queue)}" if up.queue else ""
+    fail = f"  실패 {up.failed}" if up.failed else ""
+    return (f"{rate:5.1f} fps   센서 {alive}/9   {base}   {hand}   "
+            f"획 {strokes}   올림 {up.sent}{q}{fail}")
+
+
+def sensor_line(tracker):
+    """센서 아홉 개의 지금 거리. 하나가 죽으면 여기서 바로 보인다."""
+    try:
+        snap = tracker.snapshot()
+    except Exception:
+        return "..."
+    cells, dead = [], []
+    for i, (d, b) in enumerate(zip(snap["dist"], snap["baseline"])):
+        if b is None or d is None or d < 0:
+            cells.append("  --")
+            dead.append(i)
+        else:
+            cells.append(f"{d:4.0f}")
+    tail = f"   ✗ {','.join(str(i) for i in dead)}번 안 읽힘" if dead else "   전부 읽힘"
+    return f"{(snap.get('rate') or 0):5.1f} fps  " + " ".join(cells) + tail
+
+
 class Uploader:
     def __init__(self, dry=False):
         self.dry = dry
@@ -314,12 +407,39 @@ class Uploader:
         self.failed = 0
         # 🔴 올리지 못한 크리스탈은 버리지 않는다. 관객이 방금 그린 획이다.
         #    전시장 와이파이가 한 번 끊겼다고 그 사람 것만 사라지면 안 된다.
+        #    🔴 메모리에만 두면 허브를 닫는 순간 같이 사라진다. 와이파이가
+        #       끊긴 채로 시연이 끝나면 그 시간 관객 것이 통째로 없어진다.
+        #       파일에 받쳐 두고, 다음에 켤 때 마저 올린다.
         self.queue = []
+        self.spool = os.path.join(HERE, "outbox.json")
+        if not dry:
+            self._load_spool()
         if not dry and not self.url:
             sys.exit(f"[{VERSION}] 주소가 없습니다. web/config.js 의 databaseURL 을 채우거나 "
                      f"RAONSUM_FIREBASE_URL 을 넣으세요.")
         if not dry and self.auth.mode == "없음":
             print(f"[{VERSION}] ⚠️ 쓰기 권한이 없습니다. 규칙이 잠겨 있으면 전부 실패합니다.")
+
+    def _load_spool(self):
+        """지난번에 못 올리고 남은 것을 다시 집어 든다."""
+        try:
+            with open(self.spool, encoding="utf-8") as f:
+                left = json.load(f)
+        except (OSError, ValueError):
+            return
+        if isinstance(left, list) and left:
+            self.queue = left
+            print(f"[{VERSION}] 지난번에 못 올린 {len(left)}개를 들고 시작합니다")
+
+    def _save_spool(self):
+        try:
+            if self.queue:
+                with open(self.spool, "w", encoding="utf-8") as f:
+                    json.dump(self.queue, f, ensure_ascii=False)
+            elif os.path.exists(self.spool):
+                os.remove(self.spool)
+        except OSError as e:
+            say(f"  ⚠️ 대기 목록을 파일에 못 적었습니다 ({e})")
 
     def _endpoint(self, path=None):
         # 🔴 기본값에 RTDB_PATH 를 바로 쓰면 안 된다. 파이썬은 기본값을 함수를
@@ -339,27 +459,50 @@ class Uploader:
         with urllib.request.urlopen(req, timeout=5) as r:
             return json.loads(r.read().decode())
 
+    def flush(self):
+        """받쳐 둔 것을 지금 올려 본다.
+
+        🔴 send 안에서만 털면, 허브를 다시 켠 뒤 아무도 안 그리는 동안
+           지난번 것이 그대로 앉아 있는다. 켜자마자 한 번 턴다.
+        """
+        if self.dry or not self.queue:
+            return
+        n0 = len(self.queue)
+        while self.queue:
+            try:
+                self._put(self.queue[0])
+            except Exception as e:
+                print(f"[{VERSION}] 받쳐 둔 {len(self.queue)}개를 아직 못 올립니다 ({e})")
+                return
+            self.queue.pop(0)
+            self.sent += 1
+            self._save_spool()
+        print(f"[{VERSION}] 받쳐 둔 {n0}개를 마저 올렸습니다")
+
     def send(self, crystal):
         line = json.dumps(crystal, ensure_ascii=False)
         if self.dry:
-            print(f"  [dry] {line}")
+            say(f"  [dry] {line}")
             self.sent += 1
             return
 
         self.queue.append(crystal)
+        self._save_spool()
         while self.queue:
             item = self.queue[0]
             try:
                 self._put(item)
             except Exception as e:
                 self.failed += 1
-                print(f"  업로드 실패 ({e}). {len(self.queue)}개를 들고 다음 획 때 다시 시도합니다.")
+                say(f"  업로드 실패 ({e}). {len(self.queue)}개를 들고 "
+                    f"다음 획 때 다시 시도합니다 (hub/outbox.json 에 받쳐 뒀습니다).")
                 return
             self.queue.pop(0)
+            self._save_spool()
             self.sent += 1
-            print(f"  올림 {self.sent}번째  {item['feeling']}  "
-                  f"press {item['press']}  speed {item['speed']}  "
-                  f"elong {item['elong']}  conf {item['conf']}")
+            say(f"  올림 {self.sent}번째  {item['feeling']}  "
+                f"press {item['press']}  speed {item['speed']}  "
+                f"elong {item['elong']}  conf {item['conf']}")
 
     def check(self):
         """ESP32 없이 연결만 본다. 읽기, 쓰기, 지우기를 차례로 해 본다."""
@@ -422,23 +565,126 @@ class Uploader:
 #  입력: 시리얼 또는 녹화 재생
 # ---------------------------------------------------------------
 
-def frames_from_serial(port):
+# 블루투스 가상 포트. ESP32 를 찾을 때 건너뛴다. 열면 몇 초씩 걸린다.
+SKIP_PORTS = ("Bluetooth", "debug-console", "BeoplayH9", "Earbuds", "AirPods")
+
+
+def list_ports():
+    """꽂혀 있는 시리얼 포트. 블루투스는 뺀다."""
+    try:
+        from serial.tools import list_ports as lp
+    except ImportError:
+        return []
+    out = []
+    for p in lp.comports():
+        if any(k.lower() in p.device.lower() for k in SKIP_PORTS):
+            continue
+        out.append(p.device)
+    return out
+
+
+def find_esp32(seconds=2.0):
+    """ESP32 를 스스로 찾는다. D, 로 시작하는 줄을 보내는 포트가 그것이다.
+
+    🔴 포트 이름을 외워서 치게 하면 안 된다. 케이블이나 칩이 바뀌면
+       /dev/cu.usbserial-0001 이 wchusbserial 이나 SLAB_USBtoUART 가 된다.
+       현장에서 이걸로 막히면 시연이 멈춘다. 그냥 찾아서 연다.
+    """
     import serial
-    ser = serial.Serial(port, BAUD, timeout=1)
-    print(f"[{VERSION}] {port} 열었습니다. 처음 2초는 천에서 손을 떼 주세요 (기준 거리 측정).")
-    while True:
-        raw = ser.readline().decode(errors="ignore").strip()
-        if not raw or raw.startswith("#"):
-            if raw:
-                print(f"  esp32: {raw}")
-            continue
-        if not raw.startswith("D,"):
-            continue
+    ports = list_ports()
+    if not ports:
+        return None
+    print(f"[{VERSION}] 포트를 찾는 중: {', '.join(ports)}")
+    for dev in ports:
         try:
-            dist = [int(v) for v in raw.split(",")[1:]]
-        except ValueError:
+            with serial.Serial(dev, BAUD, timeout=0.3) as ser:
+                end = time.time() + seconds
+                while time.time() < end:
+                    raw = ser.readline().decode(errors="ignore").strip()
+                    if raw.startswith("D,"):
+                        print(f"[{VERSION}] ESP32 를 찾았습니다: {dev}")
+                        return dev
+        except Exception:
             continue
-        yield dist, time.time()
+    return None
+
+
+def frames_from_serial(port=None, tracker=None, reconnect=True, stall=6.0):
+    """ESP32 에서 거리 아홉 개를 계속 받는다.
+
+    🔴 끊기면 다시 붙는다. 세 시간짜리 시연이라 USB 가 한 번 건드려지거나
+       ESP32 가 한 번 리셋되면 그것으로 끝나면 안 된다. 예전에는 예외가
+       그대로 올라와 허브가 죽었다.
+
+    🔴 열려 있는데 조용한 경우도 끊긴 것으로 본다. USB 는 멀쩡한데 ESP32 만
+       멎으면 포트는 계속 열려 있고 readline 이 빈 줄만 준다. 그 상태로
+       가만히 있으면 아무도 뭐가 잘못됐는지 모른다. stall 초 동안 D, 줄이
+       하나도 안 오면 닫고 다시 연다.
+    """
+    import serial
+    first = True
+    while True:
+        dev = port or find_esp32()
+        if not dev:
+            if not reconnect:
+                raise SystemExit(
+                    f"[{VERSION}] ESP32 를 못 찾았습니다.\n"
+                    f"  보이는 포트: {', '.join(list_ports()) or '없음'}\n"
+                    f"  USB 를 꽂고 다시 돌리거나 --port 로 직접 적어 주세요.")
+            print(f"[{VERSION}] ESP32 가 안 보입니다. 2초 뒤 다시 찾습니다.")
+            time.sleep(2)
+            continue
+
+        try:
+            ser = serial.Serial(dev, BAUD, timeout=1)
+        except Exception as e:
+            if not reconnect:
+                raise
+            print(f"[{VERSION}] {dev} 를 못 열었습니다 ({e}). 2초 뒤 다시.")
+            time.sleep(2)
+            continue
+
+        if first:
+            print(f"[{VERSION}] {dev} 열었습니다. "
+                  f"처음 2초는 천에서 손을 떼 주세요 (기준 거리 측정).")
+            first = False
+        else:
+            print(f"\n[{VERSION}] {dev} 에 다시 붙었습니다. "
+                  f"기준 거리를 다시 잽니다. 천에서 손을 떼 주세요.")
+            if tracker is not None:
+                tracker.recalibrate()
+
+        last = time.time()
+        try:
+            while True:
+                raw = ser.readline().decode(errors="ignore").strip()
+                if time.time() - last > stall:
+                    print(f"\n[{VERSION}] {stall:.0f}초 동안 센서 값이 없습니다. "
+                          f"다시 연결합니다.")
+                    break
+                if not raw:
+                    continue
+                if raw.startswith("#"):
+                    print(f"  esp32: {raw}")
+                    continue
+                if not raw.startswith("D,"):
+                    continue
+                try:
+                    dist = [int(v) for v in raw.split(",")[1:]]
+                except ValueError:
+                    continue
+                last = time.time()
+                yield dist, time.time()
+        except Exception as e:
+            print(f"\n[{VERSION}] 시리얼이 끊겼습니다 ({e}).")
+        finally:
+            try:
+                ser.close()
+            except Exception:
+                pass
+        if not reconnect:
+            return
+        time.sleep(1)
 
 
 def frames_from_csv(path, realtime=True):
@@ -469,6 +715,9 @@ def main():
     ap.add_argument("--fast", action="store_true", help="mock 을 실시간 대기 없이 빠르게")
     ap.add_argument("--check", action="store_true",
                     help="ESP32 없이 Firebase 읽기/쓰기/지우기만 확인")
+    ap.add_argument("--selftest", action="store_true",
+                    help="센서만 본다. 아홉 개 거리를 실시간으로 찍고 올리지 않는다")
+    ap.add_argument("--ports", action="store_true", help="보이는 시리얼 포트만 찍고 끝")
     args = ap.parse_args()
     # 🔴 --path 는 모듈 전역을 갈아끼운다. _endpoint 와 --check 가 전부 이걸
     #    본다. 시험용 자리를 쓰면 화면에 크게 알린다. 전시용에 섞어 쓰면
@@ -481,35 +730,68 @@ def main():
         print(f"[{VERSION}]    웹에서는 ?dbpath={RTDB_PATH}&feed=live 로 봅니다")
     load_env_file()
 
+    if args.ports:
+        found = list_ports()
+        print("보이는 포트: " + (", ".join(found) if found else "없음"))
+        if found:
+            dev = find_esp32()
+            print("ESP32: " + (dev or "D, 를 보내는 포트가 없습니다"))
+        return 0
+
     if args.check:
         print(f"=== {VERSION} 연결 확인 ===")
         return Uploader().check()
 
-    if not args.port and not args.mock:
-        ap.error("--port 또는 --mock 또는 --check 중 하나가 필요합니다")
+    # 🔴 포트를 안 적으면 찾아 준다. 이름을 외워 치게 하면 현장에서 막힌다.
+    #    케이블이나 칩이 바뀌면 usbserial 이 wchusbserial 이 된다.
     if PLAYGROUND_ERR:
         sys.exit(PLAYGROUND_ERR)
 
-    print(f"=== {VERSION} ===")
-    up = Uploader(dry=args.dry)
+    selftest = args.selftest
+    print(f"=== {VERSION}{' 센서 점검' if selftest else ''} ===")
+    if selftest:
+        print("올리지 않습니다. 천을 눌러 보면서 아래 숫자가 움직이는지 보세요.")
+        print("  --  은 그 센서가 안 읽히는 것입니다. 배선을 보세요.\n")
+
+    up = Uploader(dry=args.dry or selftest)
+    up.flush()                      # 지난번에 못 올린 것부터 턴다
     tracker = Tracker()
+    strokes = 0
 
     def on_clean(clean, feel):
+        nonlocal strokes
+        strokes += 1
         dur = (tracker.stroke_t1 - tracker.stroke_t0) if tracker.stroke_t0 else 0.0
         up.send(build_crystal(clean, feel, dur))
 
     tracker.on_clean = on_clean
 
-    frames = (frames_from_csv(args.mock, realtime=not args.fast)
-              if args.mock else frames_from_serial(args.port))
+    frames = (frames_from_csv(args.mock, realtime=not args.fast) if args.mock
+              else frames_from_serial(args.port, tracker=tracker))
     try:
         for dist, t in frames:
             tracker.feed(dist, t)
+            STATUS.show(sensor_line(tracker) if selftest
+                        else status_line(tracker, up, strokes))
     except KeyboardInterrupt:
         pass
     finally:
+        STATUS.clear()
         tracker.finish_now()
-        print(f"\n끝. 올린 크리스탈 {up.sent}개, 실패 {up.failed}개")
+        if selftest:
+            snap = tracker.snapshot()
+            alive = sum(1 for b in snap["baseline"] if b is not None)
+            print(f"\n끝. 센서 {alive}/9 가 읽혔고 획 {strokes}개를 잡았습니다.")
+            if alive < 9:
+                dead = [i for i, b in enumerate(snap["baseline"]) if b is None]
+                print(f"  🔴 {dead} 번 센서가 안 읽힙니다. 배선이나 I2C 주소를 보세요.")
+            elif strokes == 0:
+                print("  ⚠️ 획이 하나도 안 잡혔습니다. 천을 더 깊게 눌러 보세요.")
+            else:
+                print("  좋습니다. 이제 --path crystals_test 로 올려 보세요.")
+        else:
+            print(f"\n끝. 올린 크리스탈 {up.sent}개, 실패 {up.failed}개"
+                  + (f", 못 올리고 남은 것 {len(up.queue)}개" if up.queue else ""))
 
 
 if __name__ == "__main__":

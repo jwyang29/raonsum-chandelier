@@ -7,3 +7,6 @@ __pycache__/
 
 # 현장 사진. 다른 사람이 찍혀 있어 올리지 않는다 (photo_test.html 이 로컬에서 쓴다)
 markers/_photos/
+
+# 못 올린 크리스탈을 잠깐 받쳐 두는 곳. 관객 데이터라 올리지 않는다.
+hub/outbox.json
