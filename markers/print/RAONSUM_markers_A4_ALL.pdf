@@ -12,7 +12,7 @@ endobj
 << /Type /Page /Parent 2 0 R /MediaBox [0 0 595.2756 841.8898] /Resources << /Font << /F1 3 0 R >> >> /Contents 5 0 R >>
 endobj
 5 0 obj
-<< /Length 2544 >>
+<< /Length 2673 >>
 stream
 BT /F1 17 Tf 0.1 g 56.6929 756.8504 Td (FACETS BETWEEN US) Tj ET
 BT /F1 11 Tf 0.4 g 56.6929 731.3386 Td (marker sheets) Tj ET
@@ -46,12 +46,13 @@ BT /F1 9.5 Tf 0.1 g 130.3937 337.3228 Td (CEILING   barcode 26   \(optional\)) T
 BT /F1 9.5 Tf 0.25 g 340.1575 337.3228 Td (133 mm) Tj ET
 0.25 G 0.4 w
 56.6929 287.7165 m 538.5827 287.7165 l S
-BT /F1 9 Tf 0.2 g 56.6929 250.8661 Td (FLOOR  put the 4 sheets 420 mm from the pedestal axis,) Tj ET
+BT /F1 9 Tf 0.2 g 56.6929 250.8661 Td (FLOOR  put the 4 sheets 450 mm from the pedestal axis,) Tj ET
 BT /F1 9 Tf 0.2 g 56.6929 222.5197 Td (       all four facing the SAME way \(tops toward marker 44\).) Tj ET
-BT /F1 9 Tf 0.2 g 56.6929 194.1732 Td (CUBE   4 sides + 1 bottom + 1 top.  the top has no marker,) Tj ET
-BT /F1 9 Tf 0.2 g 56.6929 165.8268 Td (       only the 2 holes for the fishing line.) Tj ET
-BT /F1 9 Tf 0.2 g 56.6929 137.4803 Td (       fold the tabs IN so only markers show outside.) Tj ET
-BT /F1 9 Tf 0.2 g 56.6929 109.1339 Td (CEILING  optional. the cube bottoms already cover that view.) Tj ET
+BT /F1 9 Tf 0.2 g 56.6929 194.1732 Td (CUBE   4 sides + 1 bottom + 1 top.  FACES ONLY, no fold tabs.) Tj ET
+BT /F1 9 Tf 0.2 g 56.6929 165.8268 Td (       cut each square and glue it flat on the foam face.) Tj ET
+BT /F1 9 Tf 0.2 g 56.6929 137.4803 Td (       the sheet TOP edge goes toward the cube TOP on side faces.) Tj ET
+BT /F1 9 Tf 0.2 g 56.6929 109.1339 Td (TOP    no marker. only the 2 holes for the fishing line.) Tj ET
+BT /F1 9 Tf 0.2 g 56.6929 80.7874 Td (CEILING  optional. the cube bottoms already cover that view.) Tj ET
 BT /F1 7.5 Tf 0.55 g 56.6929 45.3543 Td (raonsum-chandelier / markers/make_pdf.py) Tj ET
 endstream
 endobj
@@ -179,1083 +180,795 @@ endobj
 << /Type /Page /Parent 2 0 R /MediaBox [0 0 595.2756 841.8898] /Resources << /Font << /F1 3 0 R >> >> /Contents 15 0 R >>
 endobj
 15 0 obj
-<< /Length 1258 >>
+<< /Length 1360 >>
 stream
-0.2000 g 174.8031 264.0945 245.6693 245.6693 re f
+0.2000 g 174.8031 281.1024 245.6693 245.6693 re f
 1 g
-272.8743 411.2995 49.5269 49.5269 re f
-223.7405 362.1657 49.5269 49.5269 re f
-322.0082 362.1657 49.5269 49.5269 re f
-322.0082 313.0318 49.5269 49.5269 re f
-0.45 G 0.3 w
-481.8898 202.6772 m
-515.9055 236.6929 l
-515.9055 537.1654 l
-481.8898 571.1811 l
+272.8743 428.3074 49.5269 49.5269 re f
+223.7405 379.1735 49.5269 49.5269 re f
+322.0082 379.1735 49.5269 49.5269 re f
+322.0082 330.0397 49.5269 49.5269 re f
+0.35 G 0.35 w
+113.3858 219.6850 m
+481.8898 219.6850 l
+481.8898 588.1890 l
+113.3858 588.1890 l
+h
 S
-0.55 G 0.35 w
-[2.2 1.8] 0 d
-481.8898 202.6772 m
-481.8898 571.1811 l
-S
-[] 0 d
-0.45 G 0.3 w
-113.3858 202.6772 m
-481.8898 202.6772 l
-S
-0.45 G 0.3 w
-481.8898 571.1811 m
-113.3858 571.1811 l
-S
-0.45 G 0.3 w
-113.3858 571.1811 m
-113.3858 202.6772 l
-S
-BT /F1 12 Tf 0.1 g 210.6378 633.5433 Td (CUBE 1   face +Z   barcode 21) Tj ET
-BT /F1 9 Tf 0.3 g 205.3878 613.7008 Td (this face must look toward FLOOR marker 0) Tj ET
-BT /F1 8.5 Tf 0.3 g 210.5128 148.8189 Td (fold the right tab IN, glue it to face +X) Tj ET
-BT /F1 8 Tf 0.4 g 219.6378 128.9764 Td (cube edge 130 mm   black square 86.7 mm) Tj ET
+0.75 g 0.3 w
+107.7165 219.6850 m 119.0551 219.6850 l S
+113.3858 214.0157 m 113.3858 225.3543 l S
+476.2205 219.6850 m 487.5591 219.6850 l S
+481.8898 214.0157 m 481.8898 225.3543 l S
+107.7165 588.1890 m 119.0551 588.1890 l S
+113.3858 582.5197 m 113.3858 593.8583 l S
+476.2205 588.1890 m 487.5591 588.1890 l S
+481.8898 582.5197 m 481.8898 593.8583 l S
+BT /F1 12 Tf 0.1 g 210.6378 627.8740 Td (CUBE 1   face +Z   barcode 21) Tj ET
+BT /F1 9 Tf 0.3 g 205.3878 608.0315 Td (this face must look toward FLOOR marker 0) Tj ET
+BT /F1 8.5 Tf 0.3 g 182.8878 188.5039 Td (cut the solid square and glue it flat on the foam face) Tj ET
+BT /F1 8 Tf 0.4 g 219.6378 168.6614 Td (cube edge 130 mm   black square 86.7 mm) Tj ET
 0.2 g 0.35 w
-155.9055 103.4646 m 439.3701 103.4646 l S
-155.9055 97.7953 m 155.9055 109.1339 l S
-439.3701 97.7953 m 439.3701 109.1339 l S
-BT /F1 7.5 Tf 0.35 g 188.8878 89.2913 Td (this line must measure 100 mm  \(print at 100%, no scaling\)) Tj ET
-BT /F1 7.5 Tf 0.5 g 164.5128 28.3465 Td (cut the solid line, crease the dashed line. 100% scale, no fit to page.) Tj ET
+155.9055 143.1496 m 439.3701 143.1496 l S
+155.9055 137.4803 m 155.9055 148.8189 l S
+439.3701 137.4803 m 439.3701 148.8189 l S
+BT /F1 7.5 Tf 0.35 g 188.8878 128.9764 Td (this line must measure 100 mm  \(print at 100%, no scaling\)) Tj ET
+BT /F1 7.5 Tf 0.5 g 209.5128 28.3465 Td (cut the solid line. 100% scale, no fit to page.) Tj ET
 endstream
 endobj
 16 0 obj
 << /Type /Page /Parent 2 0 R /MediaBox [0 0 595.2756 841.8898] /Resources << /Font << /F1 3 0 R >> >> /Contents 17 0 R >>
 endobj
 17 0 obj
-<< /Length 1259 >>
+<< /Length 1361 >>
 stream
-0.2000 g 174.8031 264.0945 245.6693 245.6693 re f
+0.2000 g 174.8031 281.1024 245.6693 245.6693 re f
 1 g
-223.7405 362.1657 49.5269 49.5269 re f
-322.0082 362.1657 49.5269 49.5269 re f
-272.8743 313.0318 49.5269 49.5269 re f
-322.0082 313.0318 49.5269 49.5269 re f
-0.45 G 0.3 w
-481.8898 202.6772 m
-515.9055 236.6929 l
-515.9055 537.1654 l
-481.8898 571.1811 l
+223.7405 379.1735 49.5269 49.5269 re f
+322.0082 379.1735 49.5269 49.5269 re f
+272.8743 330.0397 49.5269 49.5269 re f
+322.0082 330.0397 49.5269 49.5269 re f
+0.35 G 0.35 w
+113.3858 219.6850 m
+481.8898 219.6850 l
+481.8898 588.1890 l
+113.3858 588.1890 l
+h
 S
-0.55 G 0.35 w
-[2.2 1.8] 0 d
-481.8898 202.6772 m
-481.8898 571.1811 l
-S
-[] 0 d
-0.45 G 0.3 w
-113.3858 202.6772 m
-481.8898 202.6772 l
-S
-0.45 G 0.3 w
-481.8898 571.1811 m
-113.3858 571.1811 l
-S
-0.45 G 0.3 w
-113.3858 571.1811 m
-113.3858 202.6772 l
-S
-BT /F1 12 Tf 0.1 g 210.6378 633.5433 Td (CUBE 1   face +X   barcode 52) Tj ET
-BT /F1 9 Tf 0.3 g 203.1378 613.7008 Td (this face must look toward FLOOR marker 63) Tj ET
-BT /F1 8.5 Tf 0.3 g 210.5128 148.8189 Td (fold the right tab IN, glue it to face -Z) Tj ET
-BT /F1 8 Tf 0.4 g 219.6378 128.9764 Td (cube edge 130 mm   black square 86.7 mm) Tj ET
+0.75 g 0.3 w
+107.7165 219.6850 m 119.0551 219.6850 l S
+113.3858 214.0157 m 113.3858 225.3543 l S
+476.2205 219.6850 m 487.5591 219.6850 l S
+481.8898 214.0157 m 481.8898 225.3543 l S
+107.7165 588.1890 m 119.0551 588.1890 l S
+113.3858 582.5197 m 113.3858 593.8583 l S
+476.2205 588.1890 m 487.5591 588.1890 l S
+481.8898 582.5197 m 481.8898 593.8583 l S
+BT /F1 12 Tf 0.1 g 210.6378 627.8740 Td (CUBE 1   face +X   barcode 52) Tj ET
+BT /F1 9 Tf 0.3 g 203.1378 608.0315 Td (this face must look toward FLOOR marker 63) Tj ET
+BT /F1 8.5 Tf 0.3 g 182.8878 188.5039 Td (cut the solid square and glue it flat on the foam face) Tj ET
+BT /F1 8 Tf 0.4 g 219.6378 168.6614 Td (cube edge 130 mm   black square 86.7 mm) Tj ET
 0.2 g 0.35 w
-155.9055 103.4646 m 439.3701 103.4646 l S
-155.9055 97.7953 m 155.9055 109.1339 l S
-439.3701 97.7953 m 439.3701 109.1339 l S
-BT /F1 7.5 Tf 0.35 g 188.8878 89.2913 Td (this line must measure 100 mm  \(print at 100%, no scaling\)) Tj ET
-BT /F1 7.5 Tf 0.5 g 164.5128 28.3465 Td (cut the solid line, crease the dashed line. 100% scale, no fit to page.) Tj ET
+155.9055 143.1496 m 439.3701 143.1496 l S
+155.9055 137.4803 m 155.9055 148.8189 l S
+439.3701 137.4803 m 439.3701 148.8189 l S
+BT /F1 7.5 Tf 0.35 g 188.8878 128.9764 Td (this line must measure 100 mm  \(print at 100%, no scaling\)) Tj ET
+BT /F1 7.5 Tf 0.5 g 209.5128 28.3465 Td (cut the solid line. 100% scale, no fit to page.) Tj ET
 endstream
 endobj
 18 0 obj
 << /Type /Page /Parent 2 0 R /MediaBox [0 0 595.2756 841.8898] /Resources << /Font << /F1 3 0 R >> >> /Contents 19 0 R >>
 endobj
 19 0 obj
-<< /Length 1259 >>
+<< /Length 1361 >>
 stream
-0.2000 g 174.8031 264.0945 245.6693 245.6693 re f
+0.2000 g 174.8031 281.1024 245.6693 245.6693 re f
 1 g
-223.7405 362.1657 49.5269 49.5269 re f
-272.8743 362.1657 49.5269 49.5269 re f
-272.8743 313.0318 49.5269 49.5269 re f
-322.0082 313.0318 49.5269 49.5269 re f
-0.45 G 0.3 w
-481.8898 202.6772 m
-515.9055 236.6929 l
-515.9055 537.1654 l
-481.8898 571.1811 l
+223.7405 379.1735 49.5269 49.5269 re f
+272.8743 379.1735 49.5269 49.5269 re f
+272.8743 330.0397 49.5269 49.5269 re f
+322.0082 330.0397 49.5269 49.5269 re f
+0.35 G 0.35 w
+113.3858 219.6850 m
+481.8898 219.6850 l
+481.8898 588.1890 l
+113.3858 588.1890 l
+h
 S
-0.55 G 0.35 w
-[2.2 1.8] 0 d
-481.8898 202.6772 m
-481.8898 571.1811 l
-S
-[] 0 d
-0.45 G 0.3 w
-113.3858 202.6772 m
-481.8898 202.6772 l
-S
-0.45 G 0.3 w
-481.8898 571.1811 m
-113.3858 571.1811 l
-S
-0.45 G 0.3 w
-113.3858 571.1811 m
-113.3858 202.6772 l
-S
-BT /F1 12 Tf 0.1 g 210.6378 633.5433 Td (CUBE 1   face -Z   barcode 50) Tj ET
-BT /F1 9 Tf 0.3 g 203.1378 613.7008 Td (this face must look toward FLOOR marker 44) Tj ET
-BT /F1 8.5 Tf 0.3 g 210.5128 148.8189 Td (fold the right tab IN, glue it to face -X) Tj ET
-BT /F1 8 Tf 0.4 g 219.6378 128.9764 Td (cube edge 130 mm   black square 86.7 mm) Tj ET
+0.75 g 0.3 w
+107.7165 219.6850 m 119.0551 219.6850 l S
+113.3858 214.0157 m 113.3858 225.3543 l S
+476.2205 219.6850 m 487.5591 219.6850 l S
+481.8898 214.0157 m 481.8898 225.3543 l S
+107.7165 588.1890 m 119.0551 588.1890 l S
+113.3858 582.5197 m 113.3858 593.8583 l S
+476.2205 588.1890 m 487.5591 588.1890 l S
+481.8898 582.5197 m 481.8898 593.8583 l S
+BT /F1 12 Tf 0.1 g 210.6378 627.8740 Td (CUBE 1   face -Z   barcode 50) Tj ET
+BT /F1 9 Tf 0.3 g 203.1378 608.0315 Td (this face must look toward FLOOR marker 44) Tj ET
+BT /F1 8.5 Tf 0.3 g 182.8878 188.5039 Td (cut the solid square and glue it flat on the foam face) Tj ET
+BT /F1 8 Tf 0.4 g 219.6378 168.6614 Td (cube edge 130 mm   black square 86.7 mm) Tj ET
 0.2 g 0.35 w
-155.9055 103.4646 m 439.3701 103.4646 l S
-155.9055 97.7953 m 155.9055 109.1339 l S
-439.3701 97.7953 m 439.3701 109.1339 l S
-BT /F1 7.5 Tf 0.35 g 188.8878 89.2913 Td (this line must measure 100 mm  \(print at 100%, no scaling\)) Tj ET
-BT /F1 7.5 Tf 0.5 g 164.5128 28.3465 Td (cut the solid line, crease the dashed line. 100% scale, no fit to page.) Tj ET
+155.9055 143.1496 m 439.3701 143.1496 l S
+155.9055 137.4803 m 155.9055 148.8189 l S
+439.3701 137.4803 m 439.3701 148.8189 l S
+BT /F1 7.5 Tf 0.35 g 188.8878 128.9764 Td (this line must measure 100 mm  \(print at 100%, no scaling\)) Tj ET
+BT /F1 7.5 Tf 0.5 g 209.5128 28.3465 Td (cut the solid line. 100% scale, no fit to page.) Tj ET
 endstream
 endobj
 20 0 obj
 << /Type /Page /Parent 2 0 R /MediaBox [0 0 595.2756 841.8898] /Resources << /Font << /F1 3 0 R >> >> /Contents 21 0 R >>
 endobj
 21 0 obj
-<< /Length 1258 >>
+<< /Length 1360 >>
 stream
-0.2000 g 174.8031 264.0945 245.6693 245.6693 re f
+0.2000 g 174.8031 281.1024 245.6693 245.6693 re f
 1 g
-322.0082 411.2995 49.5269 49.5269 re f
-223.7405 362.1657 49.5269 49.5269 re f
-272.8743 313.0318 49.5269 49.5269 re f
-322.0082 313.0318 49.5269 49.5269 re f
-0.45 G 0.3 w
-481.8898 202.6772 m
-515.9055 236.6929 l
-515.9055 537.1654 l
-481.8898 571.1811 l
+322.0082 428.3074 49.5269 49.5269 re f
+223.7405 379.1735 49.5269 49.5269 re f
+272.8743 330.0397 49.5269 49.5269 re f
+322.0082 330.0397 49.5269 49.5269 re f
+0.35 G 0.35 w
+113.3858 219.6850 m
+481.8898 219.6850 l
+481.8898 588.1890 l
+113.3858 588.1890 l
+h
 S
-0.55 G 0.35 w
-[2.2 1.8] 0 d
-481.8898 202.6772 m
-481.8898 571.1811 l
-S
-[] 0 d
-0.45 G 0.3 w
-113.3858 202.6772 m
-481.8898 202.6772 l
-S
-0.45 G 0.3 w
-481.8898 571.1811 m
-113.3858 571.1811 l
-S
-0.45 G 0.3 w
-113.3858 571.1811 m
-113.3858 202.6772 l
-S
-BT /F1 12 Tf 0.1 g 210.6378 633.5433 Td (CUBE 1   face -X   barcode 38) Tj ET
-BT /F1 9 Tf 0.3 g 205.3878 613.7008 Td (this face must look toward FLOOR marker 7) Tj ET
-BT /F1 8.5 Tf 0.3 g 210.5128 148.8189 Td (fold the right tab IN, glue it to face +Z) Tj ET
-BT /F1 8 Tf 0.4 g 219.6378 128.9764 Td (cube edge 130 mm   black square 86.7 mm) Tj ET
+0.75 g 0.3 w
+107.7165 219.6850 m 119.0551 219.6850 l S
+113.3858 214.0157 m 113.3858 225.3543 l S
+476.2205 219.6850 m 487.5591 219.6850 l S
+481.8898 214.0157 m 481.8898 225.3543 l S
+107.7165 588.1890 m 119.0551 588.1890 l S
+113.3858 582.5197 m 113.3858 593.8583 l S
+476.2205 588.1890 m 487.5591 588.1890 l S
+481.8898 582.5197 m 481.8898 593.8583 l S
+BT /F1 12 Tf 0.1 g 210.6378 627.8740 Td (CUBE 1   face -X   barcode 38) Tj ET
+BT /F1 9 Tf 0.3 g 205.3878 608.0315 Td (this face must look toward FLOOR marker 7) Tj ET
+BT /F1 8.5 Tf 0.3 g 182.8878 188.5039 Td (cut the solid square and glue it flat on the foam face) Tj ET
+BT /F1 8 Tf 0.4 g 219.6378 168.6614 Td (cube edge 130 mm   black square 86.7 mm) Tj ET
 0.2 g 0.35 w
-155.9055 103.4646 m 439.3701 103.4646 l S
-155.9055 97.7953 m 155.9055 109.1339 l S
-439.3701 97.7953 m 439.3701 109.1339 l S
-BT /F1 7.5 Tf 0.35 g 188.8878 89.2913 Td (this line must measure 100 mm  \(print at 100%, no scaling\)) Tj ET
-BT /F1 7.5 Tf 0.5 g 164.5128 28.3465 Td (cut the solid line, crease the dashed line. 100% scale, no fit to page.) Tj ET
+155.9055 143.1496 m 439.3701 143.1496 l S
+155.9055 137.4803 m 155.9055 148.8189 l S
+439.3701 137.4803 m 439.3701 148.8189 l S
+BT /F1 7.5 Tf 0.35 g 188.8878 128.9764 Td (this line must measure 100 mm  \(print at 100%, no scaling\)) Tj ET
+BT /F1 7.5 Tf 0.5 g 209.5128 28.3465 Td (cut the solid line. 100% scale, no fit to page.) Tj ET
 endstream
 endobj
 22 0 obj
 << /Type /Page /Parent 2 0 R /MediaBox [0 0 595.2756 841.8898] /Resources << /Font << /F1 3 0 R >> >> /Contents 23 0 R >>
 endobj
 23 0 obj
-<< /Length 1625 >>
+<< /Length 1370 >>
 stream
-0.2000 g 174.8031 264.0945 245.6693 245.6693 re f
+0.2000 g 174.8031 281.1024 245.6693 245.6693 re f
 1 g
-272.8743 411.2995 49.5269 49.5269 re f
-322.0082 411.2995 49.5269 49.5269 re f
-272.8743 362.1657 49.5269 49.5269 re f
-322.0082 313.0318 49.5269 49.5269 re f
-0.45 G 0.3 w
-113.3858 202.6772 m
-147.4016 168.6614 l
-447.8740 168.6614 l
-481.8898 202.6772 l
+272.8743 428.3074 49.5269 49.5269 re f
+322.0082 428.3074 49.5269 49.5269 re f
+272.8743 379.1735 49.5269 49.5269 re f
+322.0082 330.0397 49.5269 49.5269 re f
+0.35 G 0.35 w
+113.3858 219.6850 m
+481.8898 219.6850 l
+481.8898 588.1890 l
+113.3858 588.1890 l
+h
 S
-0.55 G 0.35 w
-[2.2 1.8] 0 d
-113.3858 202.6772 m
-481.8898 202.6772 l
-S
-[] 0 d
-0.45 G 0.3 w
-481.8898 202.6772 m
-515.9055 236.6929 l
-515.9055 537.1654 l
-481.8898 571.1811 l
-S
-0.55 G 0.35 w
-[2.2 1.8] 0 d
-481.8898 202.6772 m
-481.8898 571.1811 l
-S
-[] 0 d
-0.45 G 0.3 w
-481.8898 571.1811 m
-447.8740 605.1969 l
-147.4016 605.1969 l
-113.3858 571.1811 l
-S
-0.55 G 0.35 w
-[2.2 1.8] 0 d
-481.8898 571.1811 m
-113.3858 571.1811 l
-S
-[] 0 d
-0.45 G 0.3 w
-113.3858 571.1811 m
-79.3701 537.1654 l
-79.3701 236.6929 l
-113.3858 202.6772 l
-S
-0.55 G 0.35 w
-[2.2 1.8] 0 d
-113.3858 571.1811 m
-113.3858 202.6772 l
-S
-[] 0 d
-BT /F1 12 Tf 0.1 g 198.6378 633.5433 Td (CUBE 1   face BOTTOM   barcode 11) Tj ET
-BT /F1 9 Tf 0.3 g 196.3878 613.7008 Td (this face looks straight DOWN \(the underside\)) Tj ET
-BT /F1 8.5 Tf 0.3 g 193.5128 148.8189 Td (fold the 4 tabs UP, the side faces glue over them) Tj ET
-BT /F1 8 Tf 0.4 g 219.6378 128.9764 Td (cube edge 130 mm   black square 86.7 mm) Tj ET
+0.75 g 0.3 w
+107.7165 219.6850 m 119.0551 219.6850 l S
+113.3858 214.0157 m 113.3858 225.3543 l S
+476.2205 219.6850 m 487.5591 219.6850 l S
+481.8898 214.0157 m 481.8898 225.3543 l S
+107.7165 588.1890 m 119.0551 588.1890 l S
+113.3858 582.5197 m 113.3858 593.8583 l S
+476.2205 588.1890 m 487.5591 588.1890 l S
+481.8898 582.5197 m 481.8898 593.8583 l S
+BT /F1 12 Tf 0.1 g 198.6378 627.8740 Td (CUBE 1   face BOTTOM   barcode 11) Tj ET
+BT /F1 9 Tf 0.3 g 196.3878 608.0315 Td (this face looks straight DOWN \(the underside\)) Tj ET
+BT /F1 8.5 Tf 0.3 g 182.8878 188.5039 Td (cut the solid square and glue it flat on the foam face) Tj ET
+BT /F1 8 Tf 0.4 g 219.6378 168.6614 Td (cube edge 130 mm   black square 86.7 mm) Tj ET
 0.2 g 0.35 w
-155.9055 103.4646 m 439.3701 103.4646 l S
-155.9055 97.7953 m 155.9055 109.1339 l S
-439.3701 97.7953 m 439.3701 109.1339 l S
-BT /F1 7.5 Tf 0.35 g 188.8878 89.2913 Td (this line must measure 100 mm  \(print at 100%, no scaling\)) Tj ET
-BT /F1 7.5 Tf 0.5 g 164.5128 28.3465 Td (cut the solid line, crease the dashed line. 100% scale, no fit to page.) Tj ET
+155.9055 143.1496 m 439.3701 143.1496 l S
+155.9055 137.4803 m 155.9055 148.8189 l S
+439.3701 137.4803 m 439.3701 148.8189 l S
+BT /F1 7.5 Tf 0.35 g 188.8878 128.9764 Td (this line must measure 100 mm  \(print at 100%, no scaling\)) Tj ET
+BT /F1 7.5 Tf 0.5 g 209.5128 28.3465 Td (cut the solid line. 100% scale, no fit to page.) Tj ET
 endstream
 endobj
 24 0 obj
 << /Type /Page /Parent 2 0 R /MediaBox [0 0 595.2756 841.8898] /Resources << /Font << /F1 3 0 R >> >> /Contents 25 0 R >>
 endobj
 25 0 obj
-<< /Length 1884 >>
+<< /Length 1652 >>
 stream
-0.45 G 0.3 w
-113.3858 202.6772 m
-147.4016 168.6614 l
-447.8740 168.6614 l
-481.8898 202.6772 l
+0.35 G 0.35 w
+113.3858 219.6850 m
+481.8898 219.6850 l
+481.8898 588.1890 l
+113.3858 588.1890 l
+h
 S
-0.55 G 0.35 w
-[2.2 1.8] 0 d
-113.3858 202.6772 m
-481.8898 202.6772 l
-S
-[] 0 d
-0.45 G 0.3 w
-481.8898 202.6772 m
-515.9055 236.6929 l
-515.9055 537.1654 l
-481.8898 571.1811 l
-S
-0.55 G 0.35 w
-[2.2 1.8] 0 d
-481.8898 202.6772 m
-481.8898 571.1811 l
-S
-[] 0 d
-0.45 G 0.3 w
-481.8898 571.1811 m
-447.8740 605.1969 l
-147.4016 605.1969 l
-113.3858 571.1811 l
-S
-0.55 G 0.35 w
-[2.2 1.8] 0 d
-481.8898 571.1811 m
-113.3858 571.1811 l
-S
-[] 0 d
-0.45 G 0.3 w
-113.3858 571.1811 m
-79.3701 537.1654 l
-79.3701 236.6929 l
-113.3858 202.6772 l
-S
-0.55 G 0.35 w
-[2.2 1.8] 0 d
-113.3858 571.1811 m
-113.3858 202.6772 l
-S
-[] 0 d
-BT /F1 12 Tf 0.1 g 222.6378 633.5433 Td (CUBE 1   TOP  \(no marker\)) Tj ET
-BT /F1 9 Tf 0.3 g 149.1378 613.7008 Td (2 holes for the fishing line. reinforce with tape before piercing.) Tj ET
-BT /F1 8.5 Tf 0.3 g 176.5128 148.8189 Td (fold the 4 tabs DOWN, tuck inside, glue to the side faces) Tj ET
-BT /F1 8 Tf 0.4 g 265.6378 128.9764 Td (cube edge 130 mm) Tj ET
+0.75 g 0.3 w
+107.7165 219.6850 m 119.0551 219.6850 l S
+113.3858 214.0157 m 113.3858 225.3543 l S
+476.2205 219.6850 m 487.5591 219.6850 l S
+481.8898 214.0157 m 481.8898 225.3543 l S
+107.7165 588.1890 m 119.0551 588.1890 l S
+113.3858 582.5197 m 113.3858 593.8583 l S
+476.2205 588.1890 m 487.5591 588.1890 l S
+481.8898 582.5197 m 481.8898 593.8583 l S
+BT /F1 12 Tf 0.1 g 222.6378 627.8740 Td (CUBE 1   TOP  \(no marker\)) Tj ET
+BT /F1 9 Tf 0.3 g 149.1378 608.0315 Td (2 holes for the fishing line. reinforce with tape before piercing.) Tj ET
+BT /F1 8.5 Tf 0.3 g 182.8878 188.5039 Td (cut the solid square and glue it flat on the foam face) Tj ET
+BT /F1 8 Tf 0.4 g 265.6378 168.6614 Td (cube edge 130 mm) Tj ET
 0.2 g 0.35 w
-155.9055 103.4646 m 439.3701 103.4646 l S
-155.9055 97.7953 m 155.9055 109.1339 l S
-439.3701 97.7953 m 439.3701 109.1339 l S
-BT /F1 7.5 Tf 0.35 g 188.8878 89.2913 Td (this line must measure 100 mm  \(print at 100%, no scaling\)) Tj ET
-BT /F1 7.5 Tf 0.5 g 164.5128 28.3465 Td (cut the solid line, crease the dashed line. 100% scale, no fit to page.) Tj ET
+155.9055 143.1496 m 439.3701 143.1496 l S
+155.9055 137.4803 m 155.9055 148.8189 l S
+439.3701 137.4803 m 439.3701 148.8189 l S
+BT /F1 7.5 Tf 0.35 g 188.8878 128.9764 Td (this line must measure 100 mm  \(print at 100%, no scaling\)) Tj ET
+BT /F1 7.5 Tf 0.5 g 209.5128 28.3465 Td (cut the solid line. 100% scale, no fit to page.) Tj ET
 0.1 G 0.4 w
-170.0787 386.9291 m
-175.7480 392.5984 l
-181.4173 386.9291 l
-175.7480 381.2598 l
+170.0787 403.9370 m
+175.7480 409.6063 l
+181.4173 403.9370 l
+175.7480 398.2677 l
 h
 S
 0.6 G 0.25 w
-155.9055 386.9291 m
-195.5906 386.9291 l
+155.9055 403.9370 m
+195.5906 403.9370 l
 S
 0.6 G 0.25 w
-175.7480 367.0866 m
-175.7480 406.7717 l
+175.7480 384.0945 m
+175.7480 423.7795 l
 S
 0.1 G 0.4 w
-413.8583 386.9291 m
-419.5276 392.5984 l
-425.1969 386.9291 l
-419.5276 381.2598 l
+413.8583 403.9370 m
+419.5276 409.6063 l
+425.1969 403.9370 l
+419.5276 398.2677 l
 h
 S
 0.6 G 0.25 w
-399.6850 386.9291 m
-439.3701 386.9291 l
+399.6850 403.9370 m
+439.3701 403.9370 l
 S
 0.6 G 0.25 w
-419.5276 367.0866 m
-419.5276 406.7717 l
+419.5276 384.0945 m
+419.5276 423.7795 l
 S
-BT /F1 8 Tf 0.4 g 275.6378 352.9134 Td (86 mm apart) Tj ET
+BT /F1 8 Tf 0.4 g 213.6378 369.9213 Td (holes 86 mm apart, 22 mm in from each edge) Tj ET
 endstream
 endobj
 26 0 obj
 << /Type /Page /Parent 2 0 R /MediaBox [0 0 595.2756 841.8898] /Resources << /Font << /F1 3 0 R >> >> /Contents 27 0 R >>
 endobj
 27 0 obj
-<< /Length 1256 >>
+<< /Length 1360 >>
 stream
-0.2000 g 170.0787 259.3701 255.1181 255.1181 re f
+0.2000 g 170.0787 276.3780 255.1181 255.1181 re f
 1 g
-271.9219 412.2369 51.4318 51.4318 re f
-322.9455 412.2369 51.4318 51.4318 re f
-271.9219 310.1896 51.4318 51.4318 re f
-322.9455 310.1896 51.4318 51.4318 re f
-0.45 G 0.3 w
-488.9764 195.5906 m
-522.9921 229.6063 l
-522.9921 544.2520 l
-488.9764 578.2677 l
+271.9219 429.2447 51.4318 51.4318 re f
+322.9455 429.2447 51.4318 51.4318 re f
+271.9219 327.1975 51.4318 51.4318 re f
+322.9455 327.1975 51.4318 51.4318 re f
+0.35 G 0.35 w
+106.2992 212.5984 m
+488.9764 212.5984 l
+488.9764 595.2756 l
+106.2992 595.2756 l
+h
 S
-0.55 G 0.35 w
-[2.2 1.8] 0 d
-488.9764 195.5906 m
-488.9764 578.2677 l
-S
-[] 0 d
-0.45 G 0.3 w
-106.2992 195.5906 m
-488.9764 195.5906 l
-S
-0.45 G 0.3 w
-488.9764 578.2677 m
-106.2992 578.2677 l
-S
-0.45 G 0.3 w
-106.2992 578.2677 m
-106.2992 195.5906 l
-S
-BT /F1 12 Tf 0.1 g 210.6378 640.6299 Td (CUBE 2   face +Z   barcode 14) Tj ET
-BT /F1 9 Tf 0.3 g 205.3878 620.7874 Td (this face must look toward FLOOR marker 0) Tj ET
-BT /F1 8.5 Tf 0.3 g 210.5128 141.7323 Td (fold the right tab IN, glue it to face +X) Tj ET
-BT /F1 8 Tf 0.4 g 219.6378 121.8898 Td (cube edge 135 mm   black square 90.0 mm) Tj ET
+0.75 g 0.3 w
+100.6299 212.5984 m 111.9685 212.5984 l S
+106.2992 206.9291 m 106.2992 218.2677 l S
+483.3071 212.5984 m 494.6457 212.5984 l S
+488.9764 206.9291 m 488.9764 218.2677 l S
+100.6299 595.2756 m 111.9685 595.2756 l S
+106.2992 589.6063 m 106.2992 600.9449 l S
+483.3071 595.2756 m 494.6457 595.2756 l S
+488.9764 589.6063 m 488.9764 600.9449 l S
+BT /F1 12 Tf 0.1 g 210.6378 634.9606 Td (CUBE 2   face +Z   barcode 14) Tj ET
+BT /F1 9 Tf 0.3 g 205.3878 615.1181 Td (this face must look toward FLOOR marker 0) Tj ET
+BT /F1 8.5 Tf 0.3 g 182.8878 181.4173 Td (cut the solid square and glue it flat on the foam face) Tj ET
+BT /F1 8 Tf 0.4 g 219.6378 161.5748 Td (cube edge 135 mm   black square 90.0 mm) Tj ET
 0.2 g 0.35 w
-155.9055 96.3780 m 439.3701 96.3780 l S
-155.9055 90.7087 m 155.9055 102.0472 l S
-439.3701 90.7087 m 439.3701 102.0472 l S
-BT /F1 7.5 Tf 0.35 g 188.8878 82.2047 Td (this line must measure 100 mm  \(print at 100%, no scaling\)) Tj ET
-BT /F1 7.5 Tf 0.5 g 164.5128 28.3465 Td (cut the solid line, crease the dashed line. 100% scale, no fit to page.) Tj ET
+155.9055 136.0630 m 439.3701 136.0630 l S
+155.9055 130.3937 m 155.9055 141.7323 l S
+439.3701 130.3937 m 439.3701 141.7323 l S
+BT /F1 7.5 Tf 0.35 g 188.8878 121.8898 Td (this line must measure 100 mm  \(print at 100%, no scaling\)) Tj ET
+BT /F1 7.5 Tf 0.5 g 209.5128 28.3465 Td (cut the solid line. 100% scale, no fit to page.) Tj ET
 endstream
 endobj
 28 0 obj
 << /Type /Page /Parent 2 0 R /MediaBox [0 0 595.2756 841.8898] /Resources << /Font << /F1 3 0 R >> >> /Contents 29 0 R >>
 endobj
 29 0 obj
-<< /Length 1257 >>
+<< /Length 1361 >>
 stream
-0.2000 g 170.0787 259.3701 255.1181 255.1181 re f
+0.2000 g 170.0787 276.3780 255.1181 255.1181 re f
 1 g
-271.9219 412.2369 51.4318 51.4318 re f
-322.9455 412.2369 51.4318 51.4318 re f
-322.9455 361.2132 51.4318 51.4318 re f
-322.9455 310.1896 51.4318 51.4318 re f
-0.45 G 0.3 w
-488.9764 195.5906 m
-522.9921 229.6063 l
-522.9921 544.2520 l
-488.9764 578.2677 l
+271.9219 429.2447 51.4318 51.4318 re f
+322.9455 429.2447 51.4318 51.4318 re f
+322.9455 378.2211 51.4318 51.4318 re f
+322.9455 327.1975 51.4318 51.4318 re f
+0.35 G 0.35 w
+106.2992 212.5984 m
+488.9764 212.5984 l
+488.9764 595.2756 l
+106.2992 595.2756 l
+h
 S
-0.55 G 0.35 w
-[2.2 1.8] 0 d
-488.9764 195.5906 m
-488.9764 578.2677 l
-S
-[] 0 d
-0.45 G 0.3 w
-106.2992 195.5906 m
-488.9764 195.5906 l
-S
-0.45 G 0.3 w
-488.9764 578.2677 m
-106.2992 578.2677 l
-S
-0.45 G 0.3 w
-106.2992 578.2677 m
-106.2992 195.5906 l
-S
-BT /F1 12 Tf 0.1 g 210.6378 640.6299 Td (CUBE 2   face +X   barcode 13) Tj ET
-BT /F1 9 Tf 0.3 g 203.1378 620.7874 Td (this face must look toward FLOOR marker 63) Tj ET
-BT /F1 8.5 Tf 0.3 g 210.5128 141.7323 Td (fold the right tab IN, glue it to face -Z) Tj ET
-BT /F1 8 Tf 0.4 g 219.6378 121.8898 Td (cube edge 135 mm   black square 90.0 mm) Tj ET
+0.75 g 0.3 w
+100.6299 212.5984 m 111.9685 212.5984 l S
+106.2992 206.9291 m 106.2992 218.2677 l S
+483.3071 212.5984 m 494.6457 212.5984 l S
+488.9764 206.9291 m 488.9764 218.2677 l S
+100.6299 595.2756 m 111.9685 595.2756 l S
+106.2992 589.6063 m 106.2992 600.9449 l S
+483.3071 595.2756 m 494.6457 595.2756 l S
+488.9764 589.6063 m 488.9764 600.9449 l S
+BT /F1 12 Tf 0.1 g 210.6378 634.9606 Td (CUBE 2   face +X   barcode 13) Tj ET
+BT /F1 9 Tf 0.3 g 203.1378 615.1181 Td (this face must look toward FLOOR marker 63) Tj ET
+BT /F1 8.5 Tf 0.3 g 182.8878 181.4173 Td (cut the solid square and glue it flat on the foam face) Tj ET
+BT /F1 8 Tf 0.4 g 219.6378 161.5748 Td (cube edge 135 mm   black square 90.0 mm) Tj ET
 0.2 g 0.35 w
-155.9055 96.3780 m 439.3701 96.3780 l S
-155.9055 90.7087 m 155.9055 102.0472 l S
-439.3701 90.7087 m 439.3701 102.0472 l S
-BT /F1 7.5 Tf 0.35 g 188.8878 82.2047 Td (this line must measure 100 mm  \(print at 100%, no scaling\)) Tj ET
-BT /F1 7.5 Tf 0.5 g 164.5128 28.3465 Td (cut the solid line, crease the dashed line. 100% scale, no fit to page.) Tj ET
+155.9055 136.0630 m 439.3701 136.0630 l S
+155.9055 130.3937 m 155.9055 141.7323 l S
+439.3701 130.3937 m 439.3701 141.7323 l S
+BT /F1 7.5 Tf 0.35 g 188.8878 121.8898 Td (this line must measure 100 mm  \(print at 100%, no scaling\)) Tj ET
+BT /F1 7.5 Tf 0.5 g 209.5128 28.3465 Td (cut the solid line. 100% scale, no fit to page.) Tj ET
 endstream
 endobj
 30 0 obj
 << /Type /Page /Parent 2 0 R /MediaBox [0 0 595.2756 841.8898] /Resources << /Font << /F1 3 0 R >> >> /Contents 31 0 R >>
 endobj
 31 0 obj
-<< /Length 1257 >>
+<< /Length 1361 >>
 stream
-0.2000 g 170.0787 259.3701 255.1181 255.1181 re f
+0.2000 g 170.0787 276.3780 255.1181 255.1181 re f
 1 g
-271.9219 412.2369 51.4318 51.4318 re f
-322.9455 361.2132 51.4318 51.4318 re f
-271.9219 310.1896 51.4318 51.4318 re f
-322.9455 310.1896 51.4318 51.4318 re f
-0.45 G 0.3 w
-488.9764 195.5906 m
-522.9921 229.6063 l
-522.9921 544.2520 l
-488.9764 578.2677 l
+271.9219 429.2447 51.4318 51.4318 re f
+322.9455 378.2211 51.4318 51.4318 re f
+271.9219 327.1975 51.4318 51.4318 re f
+322.9455 327.1975 51.4318 51.4318 re f
+0.35 G 0.35 w
+106.2992 212.5984 m
+488.9764 212.5984 l
+488.9764 595.2756 l
+106.2992 595.2756 l
+h
 S
-0.55 G 0.35 w
-[2.2 1.8] 0 d
-488.9764 195.5906 m
-488.9764 578.2677 l
-S
-[] 0 d
-0.45 G 0.3 w
-106.2992 195.5906 m
-488.9764 195.5906 l
-S
-0.45 G 0.3 w
-488.9764 578.2677 m
-106.2992 578.2677 l
-S
-0.45 G 0.3 w
-106.2992 578.2677 m
-106.2992 195.5906 l
-S
-BT /F1 12 Tf 0.1 g 210.6378 640.6299 Td (CUBE 2   face -Z   barcode 28) Tj ET
-BT /F1 9 Tf 0.3 g 203.1378 620.7874 Td (this face must look toward FLOOR marker 44) Tj ET
-BT /F1 8.5 Tf 0.3 g 210.5128 141.7323 Td (fold the right tab IN, glue it to face -X) Tj ET
-BT /F1 8 Tf 0.4 g 219.6378 121.8898 Td (cube edge 135 mm   black square 90.0 mm) Tj ET
+0.75 g 0.3 w
+100.6299 212.5984 m 111.9685 212.5984 l S
+106.2992 206.9291 m 106.2992 218.2677 l S
+483.3071 212.5984 m 494.6457 212.5984 l S
+488.9764 206.9291 m 488.9764 218.2677 l S
+100.6299 595.2756 m 111.9685 595.2756 l S
+106.2992 589.6063 m 106.2992 600.9449 l S
+483.3071 595.2756 m 494.6457 595.2756 l S
+488.9764 589.6063 m 488.9764 600.9449 l S
+BT /F1 12 Tf 0.1 g 210.6378 634.9606 Td (CUBE 2   face -Z   barcode 28) Tj ET
+BT /F1 9 Tf 0.3 g 203.1378 615.1181 Td (this face must look toward FLOOR marker 44) Tj ET
+BT /F1 8.5 Tf 0.3 g 182.8878 181.4173 Td (cut the solid square and glue it flat on the foam face) Tj ET
+BT /F1 8 Tf 0.4 g 219.6378 161.5748 Td (cube edge 135 mm   black square 90.0 mm) Tj ET
 0.2 g 0.35 w
-155.9055 96.3780 m 439.3701 96.3780 l S
-155.9055 90.7087 m 155.9055 102.0472 l S
-439.3701 90.7087 m 439.3701 102.0472 l S
-BT /F1 7.5 Tf 0.35 g 188.8878 82.2047 Td (this line must measure 100 mm  \(print at 100%, no scaling\)) Tj ET
-BT /F1 7.5 Tf 0.5 g 164.5128 28.3465 Td (cut the solid line, crease the dashed line. 100% scale, no fit to page.) Tj ET
+155.9055 136.0630 m 439.3701 136.0630 l S
+155.9055 130.3937 m 155.9055 141.7323 l S
+439.3701 130.3937 m 439.3701 141.7323 l S
+BT /F1 7.5 Tf 0.35 g 188.8878 121.8898 Td (this line must measure 100 mm  \(print at 100%, no scaling\)) Tj ET
+BT /F1 7.5 Tf 0.5 g 209.5128 28.3465 Td (cut the solid line. 100% scale, no fit to page.) Tj ET
 endstream
 endobj
 32 0 obj
 << /Type /Page /Parent 2 0 R /MediaBox [0 0 595.2756 841.8898] /Resources << /Font << /F1 3 0 R >> >> /Contents 33 0 R >>
 endobj
 33 0 obj
-<< /Length 1256 >>
+<< /Length 1360 >>
 stream
-0.2000 g 170.0787 259.3701 255.1181 255.1181 re f
+0.2000 g 170.0787 276.3780 255.1181 255.1181 re f
 1 g
-322.9455 412.2369 51.4318 51.4318 re f
-271.9219 361.2132 51.4318 51.4318 re f
-322.9455 361.2132 51.4318 51.4318 re f
-322.9455 310.1896 51.4318 51.4318 re f
-0.45 G 0.3 w
-488.9764 195.5906 m
-522.9921 229.6063 l
-522.9921 544.2520 l
-488.9764 578.2677 l
+322.9455 429.2447 51.4318 51.4318 re f
+271.9219 378.2211 51.4318 51.4318 re f
+322.9455 378.2211 51.4318 51.4318 re f
+322.9455 327.1975 51.4318 51.4318 re f
+0.35 G 0.35 w
+106.2992 212.5984 m
+488.9764 212.5984 l
+488.9764 595.2756 l
+106.2992 595.2756 l
+h
 S
-0.55 G 0.35 w
-[2.2 1.8] 0 d
-488.9764 195.5906 m
-488.9764 578.2677 l
-S
-[] 0 d
-0.45 G 0.3 w
-106.2992 195.5906 m
-488.9764 195.5906 l
-S
-0.45 G 0.3 w
-488.9764 578.2677 m
-106.2992 578.2677 l
-S
-0.45 G 0.3 w
-106.2992 578.2677 m
-106.2992 195.5906 l
-S
-BT /F1 12 Tf 0.1 g 210.6378 640.6299 Td (CUBE 2   face -X   barcode 41) Tj ET
-BT /F1 9 Tf 0.3 g 205.3878 620.7874 Td (this face must look toward FLOOR marker 7) Tj ET
-BT /F1 8.5 Tf 0.3 g 210.5128 141.7323 Td (fold the right tab IN, glue it to face +Z) Tj ET
-BT /F1 8 Tf 0.4 g 219.6378 121.8898 Td (cube edge 135 mm   black square 90.0 mm) Tj ET
+0.75 g 0.3 w
+100.6299 212.5984 m 111.9685 212.5984 l S
+106.2992 206.9291 m 106.2992 218.2677 l S
+483.3071 212.5984 m 494.6457 212.5984 l S
+488.9764 206.9291 m 488.9764 218.2677 l S
+100.6299 595.2756 m 111.9685 595.2756 l S
+106.2992 589.6063 m 106.2992 600.9449 l S
+483.3071 595.2756 m 494.6457 595.2756 l S
+488.9764 589.6063 m 488.9764 600.9449 l S
+BT /F1 12 Tf 0.1 g 210.6378 634.9606 Td (CUBE 2   face -X   barcode 41) Tj ET
+BT /F1 9 Tf 0.3 g 205.3878 615.1181 Td (this face must look toward FLOOR marker 7) Tj ET
+BT /F1 8.5 Tf 0.3 g 182.8878 181.4173 Td (cut the solid square and glue it flat on the foam face) Tj ET
+BT /F1 8 Tf 0.4 g 219.6378 161.5748 Td (cube edge 135 mm   black square 90.0 mm) Tj ET
 0.2 g 0.35 w
-155.9055 96.3780 m 439.3701 96.3780 l S
-155.9055 90.7087 m 155.9055 102.0472 l S
-439.3701 90.7087 m 439.3701 102.0472 l S
-BT /F1 7.5 Tf 0.35 g 188.8878 82.2047 Td (this line must measure 100 mm  \(print at 100%, no scaling\)) Tj ET
-BT /F1 7.5 Tf 0.5 g 164.5128 28.3465 Td (cut the solid line, crease the dashed line. 100% scale, no fit to page.) Tj ET
+155.9055 136.0630 m 439.3701 136.0630 l S
+155.9055 130.3937 m 155.9055 141.7323 l S
+439.3701 130.3937 m 439.3701 141.7323 l S
+BT /F1 7.5 Tf 0.35 g 188.8878 121.8898 Td (this line must measure 100 mm  \(print at 100%, no scaling\)) Tj ET
+BT /F1 7.5 Tf 0.5 g 209.5128 28.3465 Td (cut the solid line. 100% scale, no fit to page.) Tj ET
 endstream
 endobj
 34 0 obj
 << /Type /Page /Parent 2 0 R /MediaBox [0 0 595.2756 841.8898] /Resources << /Font << /F1 3 0 R >> >> /Contents 35 0 R >>
 endobj
 35 0 obj
-<< /Length 1623 >>
+<< /Length 1370 >>
 stream
-0.2000 g 170.0787 259.3701 255.1181 255.1181 re f
+0.2000 g 170.0787 276.3780 255.1181 255.1181 re f
 1 g
-271.9219 412.2369 51.4318 51.4318 re f
-220.8983 361.2132 51.4318 51.4318 re f
-271.9219 361.2132 51.4318 51.4318 re f
-322.9455 310.1896 51.4318 51.4318 re f
-0.45 G 0.3 w
-106.2992 195.5906 m
-140.3150 161.5748 l
-454.9606 161.5748 l
-488.9764 195.5906 l
+271.9219 429.2447 51.4318 51.4318 re f
+220.8983 378.2211 51.4318 51.4318 re f
+271.9219 378.2211 51.4318 51.4318 re f
+322.9455 327.1975 51.4318 51.4318 re f
+0.35 G 0.35 w
+106.2992 212.5984 m
+488.9764 212.5984 l
+488.9764 595.2756 l
+106.2992 595.2756 l
+h
 S
-0.55 G 0.35 w
-[2.2 1.8] 0 d
-106.2992 195.5906 m
-488.9764 195.5906 l
-S
-[] 0 d
-0.45 G 0.3 w
-488.9764 195.5906 m
-522.9921 229.6063 l
-522.9921 544.2520 l
-488.9764 578.2677 l
-S
-0.55 G 0.35 w
-[2.2 1.8] 0 d
-488.9764 195.5906 m
-488.9764 578.2677 l
-S
-[] 0 d
-0.45 G 0.3 w
-488.9764 578.2677 m
-454.9606 612.2835 l
-140.3150 612.2835 l
-106.2992 578.2677 l
-S
-0.55 G 0.35 w
-[2.2 1.8] 0 d
-488.9764 578.2677 m
-106.2992 578.2677 l
-S
-[] 0 d
-0.45 G 0.3 w
-106.2992 578.2677 m
-72.2835 544.2520 l
-72.2835 229.6063 l
-106.2992 195.5906 l
-S
-0.55 G 0.35 w
-[2.2 1.8] 0 d
-106.2992 578.2677 m
-106.2992 195.5906 l
-S
-[] 0 d
-BT /F1 12 Tf 0.1 g 198.6378 640.6299 Td (CUBE 2   face BOTTOM   barcode 19) Tj ET
-BT /F1 9 Tf 0.3 g 196.3878 620.7874 Td (this face looks straight DOWN \(the underside\)) Tj ET
-BT /F1 8.5 Tf 0.3 g 193.5128 141.7323 Td (fold the 4 tabs UP, the side faces glue over them) Tj ET
-BT /F1 8 Tf 0.4 g 219.6378 121.8898 Td (cube edge 135 mm   black square 90.0 mm) Tj ET
+0.75 g 0.3 w
+100.6299 212.5984 m 111.9685 212.5984 l S
+106.2992 206.9291 m 106.2992 218.2677 l S
+483.3071 212.5984 m 494.6457 212.5984 l S
+488.9764 206.9291 m 488.9764 218.2677 l S
+100.6299 595.2756 m 111.9685 595.2756 l S
+106.2992 589.6063 m 106.2992 600.9449 l S
+483.3071 595.2756 m 494.6457 595.2756 l S
+488.9764 589.6063 m 488.9764 600.9449 l S
+BT /F1 12 Tf 0.1 g 198.6378 634.9606 Td (CUBE 2   face BOTTOM   barcode 19) Tj ET
+BT /F1 9 Tf 0.3 g 196.3878 615.1181 Td (this face looks straight DOWN \(the underside\)) Tj ET
+BT /F1 8.5 Tf 0.3 g 182.8878 181.4173 Td (cut the solid square and glue it flat on the foam face) Tj ET
+BT /F1 8 Tf 0.4 g 219.6378 161.5748 Td (cube edge 135 mm   black square 90.0 mm) Tj ET
 0.2 g 0.35 w
-155.9055 96.3780 m 439.3701 96.3780 l S
-155.9055 90.7087 m 155.9055 102.0472 l S
-439.3701 90.7087 m 439.3701 102.0472 l S
-BT /F1 7.5 Tf 0.35 g 188.8878 82.2047 Td (this line must measure 100 mm  \(print at 100%, no scaling\)) Tj ET
-BT /F1 7.5 Tf 0.5 g 164.5128 28.3465 Td (cut the solid line, crease the dashed line. 100% scale, no fit to page.) Tj ET
+155.9055 136.0630 m 439.3701 136.0630 l S
+155.9055 130.3937 m 155.9055 141.7323 l S
+439.3701 130.3937 m 439.3701 141.7323 l S
+BT /F1 7.5 Tf 0.35 g 188.8878 121.8898 Td (this line must measure 100 mm  \(print at 100%, no scaling\)) Tj ET
+BT /F1 7.5 Tf 0.5 g 209.5128 28.3465 Td (cut the solid line. 100% scale, no fit to page.) Tj ET
 endstream
 endobj
 36 0 obj
 << /Type /Page /Parent 2 0 R /MediaBox [0 0 595.2756 841.8898] /Resources << /Font << /F1 3 0 R >> >> /Contents 37 0 R >>
 endobj
 37 0 obj
-<< /Length 1882 >>
+<< /Length 1652 >>
 stream
-0.45 G 0.3 w
-106.2992 195.5906 m
-140.3150 161.5748 l
-454.9606 161.5748 l
-488.9764 195.5906 l
+0.35 G 0.35 w
+106.2992 212.5984 m
+488.9764 212.5984 l
+488.9764 595.2756 l
+106.2992 595.2756 l
+h
 S
-0.55 G 0.35 w
-[2.2 1.8] 0 d
-106.2992 195.5906 m
-488.9764 195.5906 l
-S
-[] 0 d
-0.45 G 0.3 w
-488.9764 195.5906 m
-522.9921 229.6063 l
-522.9921 544.2520 l
-488.9764 578.2677 l
-S
-0.55 G 0.35 w
-[2.2 1.8] 0 d
-488.9764 195.5906 m
-488.9764 578.2677 l
-S
-[] 0 d
-0.45 G 0.3 w
-488.9764 578.2677 m
-454.9606 612.2835 l
-140.3150 612.2835 l
-106.2992 578.2677 l
-S
-0.55 G 0.35 w
-[2.2 1.8] 0 d
-488.9764 578.2677 m
-106.2992 578.2677 l
-S
-[] 0 d
-0.45 G 0.3 w
-106.2992 578.2677 m
-72.2835 544.2520 l
-72.2835 229.6063 l
-106.2992 195.5906 l
-S
-0.55 G 0.35 w
-[2.2 1.8] 0 d
-106.2992 578.2677 m
-106.2992 195.5906 l
-S
-[] 0 d
-BT /F1 12 Tf 0.1 g 222.6378 640.6299 Td (CUBE 2   TOP  \(no marker\)) Tj ET
-BT /F1 9 Tf 0.3 g 149.1378 620.7874 Td (2 holes for the fishing line. reinforce with tape before piercing.) Tj ET
-BT /F1 8.5 Tf 0.3 g 176.5128 141.7323 Td (fold the 4 tabs DOWN, tuck inside, glue to the side faces) Tj ET
-BT /F1 8 Tf 0.4 g 265.6378 121.8898 Td (cube edge 135 mm) Tj ET
+0.75 g 0.3 w
+100.6299 212.5984 m 111.9685 212.5984 l S
+106.2992 206.9291 m 106.2992 218.2677 l S
+483.3071 212.5984 m 494.6457 212.5984 l S
+488.9764 206.9291 m 488.9764 218.2677 l S
+100.6299 595.2756 m 111.9685 595.2756 l S
+106.2992 589.6063 m 106.2992 600.9449 l S
+483.3071 595.2756 m 494.6457 595.2756 l S
+488.9764 589.6063 m 488.9764 600.9449 l S
+BT /F1 12 Tf 0.1 g 222.6378 634.9606 Td (CUBE 2   TOP  \(no marker\)) Tj ET
+BT /F1 9 Tf 0.3 g 149.1378 615.1181 Td (2 holes for the fishing line. reinforce with tape before piercing.) Tj ET
+BT /F1 8.5 Tf 0.3 g 182.8878 181.4173 Td (cut the solid square and glue it flat on the foam face) Tj ET
+BT /F1 8 Tf 0.4 g 265.6378 161.5748 Td (cube edge 135 mm) Tj ET
 0.2 g 0.35 w
-155.9055 96.3780 m 439.3701 96.3780 l S
-155.9055 90.7087 m 155.9055 102.0472 l S
-439.3701 90.7087 m 439.3701 102.0472 l S
-BT /F1 7.5 Tf 0.35 g 188.8878 82.2047 Td (this line must measure 100 mm  \(print at 100%, no scaling\)) Tj ET
-BT /F1 7.5 Tf 0.5 g 164.5128 28.3465 Td (cut the solid line, crease the dashed line. 100% scale, no fit to page.) Tj ET
+155.9055 136.0630 m 439.3701 136.0630 l S
+155.9055 130.3937 m 155.9055 141.7323 l S
+439.3701 130.3937 m 439.3701 141.7323 l S
+BT /F1 7.5 Tf 0.35 g 188.8878 121.8898 Td (this line must measure 100 mm  \(print at 100%, no scaling\)) Tj ET
+BT /F1 7.5 Tf 0.5 g 209.5128 28.3465 Td (cut the solid line. 100% scale, no fit to page.) Tj ET
 0.1 G 0.4 w
-162.9921 386.9291 m
-168.6614 392.5984 l
-174.3307 386.9291 l
-168.6614 381.2598 l
+162.9921 403.9370 m
+168.6614 409.6063 l
+174.3307 403.9370 l
+168.6614 398.2677 l
 h
 S
 0.6 G 0.25 w
-148.8189 386.9291 m
-188.5039 386.9291 l
+148.8189 403.9370 m
+188.5039 403.9370 l
 S
 0.6 G 0.25 w
-168.6614 367.0866 m
-168.6614 406.7717 l
+168.6614 384.0945 m
+168.6614 423.7795 l
 S
 0.1 G 0.4 w
-420.9449 386.9291 m
-426.6142 392.5984 l
-432.2835 386.9291 l
-426.6142 381.2598 l
+420.9449 403.9370 m
+426.6142 409.6063 l
+432.2835 403.9370 l
+426.6142 398.2677 l
 h
 S
 0.6 G 0.25 w
-406.7717 386.9291 m
-446.4567 386.9291 l
+406.7717 403.9370 m
+446.4567 403.9370 l
 S
 0.6 G 0.25 w
-426.6142 367.0866 m
-426.6142 406.7717 l
+426.6142 384.0945 m
+426.6142 423.7795 l
 S
-BT /F1 8 Tf 0.4 g 275.6378 352.9134 Td (91 mm apart) Tj ET
+BT /F1 8 Tf 0.4 g 213.6378 369.9213 Td (holes 91 mm apart, 22 mm in from each edge) Tj ET
 endstream
 endobj
 38 0 obj
 << /Type /Page /Parent 2 0 R /MediaBox [0 0 595.2756 841.8898] /Resources << /Font << /F1 3 0 R >> >> /Contents 39 0 R >>
 endobj
 39 0 obj
-<< /Length 1250 >>
+<< /Length 1348 >>
 stream
-0.2000 g 146.4567 235.7480 302.3622 302.3622 re f
+0.2000 g 146.4567 252.7559 302.3622 302.3622 re f
 1 g
-327.6321 416.9235 60.9562 60.9562 re f
-267.1597 356.4510 60.9562 60.9562 re f
-267.1597 295.9786 60.9562 60.9562 re f
-327.6321 295.9786 60.9562 60.9562 re f
-0.45 G 0.3 w
-524.4094 160.1575 m
-558.4252 194.1732 l
-558.4252 579.6850 l
-524.4094 613.7008 l
+327.6321 433.9313 60.9562 60.9562 re f
+267.1597 373.4589 60.9562 60.9562 re f
+267.1597 312.9865 60.9562 60.9562 re f
+327.6321 312.9865 60.9562 60.9562 re f
+0.35 G 0.35 w
+70.8661 177.1654 m
+524.4094 177.1654 l
+524.4094 630.7087 l
+70.8661 630.7087 l
+h
 S
-0.55 G 0.35 w
-[2.2 1.8] 0 d
-524.4094 160.1575 m
-524.4094 613.7008 l
-S
-[] 0 d
-0.45 G 0.3 w
-70.8661 160.1575 m
-524.4094 160.1575 l
-S
-0.45 G 0.3 w
-524.4094 613.7008 m
-70.8661 613.7008 l
-S
-0.45 G 0.3 w
-70.8661 613.7008 m
-70.8661 160.1575 l
-S
-BT /F1 12 Tf 0.1 g 210.6378 676.0630 Td (CUBE 3   face +Z   barcode 42) Tj ET
-BT /F1 9 Tf 0.3 g 205.3878 656.2205 Td (this face must look toward FLOOR marker 0) Tj ET
-BT /F1 8.5 Tf 0.3 g 210.5128 106.2992 Td (fold the right tab IN, glue it to face +X) Tj ET
-BT /F1 8 Tf 0.4 g 217.6378 86.4567 Td (cube edge 160 mm   black square 106.7 mm) Tj ET
+0.75 g 0.3 w
+65.1969 177.1654 m 76.5354 177.1654 l S
+70.8661 171.4961 m 70.8661 182.8346 l S
+518.7402 177.1654 m 530.0787 177.1654 l S
+524.4094 171.4961 m 524.4094 182.8346 l S
+65.1969 630.7087 m 76.5354 630.7087 l S
+70.8661 625.0394 m 70.8661 636.3780 l S
+518.7402 630.7087 m 530.0787 630.7087 l S
+524.4094 625.0394 m 524.4094 636.3780 l S
+BT /F1 12 Tf 0.1 g 210.6378 670.3937 Td (CUBE 3   face +Z   barcode 42) Tj ET
+BT /F1 9 Tf 0.3 g 205.3878 650.5512 Td (this face must look toward FLOOR marker 0) Tj ET
+BT /F1 8.5 Tf 0.3 g 182.8878 145.9843 Td (cut the solid square and glue it flat on the foam face) Tj ET
+BT /F1 8 Tf 0.4 g 217.6378 126.1417 Td (cube edge 160 mm   black square 106.7 mm) Tj ET
 0.2 g 0.35 w
-155.9055 60.9449 m 439.3701 60.9449 l S
-155.9055 55.2756 m 155.9055 66.6142 l S
-439.3701 55.2756 m 439.3701 66.6142 l S
-BT /F1 7.5 Tf 0.35 g 188.8878 46.7717 Td (this line must measure 100 mm  \(print at 100%, no scaling\)) Tj ET
-BT /F1 7.5 Tf 0.5 g 164.5128 28.3465 Td (cut the solid line, crease the dashed line. 100% scale, no fit to page.) Tj ET
+155.9055 100.6299 m 439.3701 100.6299 l S
+155.9055 94.9606 m 155.9055 106.2992 l S
+439.3701 94.9606 m 439.3701 106.2992 l S
+BT /F1 7.5 Tf 0.35 g 188.8878 86.4567 Td (this line must measure 100 mm  \(print at 100%, no scaling\)) Tj ET
+BT /F1 7.5 Tf 0.5 g 209.5128 28.3465 Td (cut the solid line. 100% scale, no fit to page.) Tj ET
 endstream
 endobj
 40 0 obj
 << /Type /Page /Parent 2 0 R /MediaBox [0 0 595.2756 841.8898] /Resources << /Font << /F1 3 0 R >> >> /Contents 41 0 R >>
 endobj
 41 0 obj
-<< /Length 1251 >>
+<< /Length 1349 >>
 stream
-0.2000 g 146.4567 235.7480 302.3622 302.3622 re f
+0.2000 g 146.4567 252.7559 302.3622 302.3622 re f
 1 g
-206.6872 356.4510 60.9562 60.9562 re f
-267.1597 356.4510 60.9562 60.9562 re f
-327.6321 356.4510 60.9562 60.9562 re f
-327.6321 295.9786 60.9562 60.9562 re f
-0.45 G 0.3 w
-524.4094 160.1575 m
-558.4252 194.1732 l
-558.4252 579.6850 l
-524.4094 613.7008 l
+206.6872 373.4589 60.9562 60.9562 re f
+267.1597 373.4589 60.9562 60.9562 re f
+327.6321 373.4589 60.9562 60.9562 re f
+327.6321 312.9865 60.9562 60.9562 re f
+0.35 G 0.35 w
+70.8661 177.1654 m
+524.4094 177.1654 l
+524.4094 630.7087 l
+70.8661 630.7087 l
+h
 S
-0.55 G 0.35 w
-[2.2 1.8] 0 d
-524.4094 160.1575 m
-524.4094 613.7008 l
-S
-[] 0 d
-0.45 G 0.3 w
-70.8661 160.1575 m
-524.4094 160.1575 l
-S
-0.45 G 0.3 w
-524.4094 613.7008 m
-70.8661 613.7008 l
-S
-0.45 G 0.3 w
-70.8661 613.7008 m
-70.8661 160.1575 l
-S
-BT /F1 12 Tf 0.1 g 210.6378 676.0630 Td (CUBE 3   face +X   barcode 49) Tj ET
-BT /F1 9 Tf 0.3 g 203.1378 656.2205 Td (this face must look toward FLOOR marker 63) Tj ET
-BT /F1 8.5 Tf 0.3 g 210.5128 106.2992 Td (fold the right tab IN, glue it to face -Z) Tj ET
-BT /F1 8 Tf 0.4 g 217.6378 86.4567 Td (cube edge 160 mm   black square 106.7 mm) Tj ET
+0.75 g 0.3 w
+65.1969 177.1654 m 76.5354 177.1654 l S
+70.8661 171.4961 m 70.8661 182.8346 l S
+518.7402 177.1654 m 530.0787 177.1654 l S
+524.4094 171.4961 m 524.4094 182.8346 l S
+65.1969 630.7087 m 76.5354 630.7087 l S
+70.8661 625.0394 m 70.8661 636.3780 l S
+518.7402 630.7087 m 530.0787 630.7087 l S
+524.4094 625.0394 m 524.4094 636.3780 l S
+BT /F1 12 Tf 0.1 g 210.6378 670.3937 Td (CUBE 3   face +X   barcode 49) Tj ET
+BT /F1 9 Tf 0.3 g 203.1378 650.5512 Td (this face must look toward FLOOR marker 63) Tj ET
+BT /F1 8.5 Tf 0.3 g 182.8878 145.9843 Td (cut the solid square and glue it flat on the foam face) Tj ET
+BT /F1 8 Tf 0.4 g 217.6378 126.1417 Td (cube edge 160 mm   black square 106.7 mm) Tj ET
 0.2 g 0.35 w
-155.9055 60.9449 m 439.3701 60.9449 l S
-155.9055 55.2756 m 155.9055 66.6142 l S
-439.3701 55.2756 m 439.3701 66.6142 l S
-BT /F1 7.5 Tf 0.35 g 188.8878 46.7717 Td (this line must measure 100 mm  \(print at 100%, no scaling\)) Tj ET
-BT /F1 7.5 Tf 0.5 g 164.5128 28.3465 Td (cut the solid line, crease the dashed line. 100% scale, no fit to page.) Tj ET
+155.9055 100.6299 m 439.3701 100.6299 l S
+155.9055 94.9606 m 155.9055 106.2992 l S
+439.3701 94.9606 m 439.3701 106.2992 l S
+BT /F1 7.5 Tf 0.35 g 188.8878 86.4567 Td (this line must measure 100 mm  \(print at 100%, no scaling\)) Tj ET
+BT /F1 7.5 Tf 0.5 g 209.5128 28.3465 Td (cut the solid line. 100% scale, no fit to page.) Tj ET
 endstream
 endobj
 42 0 obj
 << /Type /Page /Parent 2 0 R /MediaBox [0 0 595.2756 841.8898] /Resources << /Font << /F1 3 0 R >> >> /Contents 43 0 R >>
 endobj
 43 0 obj
-<< /Length 1251 >>
+<< /Length 1349 >>
 stream
-0.2000 g 146.4567 235.7480 302.3622 302.3622 re f
+0.2000 g 146.4567 252.7559 302.3622 302.3622 re f
 1 g
-267.1597 356.4510 60.9562 60.9562 re f
-327.6321 356.4510 60.9562 60.9562 re f
-267.1597 295.9786 60.9562 60.9562 re f
-327.6321 295.9786 60.9562 60.9562 re f
-0.45 G 0.3 w
-524.4094 160.1575 m
-558.4252 194.1732 l
-558.4252 579.6850 l
-524.4094 613.7008 l
+267.1597 373.4589 60.9562 60.9562 re f
+327.6321 373.4589 60.9562 60.9562 re f
+267.1597 312.9865 60.9562 60.9562 re f
+327.6321 312.9865 60.9562 60.9562 re f
+0.35 G 0.35 w
+70.8661 177.1654 m
+524.4094 177.1654 l
+524.4094 630.7087 l
+70.8661 630.7087 l
+h
 S
-0.55 G 0.35 w
-[2.2 1.8] 0 d
-524.4094 160.1575 m
-524.4094 613.7008 l
-S
-[] 0 d
-0.45 G 0.3 w
-70.8661 160.1575 m
-524.4094 160.1575 l
-S
-0.45 G 0.3 w
-524.4094 613.7008 m
-70.8661 613.7008 l
-S
-0.45 G 0.3 w
-70.8661 613.7008 m
-70.8661 160.1575 l
-S
-BT /F1 12 Tf 0.1 g 210.6378 676.0630 Td (CUBE 3   face -Z   barcode 56) Tj ET
-BT /F1 9 Tf 0.3 g 203.1378 656.2205 Td (this face must look toward FLOOR marker 44) Tj ET
-BT /F1 8.5 Tf 0.3 g 210.5128 106.2992 Td (fold the right tab IN, glue it to face -X) Tj ET
-BT /F1 8 Tf 0.4 g 217.6378 86.4567 Td (cube edge 160 mm   black square 106.7 mm) Tj ET
+0.75 g 0.3 w
+65.1969 177.1654 m 76.5354 177.1654 l S
+70.8661 171.4961 m 70.8661 182.8346 l S
+518.7402 177.1654 m 530.0787 177.1654 l S
+524.4094 171.4961 m 524.4094 182.8346 l S
+65.1969 630.7087 m 76.5354 630.7087 l S
+70.8661 625.0394 m 70.8661 636.3780 l S
+518.7402 630.7087 m 530.0787 630.7087 l S
+524.4094 625.0394 m 524.4094 636.3780 l S
+BT /F1 12 Tf 0.1 g 210.6378 670.3937 Td (CUBE 3   face -Z   barcode 56) Tj ET
+BT /F1 9 Tf 0.3 g 203.1378 650.5512 Td (this face must look toward FLOOR marker 44) Tj ET
+BT /F1 8.5 Tf 0.3 g 182.8878 145.9843 Td (cut the solid square and glue it flat on the foam face) Tj ET
+BT /F1 8 Tf 0.4 g 217.6378 126.1417 Td (cube edge 160 mm   black square 106.7 mm) Tj ET
 0.2 g 0.35 w
-155.9055 60.9449 m 439.3701 60.9449 l S
-155.9055 55.2756 m 155.9055 66.6142 l S
-439.3701 55.2756 m 439.3701 66.6142 l S
-BT /F1 7.5 Tf 0.35 g 188.8878 46.7717 Td (this line must measure 100 mm  \(print at 100%, no scaling\)) Tj ET
-BT /F1 7.5 Tf 0.5 g 164.5128 28.3465 Td (cut the solid line, crease the dashed line. 100% scale, no fit to page.) Tj ET
+155.9055 100.6299 m 439.3701 100.6299 l S
+155.9055 94.9606 m 155.9055 106.2992 l S
+439.3701 94.9606 m 439.3701 106.2992 l S
+BT /F1 7.5 Tf 0.35 g 188.8878 86.4567 Td (this line must measure 100 mm  \(print at 100%, no scaling\)) Tj ET
+BT /F1 7.5 Tf 0.5 g 209.5128 28.3465 Td (cut the solid line. 100% scale, no fit to page.) Tj ET
 endstream
 endobj
 44 0 obj
 << /Type /Page /Parent 2 0 R /MediaBox [0 0 595.2756 841.8898] /Resources << /Font << /F1 3 0 R >> >> /Contents 45 0 R >>
 endobj
 45 0 obj
-<< /Length 1250 >>
+<< /Length 1348 >>
 stream
-0.2000 g 146.4567 235.7480 302.3622 302.3622 re f
+0.2000 g 146.4567 252.7559 302.3622 302.3622 re f
 1 g
-267.1597 416.9235 60.9562 60.9562 re f
-267.1597 356.4510 60.9562 60.9562 re f
-327.6321 356.4510 60.9562 60.9562 re f
-327.6321 295.9786 60.9562 60.9562 re f
-0.45 G 0.3 w
-524.4094 160.1575 m
-558.4252 194.1732 l
-558.4252 579.6850 l
-524.4094 613.7008 l
+267.1597 433.9313 60.9562 60.9562 re f
+267.1597 373.4589 60.9562 60.9562 re f
+327.6321 373.4589 60.9562 60.9562 re f
+327.6321 312.9865 60.9562 60.9562 re f
+0.35 G 0.35 w
+70.8661 177.1654 m
+524.4094 177.1654 l
+524.4094 630.7087 l
+70.8661 630.7087 l
+h
 S
-0.55 G 0.35 w
-[2.2 1.8] 0 d
-524.4094 160.1575 m
-524.4094 613.7008 l
-S
-[] 0 d
-0.45 G 0.3 w
-70.8661 160.1575 m
-524.4094 160.1575 l
-S
-0.45 G 0.3 w
-524.4094 613.7008 m
-70.8661 613.7008 l
-S
-0.45 G 0.3 w
-70.8661 613.7008 m
-70.8661 160.1575 l
-S
-BT /F1 12 Tf 0.1 g 210.6378 676.0630 Td (CUBE 3   face -X   barcode 25) Tj ET
-BT /F1 9 Tf 0.3 g 205.3878 656.2205 Td (this face must look toward FLOOR marker 7) Tj ET
-BT /F1 8.5 Tf 0.3 g 210.5128 106.2992 Td (fold the right tab IN, glue it to face +Z) Tj ET
-BT /F1 8 Tf 0.4 g 217.6378 86.4567 Td (cube edge 160 mm   black square 106.7 mm) Tj ET
+0.75 g 0.3 w
+65.1969 177.1654 m 76.5354 177.1654 l S
+70.8661 171.4961 m 70.8661 182.8346 l S
+518.7402 177.1654 m 530.0787 177.1654 l S
+524.4094 171.4961 m 524.4094 182.8346 l S
+65.1969 630.7087 m 76.5354 630.7087 l S
+70.8661 625.0394 m 70.8661 636.3780 l S
+518.7402 630.7087 m 530.0787 630.7087 l S
+524.4094 625.0394 m 524.4094 636.3780 l S
+BT /F1 12 Tf 0.1 g 210.6378 670.3937 Td (CUBE 3   face -X   barcode 25) Tj ET
+BT /F1 9 Tf 0.3 g 205.3878 650.5512 Td (this face must look toward FLOOR marker 7) Tj ET
+BT /F1 8.5 Tf 0.3 g 182.8878 145.9843 Td (cut the solid square and glue it flat on the foam face) Tj ET
+BT /F1 8 Tf 0.4 g 217.6378 126.1417 Td (cube edge 160 mm   black square 106.7 mm) Tj ET
 0.2 g 0.35 w
-155.9055 60.9449 m 439.3701 60.9449 l S
-155.9055 55.2756 m 155.9055 66.6142 l S
-439.3701 55.2756 m 439.3701 66.6142 l S
-BT /F1 7.5 Tf 0.35 g 188.8878 46.7717 Td (this line must measure 100 mm  \(print at 100%, no scaling\)) Tj ET
-BT /F1 7.5 Tf 0.5 g 164.5128 28.3465 Td (cut the solid line, crease the dashed line. 100% scale, no fit to page.) Tj ET
+155.9055 100.6299 m 439.3701 100.6299 l S
+155.9055 94.9606 m 155.9055 106.2992 l S
+439.3701 94.9606 m 439.3701 106.2992 l S
+BT /F1 7.5 Tf 0.35 g 188.8878 86.4567 Td (this line must measure 100 mm  \(print at 100%, no scaling\)) Tj ET
+BT /F1 7.5 Tf 0.5 g 209.5128 28.3465 Td (cut the solid line. 100% scale, no fit to page.) Tj ET
 endstream
 endobj
 46 0 obj
 << /Type /Page /Parent 2 0 R /MediaBox [0 0 595.2756 841.8898] /Resources << /Font << /F1 3 0 R >> >> /Contents 47 0 R >>
 endobj
 47 0 obj
-<< /Length 1613 >>
+<< /Length 1358 >>
 stream
-0.2000 g 146.4567 235.7480 302.3622 302.3622 re f
+0.2000 g 146.4567 252.7559 302.3622 302.3622 re f
 1 g
-267.1597 416.9235 60.9562 60.9562 re f
-206.6872 356.4510 60.9562 60.9562 re f
-267.1597 295.9786 60.9562 60.9562 re f
-327.6321 295.9786 60.9562 60.9562 re f
-0.45 G 0.3 w
-70.8661 160.1575 m
-104.8819 126.1417 l
-490.3937 126.1417 l
-524.4094 160.1575 l
+267.1597 433.9313 60.9562 60.9562 re f
+206.6872 373.4589 60.9562 60.9562 re f
+267.1597 312.9865 60.9562 60.9562 re f
+327.6321 312.9865 60.9562 60.9562 re f
+0.35 G 0.35 w
+70.8661 177.1654 m
+524.4094 177.1654 l
+524.4094 630.7087 l
+70.8661 630.7087 l
+h
 S
-0.55 G 0.35 w
-[2.2 1.8] 0 d
-70.8661 160.1575 m
-524.4094 160.1575 l
-S
-[] 0 d
-0.45 G 0.3 w
-524.4094 160.1575 m
-558.4252 194.1732 l
-558.4252 579.6850 l
-524.4094 613.7008 l
-S
-0.55 G 0.35 w
-[2.2 1.8] 0 d
-524.4094 160.1575 m
-524.4094 613.7008 l
-S
-[] 0 d
-0.45 G 0.3 w
-524.4094 613.7008 m
-490.3937 647.7165 l
-104.8819 647.7165 l
-70.8661 613.7008 l
-S
-0.55 G 0.35 w
-[2.2 1.8] 0 d
-524.4094 613.7008 m
-70.8661 613.7008 l
-S
-[] 0 d
-0.45 G 0.3 w
-70.8661 613.7008 m
-36.8504 579.6850 l
-36.8504 194.1732 l
-70.8661 160.1575 l
-S
-0.55 G 0.35 w
-[2.2 1.8] 0 d
-70.8661 613.7008 m
-70.8661 160.1575 l
-S
-[] 0 d
-BT /F1 12 Tf 0.1 g 198.6378 676.0630 Td (CUBE 3   face BOTTOM   barcode 22) Tj ET
-BT /F1 9 Tf 0.3 g 196.3878 656.2205 Td (this face looks straight DOWN \(the underside\)) Tj ET
-BT /F1 8.5 Tf 0.3 g 193.5128 106.2992 Td (fold the 4 tabs UP, the side faces glue over them) Tj ET
-BT /F1 8 Tf 0.4 g 217.6378 86.4567 Td (cube edge 160 mm   black square 106.7 mm) Tj ET
+0.75 g 0.3 w
+65.1969 177.1654 m 76.5354 177.1654 l S
+70.8661 171.4961 m 70.8661 182.8346 l S
+518.7402 177.1654 m 530.0787 177.1654 l S
+524.4094 171.4961 m 524.4094 182.8346 l S
+65.1969 630.7087 m 76.5354 630.7087 l S
+70.8661 625.0394 m 70.8661 636.3780 l S
+518.7402 630.7087 m 530.0787 630.7087 l S
+524.4094 625.0394 m 524.4094 636.3780 l S
+BT /F1 12 Tf 0.1 g 198.6378 670.3937 Td (CUBE 3   face BOTTOM   barcode 22) Tj ET
+BT /F1 9 Tf 0.3 g 196.3878 650.5512 Td (this face looks straight DOWN \(the underside\)) Tj ET
+BT /F1 8.5 Tf 0.3 g 182.8878 145.9843 Td (cut the solid square and glue it flat on the foam face) Tj ET
+BT /F1 8 Tf 0.4 g 217.6378 126.1417 Td (cube edge 160 mm   black square 106.7 mm) Tj ET
 0.2 g 0.35 w
-155.9055 60.9449 m 439.3701 60.9449 l S
-155.9055 55.2756 m 155.9055 66.6142 l S
-439.3701 55.2756 m 439.3701 66.6142 l S
-BT /F1 7.5 Tf 0.35 g 188.8878 46.7717 Td (this line must measure 100 mm  \(print at 100%, no scaling\)) Tj ET
-BT /F1 7.5 Tf 0.5 g 164.5128 28.3465 Td (cut the solid line, crease the dashed line. 100% scale, no fit to page.) Tj ET
+155.9055 100.6299 m 439.3701 100.6299 l S
+155.9055 94.9606 m 155.9055 106.2992 l S
+439.3701 94.9606 m 439.3701 106.2992 l S
+BT /F1 7.5 Tf 0.35 g 188.8878 86.4567 Td (this line must measure 100 mm  \(print at 100%, no scaling\)) Tj ET
+BT /F1 7.5 Tf 0.5 g 209.5128 28.3465 Td (cut the solid line. 100% scale, no fit to page.) Tj ET
 endstream
 endobj
 48 0 obj
 << /Type /Page /Parent 2 0 R /MediaBox [0 0 595.2756 841.8898] /Resources << /Font << /F1 3 0 R >> >> /Contents 49 0 R >>
 endobj
 49 0 obj
-<< /Length 1872 >>
+<< /Length 1640 >>
 stream
-0.45 G 0.3 w
-70.8661 160.1575 m
-104.8819 126.1417 l
-490.3937 126.1417 l
-524.4094 160.1575 l
+0.35 G 0.35 w
+70.8661 177.1654 m
+524.4094 177.1654 l
+524.4094 630.7087 l
+70.8661 630.7087 l
+h
 S
-0.55 G 0.35 w
-[2.2 1.8] 0 d
-70.8661 160.1575 m
-524.4094 160.1575 l
-S
-[] 0 d
-0.45 G 0.3 w
-524.4094 160.1575 m
-558.4252 194.1732 l
-558.4252 579.6850 l
-524.4094 613.7008 l
-S
-0.55 G 0.35 w
-[2.2 1.8] 0 d
-524.4094 160.1575 m
-524.4094 613.7008 l
-S
-[] 0 d
-0.45 G 0.3 w
-524.4094 613.7008 m
-490.3937 647.7165 l
-104.8819 647.7165 l
-70.8661 613.7008 l
-S
-0.55 G 0.35 w
-[2.2 1.8] 0 d
-524.4094 613.7008 m
-70.8661 613.7008 l
-S
-[] 0 d
-0.45 G 0.3 w
-70.8661 613.7008 m
-36.8504 579.6850 l
-36.8504 194.1732 l
-70.8661 160.1575 l
-S
-0.55 G 0.35 w
-[2.2 1.8] 0 d
-70.8661 613.7008 m
-70.8661 160.1575 l
-S
-[] 0 d
-BT /F1 12 Tf 0.1 g 222.6378 676.0630 Td (CUBE 3   TOP  \(no marker\)) Tj ET
-BT /F1 9 Tf 0.3 g 149.1378 656.2205 Td (2 holes for the fishing line. reinforce with tape before piercing.) Tj ET
-BT /F1 8.5 Tf 0.3 g 176.5128 106.2992 Td (fold the 4 tabs DOWN, tuck inside, glue to the side faces) Tj ET
-BT /F1 8 Tf 0.4 g 265.6378 86.4567 Td (cube edge 160 mm) Tj ET
+0.75 g 0.3 w
+65.1969 177.1654 m 76.5354 177.1654 l S
+70.8661 171.4961 m 70.8661 182.8346 l S
+518.7402 177.1654 m 530.0787 177.1654 l S
+524.4094 171.4961 m 524.4094 182.8346 l S
+65.1969 630.7087 m 76.5354 630.7087 l S
+70.8661 625.0394 m 70.8661 636.3780 l S
+518.7402 630.7087 m 530.0787 630.7087 l S
+524.4094 625.0394 m 524.4094 636.3780 l S
+BT /F1 12 Tf 0.1 g 222.6378 670.3937 Td (CUBE 3   TOP  \(no marker\)) Tj ET
+BT /F1 9 Tf 0.3 g 149.1378 650.5512 Td (2 holes for the fishing line. reinforce with tape before piercing.) Tj ET
+BT /F1 8.5 Tf 0.3 g 182.8878 145.9843 Td (cut the solid square and glue it flat on the foam face) Tj ET
+BT /F1 8 Tf 0.4 g 265.6378 126.1417 Td (cube edge 160 mm) Tj ET
 0.2 g 0.35 w
-155.9055 60.9449 m 439.3701 60.9449 l S
-155.9055 55.2756 m 155.9055 66.6142 l S
-439.3701 55.2756 m 439.3701 66.6142 l S
-BT /F1 7.5 Tf 0.35 g 188.8878 46.7717 Td (this line must measure 100 mm  \(print at 100%, no scaling\)) Tj ET
-BT /F1 7.5 Tf 0.5 g 164.5128 28.3465 Td (cut the solid line, crease the dashed line. 100% scale, no fit to page.) Tj ET
+155.9055 100.6299 m 439.3701 100.6299 l S
+155.9055 94.9606 m 155.9055 106.2992 l S
+439.3701 94.9606 m 439.3701 106.2992 l S
+BT /F1 7.5 Tf 0.35 g 188.8878 86.4567 Td (this line must measure 100 mm  \(print at 100%, no scaling\)) Tj ET
+BT /F1 7.5 Tf 0.5 g 209.5128 28.3465 Td (cut the solid line. 100% scale, no fit to page.) Tj ET
 0.1 G 0.4 w
-127.5591 386.9291 m
-133.2283 392.5984 l
-138.8976 386.9291 l
-133.2283 381.2598 l
+127.5591 403.9370 m
+133.2283 409.6063 l
+138.8976 403.9370 l
+133.2283 398.2677 l
 h
 S
 0.6 G 0.25 w
-113.3858 386.9291 m
-153.0709 386.9291 l
+113.3858 403.9370 m
+153.0709 403.9370 l
 S
 0.6 G 0.25 w
-133.2283 367.0866 m
-133.2283 406.7717 l
+133.2283 384.0945 m
+133.2283 423.7795 l
 S
 0.1 G 0.4 w
-456.3780 386.9291 m
-462.0472 392.5984 l
-467.7165 386.9291 l
-462.0472 381.2598 l
+456.3780 403.9370 m
+462.0472 409.6063 l
+467.7165 403.9370 l
+462.0472 398.2677 l
 h
 S
 0.6 G 0.25 w
-442.2047 386.9291 m
-481.8898 386.9291 l
+442.2047 403.9370 m
+481.8898 403.9370 l
 S
 0.6 G 0.25 w
-462.0472 367.0866 m
-462.0472 406.7717 l
+462.0472 384.0945 m
+462.0472 423.7795 l
 S
-BT /F1 8 Tf 0.4 g 273.6378 352.9134 Td (116 mm apart) Tj ET
+BT /F1 8 Tf 0.4 g 211.6378 369.9213 Td (holes 116 mm apart, 22 mm in from each edge) Tj ET
 endstream
 endobj
 50 0 obj
@@ -1296,54 +1009,54 @@ xref
 0000000275 00000 n 
 0000000345 00000 n 
 0000000481 00000 n 
-0000003077 00000 n 
-0000003213 00000 n 
-0000004362 00000 n 
-0000004498 00000 n 
-0000005529 00000 n 
-0000005667 00000 n 
-0000006700 00000 n 
-0000006838 00000 n 
-0000007754 00000 n 
-0000007892 00000 n 
-0000009203 00000 n 
-0000009341 00000 n 
-0000010653 00000 n 
-0000010791 00000 n 
-0000012103 00000 n 
-0000012241 00000 n 
-0000013552 00000 n 
-0000013690 00000 n 
-0000015368 00000 n 
-0000015506 00000 n 
-0000017443 00000 n 
-0000017581 00000 n 
-0000018890 00000 n 
-0000019028 00000 n 
-0000020338 00000 n 
-0000020476 00000 n 
-0000021786 00000 n 
-0000021924 00000 n 
-0000023233 00000 n 
-0000023371 00000 n 
-0000025047 00000 n 
-0000025185 00000 n 
-0000027120 00000 n 
-0000027258 00000 n 
-0000028561 00000 n 
-0000028699 00000 n 
-0000030003 00000 n 
-0000030141 00000 n 
-0000031445 00000 n 
-0000031583 00000 n 
-0000032886 00000 n 
-0000033024 00000 n 
-0000034690 00000 n 
-0000034828 00000 n 
-0000036753 00000 n 
-0000036891 00000 n 
+0000003206 00000 n 
+0000003342 00000 n 
+0000004491 00000 n 
+0000004627 00000 n 
+0000005658 00000 n 
+0000005796 00000 n 
+0000006829 00000 n 
+0000006967 00000 n 
+0000007883 00000 n 
+0000008021 00000 n 
+0000009434 00000 n 
+0000009572 00000 n 
+0000010986 00000 n 
+0000011124 00000 n 
+0000012538 00000 n 
+0000012676 00000 n 
+0000014089 00000 n 
+0000014227 00000 n 
+0000015650 00000 n 
+0000015788 00000 n 
+0000017493 00000 n 
+0000017631 00000 n 
+0000019044 00000 n 
+0000019182 00000 n 
+0000020596 00000 n 
+0000020734 00000 n 
+0000022148 00000 n 
+0000022286 00000 n 
+0000023699 00000 n 
+0000023837 00000 n 
+0000025260 00000 n 
+0000025398 00000 n 
+0000027103 00000 n 
+0000027241 00000 n 
+0000028642 00000 n 
+0000028780 00000 n 
+0000030182 00000 n 
+0000030320 00000 n 
+0000031722 00000 n 
+0000031860 00000 n 
+0000033261 00000 n 
+0000033399 00000 n 
+0000034810 00000 n 
+0000034948 00000 n 
+0000036641 00000 n 
+0000036779 00000 n 
 trailer
 << /Size 52 /Root 1 0 R >>
 startxref
-37915
+37803
 %%EOF

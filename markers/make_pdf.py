@@ -6,6 +6,14 @@ SVG를 변환기로 돌리면 인쇄 배율이 틀어질 위험이 있어서, �
 확인했으므로 벡터 사각형으로 다시 그린다. 그래서 어떤 크기로 찍어도 선이 또렷하다.
 
     python3 make_pdf.py [출력폴더]
+    python3 make_pdf.py print --tabs        종이로 접어 만들 때 (날개 붙음)
+    python3 make_pdf.py print --cubetop     큐브 윗면에도 마커 (아래 설명 참고)
+    python3 make_pdf.py print --cube 130,135,160    큐브 한 변 (mm)
+    python3 make_pdf.py print --ink 0       검은 칸을 진짜 검정으로
+    python3 make_pdf.py print --nodb        현장 보정값을 안 읽는다
+
+기본은 **각 면만** 이다. 큐브를 3mm 포맥스로 다시 만들었으므로 접을 일이
+없다. 면마다 한 장씩, 오릴 선 하나와 마커만 있다.
 """
 import json, math, os, re, sys
 
@@ -61,12 +69,39 @@ for _i, _a in enumerate(sys.argv):
 if INK > 60:
     print(f"⚠️ 검은 칸 밝기 {INK} 는 여유가 거의 없습니다. 60 이하를 권합니다")
 INK_G = INK / 255.0
-def marker_ring_mm():
-    """바닥 마커 네 장을 놓을 반지름. config.js 의 refreshPedestal 과 같은 계산이다.
+def cal_from_db():
+    """현장 보정값을 Firebase 에서 읽는다. 못 읽으면 None.
 
-    숫자를 두 군데 적지 않는다. 좌대를 실측해서 config.js 를 고치면 이 종이의
-    안내도 같이 바뀐다. 🔴 검은 사각형이 아니라 흰 여백 포함 한 변으로 잰다.
+    🔴 설치를 마친 뒤에 좌대를 실측해서 넣은 값은 config.js 가 아니라 /cal 에
+       있다 (hub/setcal.py). config.js 만 읽으면 이 종이가 현장과 다른 숫자를
+       말한다. 실제로 config 기본값으로는 420mm, 현장은 450mm 였다.
+       다시 인쇄해서 그 숫자대로 붙이면 마커가 3cm 씩 틀어진다.
+    읽기는 공개라 비밀값이 필요 없다. 망이 없으면 조용히 config.js 로 간다.
     """
+    import urllib.request, urllib.error
+    try:
+        src = open(os.path.join(HERE, "..", "web", "config.js"), encoding="utf-8").read()
+        m = re.search(r'databaseURL:\s*"([^"]+)"', src)
+        if not m:
+            return None
+        with urllib.request.urlopen(m.group(1).rstrip("/") + "/cal.json", timeout=6) as r:
+            return json.loads(r.read().decode() or "null") or None
+    except Exception:
+        return None
+
+
+CAL = None if "--nodb" in sys.argv else cal_from_db()
+
+
+def marker_ring_mm():
+    """바닥 마커 네 장을 놓을 반지름.
+
+    현장 보정값(/cal)의 mring 이 있으면 그걸 쓴다. 없으면 config.js 의
+    refreshPedestal 과 같은 계산을 한다. 숫자를 두 군데 적지 않는다.
+    🔴 검은 사각형이 아니라 흰 여백 포함 한 변으로 잰다.
+    """
+    if CAL and CAL.get("mring"):
+        return float(CAL["mring"]) * 1000
     src = open(os.path.join(HERE, "..", "web", "config.js"), encoding="utf-8").read()
 
     def num(pat, dflt):
@@ -87,9 +122,34 @@ MRING_MM = marker_ring_mm()
 A4 = (210.0, 297.0)
 A3 = (297.0, 420.0)
 
-# 종이로 접어 풀로 붙인다. 날개(풀칠 탭) 폭과 종이 가장자리 여백.
+# 날개(풀칠 탭) 폭과 종이 가장자리 여백.
 TAB    = 12.0
 MARGIN = 8.0
+
+# 🔴 기본은 "각 면만" 이다. 큐브를 3mm 포맥스로 다시 만들었으므로 접을 일이
+#    없다. 면만 오려서 붙이면 된다. 날개가 있으면 오릴 선이 늘고, 날개 폭
+#    때문에 큐브3(160mm)이 A4 가장자리에 바짝 붙어 프린터가 줄여 버린다.
+#    종이로 접어 만들던 때로 돌아가려면 --tabs 를 준다.
+TABS = "--tabs" in sys.argv
+
+# 큐브 윗면 마커. 기본은 안 넣는다.
+#
+# 🔴 재 보니 윗면은 관객 폰에서 거의 안 보인다. 폰을 1.50m 높이로 들고 큐브
+#    축에서 0.60m 떨어져 서면 윗면 법선과의 각이 이렇다.
+#       큐브1  79도    큐브2  119도    큐브3  144도
+#    실측 한계가 60도다. 큐브1 윗면이 60도 안에 들어오려면 폰을 1.73m 까지
+#    들어 올려야 한다. 큐브2 와 3 은 아예 등을 돌리고 있다.
+#
+# 🔴 그리고 쓸 번호가 없다. 3x3 격자 64개 중 지금 쓰는 18개와 회전까지 넣어
+#    거리 2 이상인 남은 번호는 35 와 37 **둘뿐**이다 (markers/pick_top_codes.py).
+#    큐브는 셋이라 하나는 거리 1 짜리를 써야 하는데, 거리 1 은 칸 하나만
+#    잘못 읽혀도 바닥 마커로 둔갑해 월드 원점이 큐브 자리로 날아간다.
+#
+# 그래서 큐브1 에만 37 을 둔다 (제 밑면과 거리 4, 나머지 전부와 2).
+# 큐브2 에도 넣겠다면 35 가 남아 있다. 큐브3 은 안전한 번호가 없다.
+# --cubetop 을 줘야 인쇄에 들어간다. 그리고 web/config.js 도 같이 켜야 한다.
+CUBE_TOP_CODES = [37, None, None]
+CUBE_TOP = "--cubetop" in sys.argv
 
 
 def esc(s):
@@ -234,24 +294,24 @@ def write_pdf(pages, path):
 
 
 def cube_page(cube_i, face_i, face_mm, page):
-    """큐브 한 면을 날개까지 붙여 한 장에. 오려서 접고 풀로 붙인다.
+    """큐브 한 면을 한 장에. 기본은 면만 그린다 (--tabs 면 접는 날개까지).
 
-    날개는 큐브 모서리 12개에 정확히 하나씩 가도록 나눠 두었다.
-      밑면과 윗면  네 변 전부 (8개)
-      옆면 넷      오른쪽 한 변만 (4개)
-    옆면의 오른쪽 날개는 다음 번호 옆면에 붙는다. 면 순서가 큐브를 한 바퀴 돈다.
+    🔴 큐브를 3mm 포맥스로 다시 만들었으므로 접을 일이 없다. 오려서 면에
+       붙이면 된다. 그래서 날개도 접는 선도 안 그린다. 오릴 선 하나뿐이다.
 
-    face_i 0~3 옆면, 4 밑면, 5 윗면(마커 없음, 낚싯줄 구멍)
+    face_i 0~3 옆면, 4 밑면, 5 윗면
     """
     pw, ph = page
     top_face = face_i == 5
     black = face_mm / (1 + QUIET * 2)
     quiet = black * QUIET
     e = face_mm
+    top_code = CUBE_TOP_CODES[cube_i] if (top_face and CUBE_TOP) else None
 
-    # 날개가 붙는 변. [(모서리0, 모서리1, 바깥 법선)]
+    # 날개를 안 그리면 글자가 면에 더 붙어도 된다. 그만큼 면을 크게 쓴다.
+    pad = TAB if TABS else 4.0
     bx = (pw - e) / 2
-    by = (ph - e) / 2 - 12
+    by = (ph - e) / 2 - (12 if TABS else 6)
     P = {"bl": (bx, by), "br": (bx + e, by), "tr": (bx + e, by + e), "tl": (bx, by + e)}
     edges = {
         "bottom": (P["bl"], P["br"], (0, -1)),
@@ -259,60 +319,89 @@ def cube_page(cube_i, face_i, face_mm, page):
         "top":    (P["tr"], P["tl"], (0, 1)),
         "left":   (P["tl"], P["bl"], (-1, 0)),
     }
-    with_tab = (["bottom", "right", "top", "left"] if face_i >= 4 else ["right"])
 
     ops = []
-    # 마커. 윗면은 아무도 못 보므로 비운다.
+    # 마커. 윗면은 --cubetop 을 줬을 때만, 그것도 번호가 있는 큐브만.
     if not top_face:
         code = CUBE_CODES[cube_i][face_i]
         ops += marker_ops(code, bx + quiet, by + quiet, black)
+    elif top_code is not None:
+        ops += marker_ops(top_code, bx + quiet, by + quiet, black)
 
-    # 날개 (오려낼 선) 와 접는 선
-    for name in with_tab:
-        p0, p1, n = edges[name]
-        ops += poly(tab_poly(p0, p1, n), 0.3, 0.45)
-        ops += poly([p0, p1], 0.35, 0.55, dash="2.2 1.8")
-    # 날개가 없는 변은 그냥 오리는 선
-    for name, (p0, p1, n) in edges.items():
-        if name not in with_tab:
-            ops += poly([p0, p1], 0.3, 0.45)
+    if TABS:
+        with_tab = ["bottom", "right", "top", "left"] if face_i >= 4 else ["right"]
+        for name in with_tab:
+            p0, p1, n = edges[name]
+            ops += poly(tab_poly(p0, p1, n), 0.3, 0.45)
+            ops += poly([p0, p1], 0.35, 0.55, dash="2.2 1.8")
+        for name, (p0, p1, n) in edges.items():
+            if name not in with_tab:
+                ops += poly([p0, p1], 0.3, 0.45)
+    else:
+        # 오릴 선 하나. 모서리 표시를 같이 둬서 자를 대기 쉽게 한다.
+        ops += poly([P["bl"], P["br"], P["tr"], P["tl"]], 0.35, 0.35, close=True)
+        ops += crop(bx, by, e, e)
 
     # 글자
     direction, floor_code = ("TOP", None) if top_face else CUBE_DIRS[face_i]
-    label = (f"CUBE {cube_i+1}   TOP  (no marker)" if top_face
-             else f"CUBE {cube_i+1}   face {direction}   barcode "
-                  f"{CUBE_CODES[cube_i][face_i]}")
-    ops += text(label, 0, by + e + TAB + 10, 12, 0.1, pw)
     if top_face:
-        ops += text("2 holes for the fishing line. reinforce with tape before piercing.",
-                    0, by + e + TAB + 3, 9, 0.3, pw)
+        label = (f"CUBE {cube_i+1}   TOP   barcode {top_code}" if top_code is not None
+                 else f"CUBE {cube_i+1}   TOP  (no marker)")
     else:
-        ops += text("this face looks straight DOWN (the underside)" if floor_code is None
-                    else f"this face must look toward FLOOR marker {floor_code}",
-                    0, by + e + TAB + 3, 9, 0.3, pw)
+        label = (f"CUBE {cube_i+1}   face {direction}   barcode "
+                 f"{CUBE_CODES[cube_i][face_i]}")
+    ops += text(label, 0, by + e + pad + 10, 12, 0.1, pw)
 
-    hint = ("fold the 4 tabs DOWN, tuck inside, glue to the side faces" if top_face
-            else "fold the 4 tabs UP, the side faces glue over them" if face_i == 4
-            else f"fold the right tab IN, glue it to face "
-                 f"{CUBE_DIRS[(face_i+1) % 4][0]}")
-    ops += text(hint, 0, by - TAB - 7, 8.5, 0.3, pw)
-    ops += text(f"cube edge {e:.0f} mm" + ("" if top_face else
-                f"   black square {black:.1f} mm"), 0, by - TAB - 14, 8, 0.4, pw)
-    ops += ruler(pw, by - TAB - 23)
-    ops += text("cut the solid line, crease the dashed line. 100% scale, no fit to page.",
-                0, 10, 7.5, 0.5, pw)
+    if top_face:
+        note = ("the sheet TOP edge must point the same way as face +Z."
+                if top_code is not None
+                else "2 holes for the fishing line. reinforce with tape before piercing.")
+    else:
+        note = ("this face looks straight DOWN (the underside)" if floor_code is None
+                else f"this face must look toward FLOOR marker {floor_code}")
+    ops += text(note, 0, by + e + pad + 3, 9, 0.3, pw)
+
+    if TABS:
+        hint = ("fold the 4 tabs DOWN, tuck inside, glue to the side faces" if top_face
+                else "fold the 4 tabs UP, the side faces glue over them" if face_i == 4
+                else f"fold the right tab IN, glue it to face "
+                     f"{CUBE_DIRS[(face_i+1) % 4][0]}")
+    else:
+        hint = "cut the solid square and glue it flat on the foam face"
+    ops += text(hint, 0, by - pad - 7, 8.5, 0.3, pw)
+    ops += text(f"cube edge {e:.0f} mm" +
+                ("" if (top_face and top_code is None) else
+                 f"   black square {black:.1f} mm"), 0, by - pad - 14, 8, 0.4, pw)
+    ops += ruler(pw, by - pad - 23)
+    ops += text(("cut the solid line, crease the dashed line. " if TABS else
+                 "cut the solid line. ") +
+                "100% scale, no fit to page.", 0, 10, 7.5, 0.5, pw)
 
     # 윗면 낚싯줄 구멍 자리. 둘을 벌려야 큐브가 안 돈다.
+    # 🔴 마커를 올렸으면 구멍이 검은 사각형을 물면 안 된다. 흰 여백 안으로
+    #    밀어 넣는다. 여백이 좁으면 구멍 표시를 아예 안 그리고 글로 알린다.
     if top_face:
         cy = by + e / 2
-        for sx in (-1, 1):
-            cx = bx + e / 2 + sx * (e / 2 - 22.0)
-            r = 2.0
-            ops += poly([(cx - r, cy), (cx, cy + r), (cx + r, cy), (cx, cy - r)],
-                        0.4, 0.1, close=True)
-            ops += poly([(cx - 7, cy), (cx + 7, cy)], 0.25, 0.6)
-            ops += poly([(cx, cy - 7), (cx, cy + 7)], 0.25, 0.6)
-        ops += text(f"{e - 44:.0f} mm apart", 0, cy - 12, 8, 0.4, pw)
+        inset = 22.0
+        if top_code is not None:
+            room = quiet - 3.0            # 구멍 반지름 2mm + 1mm 여유
+            inset = min(inset, max(6.0, room))
+        if top_code is not None and quiet < 6.0:
+            ops += text("quiet zone too narrow for the line holes. "
+                        "pierce outside the printed sheet.", 0, cy, 8, 0.3, pw)
+        else:
+            for sx in (-1, 1):
+                cx = bx + e / 2 + sx * (e / 2 - inset)
+                r = 2.0
+                ops += poly([(cx - r, cy), (cx, cy + r), (cx + r, cy), (cx, cy - r)],
+                            0.4, 0.1, close=True)
+                ops += poly([(cx - 7, cy), (cx + 7, cy)], 0.25, 0.6)
+                ops += poly([(cx, cy - 7), (cx, cy + 7)], 0.25, 0.6)
+            # ⚠️ 마커가 있으면 이 글씨가 검은 사각형에 겹쳐 안 보인다.
+            #    그때는 면 바깥으로 내린다.
+            ty = (by - pad - 20.5) if top_code is not None else (cy - 12)
+            ops += text(f"holes {e - inset*2:.0f} mm apart, "
+                        f"{inset:.0f} mm in from each edge", 0, ty, 8, 0.4, pw)
     return pw, ph, ops
 
 
@@ -350,12 +439,13 @@ def write_pdf(pages, path):
 
 
 def cube_sheet(face_mm):
-    """그 크기가 들어가는 종이. 날개와 여백까지 보고 고른다.
+    """그 크기가 들어가는 종이.
 
     🔴 A4 폭 210mm 에 205mm 면을 올리면 가장자리 2.5mm 밖에 안 남아 프린터가
-       잘라 먹거나 제멋대로 줄인다. 큐브3 은 A3 으로 간다.
+       잘라 먹거나 제멋대로 줄인다.
+    날개를 빼면 큐브3(160mm)도 A4 에 여유 있게 들어간다 (160 + 16 = 176mm).
     """
-    need = face_mm + 2 * TAB + 2 * MARGIN
+    need = face_mm + 2 * (TAB if TABS else 0) + 2 * MARGIN
     return A4 if need <= A4[0] else A3
 
 
@@ -399,14 +489,28 @@ def index_page(items, page):
     y -= 7
     ops += ["0.25 G 0.4 w", f"{20*MM:.4f} {y*MM:.4f} m {(pw-20)*MM:.4f} {y*MM:.4f} l S"]
     y -= 13
-    for line in [
+    guide = [
         f"FLOOR  put the 4 sheets {MRING_MM:.0f} mm from the pedestal axis,",
         "       all four facing the SAME way (tops toward marker 44).",
-        "CUBE   4 sides + 1 bottom + 1 top.  the top has no marker,",
-        "       only the 2 holes for the fishing line.",
-        "       fold the tabs IN so only markers show outside.",
+    ]
+    if TABS:
+        guide += [
+            "CUBE   4 sides + 1 bottom + 1 top.",
+            "       fold the tabs IN so only markers show outside.",
+        ]
+    else:
+        guide += [
+            "CUBE   4 sides + 1 bottom + 1 top.  FACES ONLY, no fold tabs.",
+            "       cut each square and glue it flat on the foam face.",
+            "       the sheet TOP edge goes toward the cube TOP on side faces.",
+        ]
+    guide += [
+        ("TOP    carries a marker. keep the 2 line holes in the white margin."
+         if CUBE_TOP else
+         "TOP    no marker. only the 2 holes for the fishing line."),
         "CEILING  optional. the cube bottoms already cover that view.",
-    ]:
+    ]
+    for line in guide:
         ops += text(line, 20, y, 9, 0.2)
         y -= 10
     ops += text("raonsum-chandelier / markers/make_pdf.py", 20, 16, 7.5, 0.55)
@@ -426,7 +530,9 @@ for ci in range(len(CUBE_CODES)):
     face = CUBE_FACE_MM[ci]
     cp = [cube_page(ci, fi, face, A4) for fi in range(6)]
     pages += cp
-    items.append((f"{n}-{n+5}", f"CUBE {ci+1}   edge {face:.0f} mm",
+    tc = CUBE_TOP_CODES[ci] if CUBE_TOP else None
+    items.append((f"{n}-{n+5}", f"CUBE {ci+1}   edge {face:.0f} mm" +
+                  (f"   top {tc}" if tc is not None else ""),
                   f"{face/(1+QUIET*2):.1f} mm"))
     n += len(cp)
 
@@ -437,14 +543,26 @@ items.append((f"{n}", f"CEILING   barcode {ccode}   (optional)", f"{CEIL_MM:.0f}
 
 pages.insert(0, index_page(items, A4))
 
-out = os.path.join(OUT, "RAONSUM_markers_A4_ALL.pdf")
+# 🔴 기본(각 면만)은 원래 이름 그대로 나간다. 현장에서 열 파일이 이것 하나여야
+#    한다. 이름이 여럿이면 급할 때 옛 파일을 연다. 변형만 꼬리표를 붙인다.
+name = "RAONSUM_markers_A4_ALL" + ("_tabs" if TABS else "") + \
+       ("_top" if CUBE_TOP else "") + ".pdf"
+out = os.path.join(OUT, name)
 size = write_pdf(pages, out)
 
 cb = ", ".join(f"{v/(1+QUIET*2):.1f}" for v in CUBE_FACE_MM)
 print(f"검은 사각형: 바닥 {FLOOR_MM:.0f}mm, 천장 {CEIL_MM:.0f}mm, 큐브 {cb}mm")
 print(f"흰 여백 포함: 바닥 {FLOOR_MM*(1+QUIET*2):.0f}mm, 천장 {big:.0f}mm, "
       f"큐브 {', '.join(f'{v:.0f}' for v in CUBE_FACE_MM)}mm")
-print(f"마커 반지름 {MRING_MM:.0f}mm\n")
+print(f"마커 반지름 {MRING_MM:.0f}mm  " +
+      ("(현장 보정값 /cal 에서 읽음)" if CAL and CAL.get("mring")
+       else "(config.js 계산값. 망이 없어 /cal 을 못 읽었습니다)"))
+print("모드: " + ("접는 날개 있음 (--tabs)" if TABS else "각 면만 (날개 없음)") +
+      ("   윗면 마커 켬" if CUBE_TOP else "   윗면 마커 없음"))
+if CUBE_TOP:
+    have = [i+1 for i, c in enumerate(CUBE_TOP_CODES) if c is not None]
+    print(f"   윗면 마커가 들어간 큐브: {have}  (나머지는 안전한 번호가 없습니다)")
+print()
 print(f"  {os.path.basename(out)}   A4 {len(pages)}장   {size//1024}KB")
 for rng, what, blk in items:
     print(f"    {rng:>7}  {what:<40} {blk}")
