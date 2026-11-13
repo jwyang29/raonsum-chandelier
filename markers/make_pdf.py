@@ -178,6 +178,12 @@ def text(s, x, y, size=9, gray=0.2, center_w=None):
     return [f"BT /F1 {size} Tf {gray} g {tx*MM:.4f} {y*MM:.4f} Td ({esc(s)}) Tj ET"]
 
 
+def text_v(s, x, y, size=8, gray=0.3):
+    """90도 돌린 글씨. 옆 띠가 좁아서 가로로는 안 들어간다."""
+    return [f"BT /F1 {size} Tf {gray} g 0 1 -1 0 {x*MM:.4f} {y*MM:.4f} Tm "
+            f"({esc(s)}) Tj ET"]
+
+
 def poly(pts, w=0.3, gray=0.2, dash=None, close=False):
     """점들을 잇는 선. 자르는 선은 실선, 접는 선은 점선으로 쓴다."""
     o = [f"{gray} G {w} w"]
@@ -225,6 +231,53 @@ def ruler(page_w, y):
             f"{(x+100)*MM:.4f} {(y-2)*MM:.4f} m {(x+100)*MM:.4f} {(y+2)*MM:.4f} l S",
             ] + text("this line must measure 100 mm  (print at 100%, no scaling)",
                      0, y - 5, 7.5, 0.35, page_w)
+
+
+def vruler(x, y, length=100.0):
+    """세로 100mm 자. 표지를 뺐으므로 배율 확인은 장마다 이것뿐이다."""
+    o = ["0.2 g 0.35 w",
+         f"{x*MM:.4f} {y*MM:.4f} m {x*MM:.4f} {(y+length)*MM:.4f} l S",
+         f"{(x-2)*MM:.4f} {y*MM:.4f} m {(x+2)*MM:.4f} {y*MM:.4f} l S",
+         f"{(x-2)*MM:.4f} {(y+length)*MM:.4f} m {(x+2)*MM:.4f} {(y+length)*MM:.4f} l S"]
+    o += text_v(f"this must measure {length:.0f} mm   PRINT AT 100%, NO SCALING",
+                x - 3, y + 2, 7.5, 0.35)
+    return o
+
+
+def sheet_page(tiles, page):
+    """한 장에 사각형 여러 개를 세로로 쌓는다.
+
+    🔴 사이를 띄우지 않는다. 두 사각형이 맞닿으면 한 번 자를 때 둘이 갈라진다.
+       포맥스 재단 때와 같은 원리다. 띄우면 자를 선이 두 배가 되고, 무엇보다
+       A4 한 장에 들어가던 짝이 안 들어간다 (150 + 130 = 280, 쓸 수 있는 높이 281).
+
+    🔴 글자는 사각형 오른쪽 띠에 적는다. 위에 적으면 한 장당 10mm 씩 먹어서
+       짝이 깨진다 (135 + 9 + 135 + 9 = 288 > 281). 띠는 어차피 남는 자리다.
+
+    tiles: [{"size": mm, "code": 번호 또는 None, "lines": [글자...]}]
+    """
+    pw, ph = page
+    ops = []
+    y = ph - MARGIN                      # 위에서부터 쌓는다
+    for t in tiles:
+        e = t["size"]
+        y -= e
+        x = MARGIN
+        if t.get("code") is not None:
+            black = e / (1 + QUIET * 2)
+            quiet = black * QUIET
+            ops += marker_ops(t["code"], x + quiet, y + quiet, black)
+        ops += poly([(x, y), (x + e, y), (x + e, y + e), (x, y + e)], 0.35, 0.35,
+                    close=True)
+        ops += crop(x, y, e, e)
+        # 글자는 띠 안에. 사각형 위쪽에 맞춰 적는다.
+        ly = y + e - 5
+        for i, line in enumerate(t.get("lines", [])):
+            ops += text(line, x + e + 4, ly - i * 4.5, 8 if i == 0 else 7.5,
+                        0.1 if i == 0 else 0.35)
+    # 세로 자는 장마다 하나. 맨 오른쪽 끝에 둔다.
+    ops += vruler(pw - MARGIN - 1, MARGIN + 4)
+    return pw, ph, ops
 
 
 def full_page(code, label, marker_mm, page):
@@ -517,34 +570,95 @@ def index_page(items, page):
     return pw, ph, ops
 
 
-# 하나로 합쳐 뽑는다. 스물세 장을 따로 열어 찍으면 한 장이 빠지기 쉽다.
-pages, items = [], []
-n = 2                                   # 1쪽은 차례다
+# =============================================================
+#  한 장에 최대한 담는다.
+#
+#  🔴 사각형 둘을 가로로 못 놓는다. 가장 작은 둘도 130 + 130 = 260 인데
+#     쓸 수 있는 폭이 194 다. 그래서 세로 한 줄로만 쌓는다. 높이 하나짜리
+#     짐싸기 문제가 된다. 큰 것부터 넣는 FFD 로 푼다 (사각형이 네 종류뿐이라
+#     이 크기에서는 최적과 같다).
+#
+#  🔴 사이를 띄우지 않는다. 맞닿은 두 사각형은 한 번 자르면 둘로 갈라진다.
+#     띄우면 150 + 130 = 280 이 281 을 넘어 짝이 깨지고 넉 장이 더 든다.
+# =============================================================
+USABLE_H = A4[1] - 2 * MARGIN
 
-floor_pages = [full_page(c, l, FLOOR_MM, A4) for c, l in FLOOR]
-pages += floor_pages
-items.append((f"{n}-{n+3}", "FLOOR 1-4   barcode 0, 7, 44, 63", f"{FLOOR_MM:.0f} mm"))
-n += len(floor_pages)
+def pack(tiles):
+    bins = []
+    for t in sorted(tiles, key=lambda t: -t["size"]):
+        for b in bins:
+            if sum(x["size"] for x in b) + t["size"] <= USABLE_H:
+                b.append(t)
+                break
+        else:
+            bins.append([t])
+    return bins
+
+
+tiles = []
+for code, label in FLOOR:
+    tiles.append({"size": FLOOR_MM * (1 + QUIET * 2), "code": code, "kind": "floor",
+                  "lines": [label, f"barcode {code}",
+                            f"{MRING_MM:.0f} mm from axis"]})
 
 for ci in range(len(CUBE_CODES)):
-    face = CUBE_FACE_MM[ci]
-    cp = [cube_page(ci, fi, face, A4) for fi in range(6)]
-    pages += cp
-    tc = CUBE_TOP_CODES[ci] if CUBE_TOP else None
-    items.append((f"{n}-{n+5}", f"CUBE {ci+1}   edge {face:.0f} mm" +
-                  (f"   top {tc}" if tc is not None else ""),
-                  f"{face/(1+QUIET*2):.1f} mm"))
-    n += len(cp)
+    e = CUBE_FACE_MM[ci]
+    for fi in range(6):
+        if fi == 5:
+            tc = CUBE_TOP_CODES[ci] if CUBE_TOP else None
+            # 🔴 윗면 인쇄 안에는 아무것도 안 그린다. 치수도 구멍 표시도 뺀다.
+            #    구멍은 현장에서 자리를 보고 뚫는 쪽이 낫다. 종이에 미리
+            #    찍어 두면 포맥스에 이미 뚫어 놓은 구멍과 어긋난다.
+            tiles.append({"size": e, "code": tc, "kind": "cube",
+                          "lines": [f"CUBE {ci+1}  TOP",
+                                    f"barcode {tc}" if tc is not None else "no marker"]
+                                   + ([ "keep holes in the white margin"]
+                                      if tc is not None else [])})
+            continue
+        direction, floor_code = CUBE_DIRS[fi]
+        tiles.append({"size": e, "code": CUBE_CODES[ci][fi], "kind": "cube",
+                      "lines": [f"CUBE {ci+1}  {direction}",
+                                f"barcode {CUBE_CODES[ci][fi]}",
+                                "faces straight down" if floor_code is None
+                                else f"toward FLOOR {floor_code}"]})
 
+# --tabs 는 옛 방식이다. 날개를 접어야 하므로 한 면에 한 장을 다 쓴다.
+# 그때는 담을 수가 없다.
+if TABS:
+    sheets = [[t] for t in tiles]
+    pages = []
+    for c, l in FLOOR:
+        pages.append(full_page(c, l, FLOOR_MM, A4))
+    for ci in range(len(CUBE_CODES)):
+        for fi in range(6):
+            pages.append(cube_page(ci, fi, CUBE_FACE_MM[ci], A4))
+else:
+    sheets = pack(tiles)
+    pages = [sheet_page(b, A4) for b in sheets]
+
+# 천장은 흰 여백까지 200mm 라 194mm 안에 안 들어간다. 혼자 한 장을 쓴다.
 ccode, clabel = CEILING
-big = CEIL_MM * (1 + QUIET * 2)
 pages.append(full_page(ccode, clabel, CEIL_MM, A4))
-items.append((f"{n}", f"CEILING   barcode {ccode}   (optional)", f"{CEIL_MM:.0f} mm"))
 
-pages.insert(0, index_page(items, A4))
+# 표지는 기본으로 안 넣는다. --index 로 되살린다.
+items = []
+n = 1
+for b in sheets:
+    what = ", ".join(t["lines"][0] for t in b)
+    items.append((str(n), what, f"{b[0]['size']:.0f} mm" if len(b) == 1
+                  else " / ".join(f"{t['size']:.0f}" for t in b) + " mm"))
+    n += 1
+if TABS:
+    items = [(f"1-{len(FLOOR)}", "FLOOR 1-4", f"{FLOOR_MM*(1+QUIET*2):.0f} mm")]
+    n = len(FLOOR) + 1
+    for ci in range(len(CUBE_CODES)):
+        items.append((f"{n}-{n+5}", f"CUBE {ci+1}   6 faces",
+                      f"{CUBE_FACE_MM[ci]:.0f} mm"))
+        n += 6
+items.append((str(n), f"CEILING   barcode {ccode}   (optional)", f"{CEIL_MM:.0f} mm"))
+if "--index" in sys.argv:
+    pages.insert(0, index_page(items, A4))
 
-# 🔴 기본(각 면만)은 원래 이름 그대로 나간다. 현장에서 열 파일이 이것 하나여야
-#    한다. 이름이 여럿이면 급할 때 옛 파일을 연다. 변형만 꼬리표를 붙인다.
 name = "RAONSUM_markers_A4_ALL" + ("_tabs" if TABS else "") + \
        ("_top" if CUBE_TOP else "") + ".pdf"
 out = os.path.join(OUT, name)
@@ -552,17 +666,22 @@ size = write_pdf(pages, out)
 
 cb = ", ".join(f"{v/(1+QUIET*2):.1f}" for v in CUBE_FACE_MM)
 print(f"검은 사각형: 바닥 {FLOOR_MM:.0f}mm, 천장 {CEIL_MM:.0f}mm, 큐브 {cb}mm")
-print(f"흰 여백 포함: 바닥 {FLOOR_MM*(1+QUIET*2):.0f}mm, 천장 {big:.0f}mm, "
+print(f"흰 여백 포함: 바닥 {FLOOR_MM*(1+QUIET*2):.0f}mm, 천장 {CEIL_MM*(1+QUIET*2):.0f}mm, "
       f"큐브 {', '.join(f'{v:.0f}' for v in CUBE_FACE_MM)}mm")
 print(f"마커 반지름 {MRING_MM:.0f}mm  " +
       ("(현장 보정값 /cal 에서 읽음)" if CAL and CAL.get("mring")
        else "(config.js 계산값. 망이 없어 /cal 을 못 읽었습니다)"))
-print("모드: " + ("접는 날개 있음 (--tabs)" if TABS else "각 면만 (날개 없음)") +
-      ("   윗면 마커 켬" if CUBE_TOP else "   윗면 마커 없음"))
 if CUBE_TOP:
     have = [i+1 for i, c in enumerate(CUBE_TOP_CODES) if c is not None]
-    print(f"   윗면 마커가 들어간 큐브: {have}  (나머지는 안전한 번호가 없습니다)")
+    print(f"윗면 마커가 들어간 큐브: {have}  (나머지는 안전한 번호가 없습니다)")
 print()
 print(f"  {os.path.basename(out)}   A4 {len(pages)}장   {size//1024}KB")
+if TABS:
+    print("  접는 날개가 있어 한 면에 한 장을 씁니다 (담지 않음)")
+else:
+    print(f"  사각형 {len(tiles)}개를 {len(sheets)}장에 담았습니다 (천장 1장 별도)")
+    # 🔴 A4 로는 이게 최소다. 160 여섯 장은 아래에 121mm 가 남지만 제일 작은
+    #    사각형이 130mm 라 아무것도 안 들어간다. 나머지 2190mm 는 281mm 짜리
+    #    칸 네 개가 최소이므로 6 + 4 + 4 = 14 장이 하한이다.
 for rng, what, blk in items:
-    print(f"    {rng:>7}  {what:<40} {blk}")
+    print(f"    {rng:>3}쪽  {what:<42} {blk}")
