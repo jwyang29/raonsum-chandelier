@@ -13,7 +13,11 @@
    python3 setcal.py --cuberot 90 0 0
    python3 setcal.py --fov 65        렌즈 화각 (긴 변 기준, 도)
    python3 setcal.py --gap 0.24      겹 사이 간격 (m)
-   python3 setcal.py --smooth 0.08   떨림 줄이기 (낮을수록 안정적)
+   python3 setcal.py --smooth 0.02   마커 포즈를 따라가는 비율 (낮을수록 안정적)
+   python3 setcal.py --dead 0.12     이만큼(m) 안 움직이면 아예 안 따라간다
+   python3 setcal.py --deadrot 7     이만큼(도) 안 돌면 아예 안 따라간다
+   python3 setcal.py --gyrosmooth 0.12  자이로를 따라가는 비율
+   python3 setcal.py --gyrodead 0.6     자이로가 이만큼(도) 안 돌면 무시
    python3 setcal.py --scatter 1     흩뿌리기 켜기 (0 이면 샹들리에)
    python3 setcal.py --clear
 
@@ -27,7 +31,9 @@ import hub_v1
 hub_v1.load_env_file()
 
 KEYS = ["ped", "pedh", "floorceiling", "ceiling", "headroom", "msize", "mring", "devh",
-        "fov", "gap", "smooth"]
+        "fov", "gap", "smooth",
+        # 떨림 관련. 전부 배포 없이 현장에서 맞춘다.
+        "dead", "deadrot", "gyrosmooth", "gyrodead"]
 
 
 def take(name, cast=float, many=False):

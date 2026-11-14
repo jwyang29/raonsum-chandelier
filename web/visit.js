@@ -11,7 +11,7 @@
 //
 // 세어 보는 법:  python3 hub/visits.py
 
-import { FIREBASE } from "./config.js?v=1114b";
+import { FIREBASE } from "./config.js?v=1114c";
 
 /** 한국 날짜 YYYY-MM-DD.
  *

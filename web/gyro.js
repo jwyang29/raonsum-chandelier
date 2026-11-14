@@ -10,9 +10,30 @@
 
 const DEG = Math.PI / 180;
 
+// 🔴 기기 방향 센서는 가만히 들고 있어도 값이 떤다. 날것을 그대로 쓰면
+//    마커를 놓친 동안 월드가 그 떨림을 그대로 받는다. 그런데 샹들리에는
+//    머리 위에 있고 마커는 발밑 좌대에 있어서, 보는 자세에서는 마커가
+//    화면 밖인 시간이 대부분이다. 곧 떨림의 대부분이 이 길에서 나온다.
+//    marker_anchor 의 smooth 와 데드밴드는 마커 길에만 걸려 있어서
+//    여기는 지금까지 아무것도 안 걸러지고 있었다.
+//
+//    ?gyrosmooth=0.1  낮을수록 둔하고 안정적 (0 이면 아예 안 따라간다)
+//    ?gyrodead=0.5    이 각도(도) 안쪽으로 떨면 아예 무시한다
+const GQ = new URLSearchParams(location.search);
+const gnum = (k, d) => {
+  const v = parseFloat(GQ.get(k));
+  return Number.isFinite(v) ? v : d;
+};
+export const GYRO_TUNE = {
+  smooth: gnum("gyrosmooth", 0.12),
+  dead: gnum("gyrodead", 0.6),
+};
+
 export class Gyro {
   constructor() {
     this.q = new THREE.Quaternion();
+    this._target = new THREE.Quaternion();
+    this._first = true;
     this.active = false;
     this.needsPermission =
       typeof DeviceOrientationEvent !== "undefined" &&
@@ -31,9 +52,21 @@ export class Gyro {
         : window.orientation || 0) * DEG;
 
       this._euler.set(e.beta * DEG, e.alpha * DEG, -e.gamma * DEG, "YXZ");
-      this.q.setFromEuler(this._euler);
-      this.q.multiply(this._q1);
-      this.q.multiply(this._q0.setFromAxisAngle(this._zee, -orient));
+      const t = this._target;
+      t.setFromEuler(this._euler);
+      t.multiply(this._q1);
+      t.multiply(this._q0.setFromAxisAngle(this._zee, -orient));
+
+      // 🔴 첫 값은 그대로 받는다. 안 그러면 0 에서부터 천천히 기어온다.
+      if (this._first) {
+        this.q.copy(t);
+        this._first = false;
+      } else {
+        // 떨림만큼 움직였으면 아예 무시한다. 가만히 들고 있을 때 그래픽이
+        // 계속 바뀌는 것이 이것 때문이다.
+        const ang = 2 * Math.acos(Math.min(1, Math.abs(this.q.dot(t)))) / DEG;
+        if (ang > GYRO_TUNE.dead) this.q.slerp(t, GYRO_TUNE.smooth);
+      }
       this.active = true;
     };
   }

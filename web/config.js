@@ -1,3 +1,4 @@
+import { GYRO_TUNE } from "./gyro.js?v=1114c";
 // =============================================================
 //  가상 샹들리에 (Playground 파생작) 설정
 //  여기 있는 값만 채우면 나머지 코드는 건드릴 필요가 없습니다.
@@ -640,6 +641,10 @@ export function applyRemoteCal(cal) {
   take("smooth", (v) => { ANCHOR.smooth = v; }, 0.02, 1);
   take("dead", (v) => { ANCHOR.deadMeters = v; }, 0, 0.3);
   take("deadrot", (v) => { ANCHOR.deadDegrees = v; }, 0, 20);
+  // 🔴 마커를 놓친 동안은 자이로가 월드를 몬다. 떨림의 대부분이 그 길에서
+  //    나오므로 이쪽도 현장에서 맞출 수 있어야 한다.
+  take("gyrosmooth", (v) => { GYRO_TUNE.smooth = v; }, 0, 1);
+  take("gyrodead", (v) => { GYRO_TUNE.dead = v; }, 0, 10);
   // 흩뿌리기. URL 로 준 것이 우선이다.
   if (!urlHas("scatter") && cal.scatter !== undefined) {
     setScatter(!!cal.scatter); hit.push("scatter=" + (cal.scatter ? 1 : 0));
