@@ -1,9 +1,9 @@
 // 크리스탈의 수명 주기. 천 중앙에서 태어나 나선으로 올라가 뼈대에 매달린다.
 // 생김새는 crystal.js 가 담당하고 여기서는 움직임과 성능 단계만 다룬다.
 
-import { GEOMETRY, MOTION, MAX_CRYSTALS, QUALITY, SCHEDULE, SCATTER_ON, SCATTER } from "./config.js?v=1114h";
-import { makeCrystal, setQuality, disposeCrystal } from "./crystal.js?v=1114h";
-import { glassTime } from "./glass_material.js?v=1114h";
+import { GEOMETRY, MOTION, MAX_CRYSTALS, QUALITY, SCHEDULE, SCATTER_ON, SCATTER } from "./config.js?v=1114i";
+import { makeCrystal, setQuality, disposeCrystal } from "./crystal.js?v=1114i";
+import { glassTime } from "./glass_material.js?v=1114i";
 
 const smoothstep = (p) => p * p * (3 - 2 * p);
 const lerp = (a, b, t) => a + (b - a) * t;
@@ -227,11 +227,15 @@ export class Chandelier {
     // ring.used 는 줄이지 않는다. 황금각이 계속 사이를 메우므로 각이 겹치지 않는다.
   }
 
-  add(data) {
+  add(data, fresh) {
     // 🔴 흩뿌리기에서는 개수를 절반으로 줄이고 크기를 키운다.
     //    한 덩어리로 뭉쳐 보이지 않게 숨을 틔우는 것이다. 어느 것을 남길지는
     //    기록에서 뽑는다. 난수로 하면 폰마다 다른 것이 남아 그림이 달라진다.
-    if (scatterOn() && hash01(data, 7) >= SCATTER_KEEP()) return null;
+    // 🔴 방금 누가 그린 것은 솎지 않는다.
+    //    솎기는 쌓인 것을 성기게 보이려고 있는 것이다. 그런데 관객이 방금
+    //    천에 그은 획까지 솎으면, 그 사람 눈앞에서는 아무 일도 안 일어난다.
+    //    작품의 전제가 거기서 깨진다. 오래된 것만 솎는다.
+    if (!fresh && scatterOn() && hash01(data, 7) >= SCATTER_KEEP()) return null;
 
     if (this.items.length >= Math.min(this.cap, MAX_CRYSTALS)) this.evictOne();
 
