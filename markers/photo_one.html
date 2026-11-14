@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="utf-8"><title>사진 한 장에서 마커 번호 읽기</title>
+<!--
+  현장 사진 한 장을 실제 검출기에 넣어, 보이는 바코드와 화면 위 자리를 읽는다.
+  🔴 눈으로 3x3 격자를 읽으면 틀린다. 멀고 비스듬한 면은 특히 그렇다.
+     큐브가 어느 쪽으로 돌아가 달렸는지는 검출기한테 물어야 한다.
+     ?img=_one.png 처럼 파일을 준다. 파일은 markers/_photos/ 에 둔다.
+-->
+<style>
+ body{margin:0;padding:16px;background:#12161c;color:#d8e0ea;font:13px/1.6 system-ui,sans-serif}
+ h1{font-size:15px;margin:0 0 8px}
+ table{border-collapse:collapse;font:12px ui-monospace,monospace;margin-top:8px}
+ td,th{border:1px solid #2a323d;padding:4px 9px;text-align:left}
+ th{color:#8b97a6;font-weight:500}
+ .f{color:#d8b36b}.c{color:#7fd4c1}.x{color:#e8736b}
+ #log{white-space:pre;color:#7f8b99;font:11px ui-monospace,monospace;margin-top:10px}
+</style>
+<script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js@3.4.5/aframe/build/aframe-ar.js"></script>
+</head><body>
+<h1>사진 한 장에서 마커 번호 읽기</h1>
+<div id="out">재는 중...</div><div id="log"></div>
+<script>
+const FILE = new URLSearchParams(location.search).get("img") || "_one.png";
+// config.js 와 같아야 한다. 2026-11-14 부터 큐브는 둘이다.
+const CUBE = { "가운데": [14,13,28,41,19], "맨위": [42,49,56,25,22] };
+const FLOOR = { 0:"+Z", 7:"-X", 44:"-Z", 63:"+X" };
+const SIDE = ["+Z","+X","-Z","-X","바닥"];
+const whose = (v) => {
+  if (v in FLOOR) return ["바닥 마커 " + v, FLOOR[v], "f"];
+  for (const k in CUBE) { const i = CUBE[k].indexOf(v);
+    if (i >= 0) return [k + " 큐브", SIDE[i] + " 면", "c"]; }
+  return ["모르는 번호", "", "x"];
+};
+const log = (s) => document.getElementById("log").textContent += s + "\n";
+const load = (s) => new Promise((r,j)=>{const i=new Image();i.onload=()=>r(i);i.onerror=()=>j(new Error(s));i.src=s;});
+
+(async () => {
+ try {
+  const img = await load("_photos/" + FILE);
+  log(`${FILE}  ${img.width}x${img.height}`);
+  const sc = document.createElement("a-scene");
+  sc.setAttribute("embedded",""); sc.setAttribute("vr-mode-ui","enabled: false");
+  const blank = document.createElement("canvas"); blank.width=1200; blank.height=1600;
+  const burl = URL.createObjectURL(await new Promise(r=>blank.toBlob(r)));
+  sc.setAttribute("arjs", "sourceType: image; sourceUrl: "+burl+
+    "; detectionMode: mono_and_matrix; matrixCodeType: 3x3; trackingMethod: best;"+
+    " sourceWidth: 1200; sourceHeight: 1600; canvasWidth: 1200; canvasHeight: 1600");
+  sc.style.cssText="position:fixed;left:-9999px;width:2px;height:2px";
+  const m=document.createElement("a-marker"); m.setAttribute("type","barcode");
+  m.setAttribute("value","0"); sc.appendChild(m);
+  sc.appendChild(document.createElement("a-entity")); document.body.appendChild(sc);
+
+  const ctrl = await new Promise((res,rej)=>{const t0=Date.now();const t=()=>{
+    const s=sc.systems&&sc.systems.arjs;
+    const c=s&&s._arSession&&s._arSession.arContext&&s._arSession.arContext.arController;
+    if (c&&c.canvas) return res(c);
+    if (Date.now()-t0>15000) return rej(new Error("검출기가 안 떴습니다"));
+    setTimeout(t,80);};t();});
+  ctrl.setPatternDetectionMode(artoolkit.AR_MATRIX_CODE_DETECTION);
+  ctrl.setMatrixCodeType(artoolkit.AR_MATRIX_CODE_3x3);
+  try { ctrl.setThresholdMode(artoolkit.AR_LABELING_THRESH_MODE_MANUAL);
+        ctrl.setThreshold(100); } catch(e){}
+
+  const found = new Map();            // 번호 -> {x, y, w, scale}
+  const c = document.createElement("canvas");
+  const cx = c.getContext("2d");
+  // 🔴 한 배율로만 보면 작은 면을 놓친다. 큐브는 멀고 바닥 마커는 가깝다.
+  for (const scale of [1, 1.4, 2, 2.8, 4]) {
+    c.width = 1200; c.height = 1600;
+    cx.fillStyle = "#fff"; cx.fillRect(0,0,c.width,c.height);
+    const w = img.width*scale, h = img.height*scale;
+    const k = Math.min(c.width/w, c.height/h);
+    const dw = w*k, dh = h*k;
+    cx.drawImage(img, (c.width-dw)/2, (c.height-dh)/2, dw, dh);
+    try { ctrl.process(c); } catch(e) { log("배율 "+scale+" 실패 "+e.message); continue; }
+    const n = ctrl.getMarkerNum ? ctrl.getMarkerNum() : 0;
+    for (let i=0;i<n;i++){
+      const mk = ctrl.getMarker(i);
+      if (!mk || mk.idMatrix < 0) continue;
+      const v = mk.idMatrix;
+      const px = mk.pos ? mk.pos[0] : (mk.vertex? (mk.vertex[0][0]+mk.vertex[2][0])/2 : 0);
+      const py = mk.pos ? mk.pos[1] : (mk.vertex? (mk.vertex[0][1]+mk.vertex[2][1])/2 : 0);
+      let sz = 0;
+      if (mk.vertex) { const a=mk.vertex[0], b=mk.vertex[1];
+        sz = Math.hypot(b[0]-a[0], b[1]-a[1]); }
+      if (!found.has(v) || found.get(v).sz < sz) found.set(v, {px, py, sz, scale});
+    }
+    log(`배율 ${scale}x : ${n}개`);
+  }
+
+  const rows = [...found.entries()].sort((a,b)=>a[1].px-b[1].px);
+  let html = "<table><tr><th>번호</th><th>무엇</th><th>면</th>"
+           + "<th>화면 x</th><th>화면 y</th><th>크기</th></tr>";
+  for (const [v, p] of rows) {
+    const [what, face, cls] = whose(v);
+    html += `<tr class="${cls}"><td>${v}</td><td>${what}</td><td>${face}</td>`
+          + `<td>${p.px.toFixed(0)}</td><td>${p.py.toFixed(0)}</td>`
+          + `<td>${p.sz.toFixed(0)}</td></tr>`;
+  }
+  html += "</table>";
+  document.getElementById("out").innerHTML =
+    rows.length ? html : "<b class=x>아무 번호도 못 읽었습니다.</b>";
+ } catch (e) {
+  document.getElementById("out").innerHTML = "<b class=x>" + e.message + "</b>";
+ }
+})();
+</script></body></html>

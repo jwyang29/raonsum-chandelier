@@ -12,7 +12,7 @@
 // 🔴 app.js 자체는 건드리지 않았다. AR 이 돌아가기까지 들인 것이 많아서
 //    장면을 만드는 차례를 손대고 싶지 않았다. 부르는 때만 늦춘다.
 
-import { countVisit } from "./visit.js?v=1114a";
+import { countVisit } from "./visit.js?v=1114b";
 
 const QS = new URLSearchParams(location.search);
 const intro = document.getElementById("intro");
@@ -47,7 +47,7 @@ async function start() {
   if (intro) intro.classList.add("gone");
 
   // 이제 카메라를 묻는다.
-  await import("./app.js?v=1114a");
+  await import("./app.js?v=1114b");
 }
 
 // 🔴 미리보기와 안내 건너뛰기는 작가가 확인할 때 쓰는 길이다. 세면 안 된다.
@@ -56,7 +56,7 @@ if (!SKIP) countVisit("ar");
 
 if (SKIP || seen || !intro || !go) {
   if (intro) intro.classList.add("gone");
-  import("./app.js?v=1114a");
+  import("./app.js?v=1114b");
 } else {
   intro.hidden = false;
   go.addEventListener("click", start, { once: true });

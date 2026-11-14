@@ -335,11 +335,20 @@ export const SCHEDULE = {
 // 번호 26 은 다른 데 쓰지 않고 이 자리로 비워 두었다.
 export const HAS_CEILING_MARKER = QS.get("ceilingmarker") === "1";
 
-// 🔴 11/1~13 무인 기간의 예비 모양. 링으로 묶지 않고 허공에 흩뿌린다.
-//    링은 규칙적이라 위치가 조금만 어긋나도 눈에 띄는데, 흩뿌려 두면 맞출
-//    기준이 없어 몇 cm 어긋나도 모른다. AR 추적이 완벽하지 않은 동안 쓴다.
-//    ?scatter=1 로 켜고 ?scatter=0 으로 끈다. setcal --scatter 로 못박는다.
-export let SCATTER_ON = QS.get("scatter") === "1";
+// 🔴 2026-11-14 부터 이게 작품의 기본 모양이다. 예비가 아니다.
+//    허공에 흩뿌려 떠 있는 것이 샹들리에다. 링으로 묶지 않는다.
+//
+//    왜 이쪽으로 갔나. 링은 규칙적이라 위치가 조금만 어긋나도 눈에 띈다.
+//    겹이 천장에서 한 줄로 내려오는 모양이라 기울거나 밀린 것이 바로 보인다.
+//    흩뿌려 두면 맞출 기준이 없어 몇 cm 어긋나도 모른다. 전시장에서
+//    AR 추적이 완벽하지 않은 동안은 이쪽이 작품을 더 잘 보여 준다.
+//
+//    새 크리스탈은 그대로 좌대 한가운데(0, spawnY, 0)에서 태어나 제 자리로
+//    올라간다. 흩뿌리기는 도착지만 바꾼다 (chandelier.js 의 scatterSpot).
+//
+//    ?scatter=0 으로 끄면 예전 링 모양으로 돌아간다.
+//    setcal --scatter 0 으로 배포 없이 못박을 수도 있다.
+export let SCATTER_ON = QS.get("scatter") !== "0";
 export function setScatter(v) { SCATTER_ON = !!v; }
 
 const R = GEOMETRY.markerRing;
