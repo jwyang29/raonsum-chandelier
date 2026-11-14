@@ -11,18 +11,18 @@
 //   ?debug=1    마커 수, 크리스탈 수, 품질 단계, fps, 월드 원점을 표시한다
 //   ?rate=1200  가짜 크리스탈 생성 간격 (ms)
 
-import "./marker_anchor.js?v=1114g";
+import "./marker_anchor.js?v=1114h";
 import { MARKERS, GEOMETRY, PEDESTAL, SCHEDULE, CAL_KEY, AR_SOURCE, ANCHOR,
          MAX_CRYSTALS, DESK, FIREBASE, applyRemoteCal,
-         refreshPedestal, refreshMarkers, SCATTER_ON } from "./config.js?v=1114g";
-import { Chandelier, RING_GAP, recomputeHeights, ringY } from "./chandelier.js?v=1114g";
-import { startFeed, mockData } from "./feed.js?v=1114g";
-import { Detector } from "./detect.js?v=1114g";
-import { pickCamera, isDesktop } from "./campick.js?v=1114g";
-import { loadBlobs } from "./crystal.js?v=1114g";
-import { Guide } from "./guide.js?v=1114g";
+         refreshPedestal, refreshMarkers, SCATTER_ON } from "./config.js?v=1114h";
+import { Chandelier, RING_GAP, recomputeHeights, ringY } from "./chandelier.js?v=1114h";
+import { startFeed, mockData } from "./feed.js?v=1114h";
+import { Detector } from "./detect.js?v=1114h";
+import { pickCamera, isDesktop } from "./campick.js?v=1114h";
+import { loadBlobs } from "./crystal.js?v=1114h";
+import { Guide } from "./guide.js?v=1114h";
 
-const VERSION = "build 1114g";   // 고칠 때마다 올린다. 폰이 옛 파일을 쓰고 있는지 이걸로 안다
+const VERSION = "build 1114h";   // 고칠 때마다 올린다. 폰이 옛 파일을 쓰고 있는지 이걸로 안다
 const params = new URLSearchParams(location.search);
 const DEBUG = params.get("debug") === "1";
 
@@ -443,6 +443,7 @@ function fixArController() {
 
 // 관람 안내. 문구를 고르고 깜빡임을 눌러 준다 (web/guide.js)
 const guide = new Guide();
+let driver = null;          // chandelier-driver 를 바깥에서 잡는다
 
 const status = document.getElementById("status");
 const panel = document.getElementById("debug");
@@ -496,6 +497,7 @@ AFRAME.registerComponent("chandelier-driver", {
     }
 
     // 크리스탈을 누르면 기계가 그 선을 어떻게 읽었는지 띄운다
+    driver = this;
     this.detector = new Detector({
       sceneEl: scene,
       boxEl: document.getElementById("det-box"),
@@ -759,7 +761,27 @@ if (CAL) {
   });
 }
 
-startFeed(
-  (data) => { if (pending) pending.push(data); else chandelier.add(data); },
-  (msg) => { console.log(`[feed] ${msg}`); },
-);
+// 🔴 방금 태어난 크리스탈은 그 획을 어떻게 읽었는지 같이 보여 준다.
+//    관객은 자기가 그은 것이 어떻게 조각이 됐는지 그 순간에 가장 궁금하다.
+//    누르면 볼 수 있지만 누를 수 있다는 것을 아무도 모른다.
+//    ⚠️ 처음 접속할 때 오는 뭉치에는 안 띄운다 (feed 의 fresh 참고).
+// ⚠️ app.js 에는 config 의 num 헬퍼가 없다. 여기서 직접 읽는다.
+const BORN_SHOW = (() => {
+  const v = parseFloat(params.get("bornshow"));
+  return Number.isFinite(v) ? v : 7;      // 몇 초 띄울지. 0 이면 안 띄운다
+})();
+
+function onCrystal(data, fresh) {
+  if (pending) { pending.push(data); return; }
+  const mesh = chandelier.add(data);
+  if (!fresh || !mesh || BORN_SHOW <= 0) return;
+  const d = driver && driver.detector;
+  if (!d) return;
+  d.select(mesh);
+  clearTimeout(onCrystal.timer);
+  onCrystal.timer = setTimeout(() => {
+    if (d.picked === mesh) d.select(null);
+  }, BORN_SHOW * 1000);
+}
+
+startFeed(onCrystal, (msg) => { console.log(`[feed] ${msg}`); });

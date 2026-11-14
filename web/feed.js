@@ -6,7 +6,7 @@
 //
 // ?mock=1 을 붙이면 Firebase 없이 가짜 크리스탈을 만들어 보낸다.
 
-import { FIREBASE, DB_PATH } from "./config.js?v=1114g";
+import { FIREBASE, DB_PATH } from "./config.js?v=1114h";
 
 const seen = new Set();
 
@@ -36,8 +36,8 @@ export function startFeed(onCrystal, onStatus) {
   if (!live && (params.get("mock") === "1" || params.get("preview") === "1")) {
     const rate = Number(params.get("rate")) || (params.get("preview") === "1" ? 1500 : 4000);
     onStatus(`mock 피드, ${rate}ms 간격`);
-    onCrystal(mockData());
-    setInterval(() => onCrystal(mockData()), rate);
+    onCrystal(mockData(), true);
+    setInterval(() => onCrystal(mockData(), true), rate);
     return;
   }
 
@@ -49,10 +49,13 @@ export function startFeed(onCrystal, onStatus) {
   const url = `${FIREBASE.databaseURL.replace(/\/$/, "")}/${DB_PATH}.json`;
   const es = new EventSource(url);
 
-  const take = (key, value) => {
+  // 🔴 처음 접속할 때 쌓인 전체가 한 번에 온다. 그것과 "방금 누가 그린 것"을
+  //    구분해서 알려야 한다. 안 그러면 들어오자마자 100개가 전부 새 것인
+  //    줄 알고 정보 창이 백 번 깜빡인다.
+  const take = (key, value, fresh) => {
     if (!value || seen.has(key)) return;
     seen.add(key);
-    onCrystal(value);
+    onCrystal(value, !!fresh);
   };
 
   es.addEventListener("put", (e) => {
@@ -60,16 +63,16 @@ export function startFeed(onCrystal, onStatus) {
     if (data === null) return;
     if (path === "/") {
       // 접속할 때 지금까지 쌓인 전체가 한 번에 온다.
-      Object.entries(data).forEach(([k, v]) => take(k, v));
+      Object.entries(data).forEach(([k, v]) => take(k, v, false));
       onStatus(`${Object.keys(data).length}개 불러왔습니다`);
     } else {
-      take(path.replace(/^\//, ""), data);
+      take(path.replace(/^\//, ""), data, true);
     }
   });
 
   es.addEventListener("patch", (e) => {
     const { path, data } = JSON.parse(e.data);
-    if (path === "/") Object.entries(data || {}).forEach(([k, v]) => take(k, v));
+    if (path === "/") Object.entries(data || {}).forEach(([k, v]) => take(k, v, true));
   });
 
   es.onopen = () => onStatus("연결됐습니다");

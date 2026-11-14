@@ -148,11 +148,11 @@
   </div>
 
   <script type="module">
-    import { CONTENT as C } from "./content.js?v=1114g";
+    import { CONTENT as C } from "./content.js?v=1114h";
 
     // 몇 명이 열었는지만 센다 (web/visit.js). 글이 뜨는 길을 막지 않도록
     // 따로 불러온다. 실패해도 페이지는 그대로다.
-    import("./visit.js?v=1114g").then((m) => m.countVisit("home")).catch(() => {});
+    import("./visit.js?v=1114h").then((m) => m.countVisit("home")).catch(() => {});
 
     const esc = (s) => String(s)
       .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
@@ -225,7 +225,7 @@
     // 설명을 읽기도 전에 기다리게 된다.
     addEventListener("load", async () => {
       try {
-        const { startHero } = await import("./hero.js?v=1114g");
+        const { startHero } = await import("./hero.js?v=1114h");
         await startHero(document.getElementById("hero"));
       } catch (e) {
         // 히어로가 안 떠도 페이지는 멀쩡해야 한다. 자리만 접는다.
