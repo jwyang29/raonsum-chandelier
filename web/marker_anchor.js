@@ -5,9 +5,9 @@
 // 측정에만 쓰고 장면은 마커 밖의 #world 에 두고 그 포즈를 매 프레임 갱신한다.
 // 보이는 마커가 둘 이상이면 평균을 낸다 (문서의 "2개 이상 보이면 평균").
 
-import { MARKERS, ANCHOR, AR_SOURCE, GEOMETRY } from "./config.js?v=1114e";
-import { solveMarkerAll, solvePlane, CV_TO_THREE } from "./pose.js?v=1114e";
-import { Gyro } from "./gyro.js?v=1114e";
+import { MARKERS, ANCHOR, AR_SOURCE, GEOMETRY } from "./config.js?v=1114g";
+import { solveMarkerAll, solvePlane, CV_TO_THREE } from "./pose.js?v=1114g";
+import { Gyro } from "./gyro.js?v=1114g";
 
 const DEG = Math.PI / 180;
 
@@ -420,6 +420,9 @@ AFRAME.registerComponent("world-anchor", {
     if (!used) {
       obj.visible = this.started;
       if (!this.started) return;
+      // 🔴 얼린 뒤에는 자이로도 안 먹인다. 카메라가 안 움직이는데 자이로를
+      //    따라가면 기기 센서의 잡음이 그대로 화면에 올라온다.
+      if (this.locked) return;
       this.heldSeconds += (dt || 16) / 1000;
 
       // 마커를 놓쳤다. 처음 놓친 순간의 기기 방향과 월드 포즈를 적어 둔다.
@@ -452,6 +455,17 @@ AFRAME.registerComponent("world-anchor", {
     const obj = this.el.object3D;
     obj.visible = true;
 
+    // 🔴 고정 카메라용 잠금.
+    //    카메라도 마커도 안 움직이는 설치에서는, 매 프레임 포즈를 다시 푸는
+    //    것 자체가 잡음의 유일한 출처다. 모서리 검출이 한 픽셀만 흔들려도
+    //    1.5m 떨어진 월드에서는 센티미터로 번진다. 데드밴드와 저역 필터로는
+    //    줄일 뿐 없앨 수 없다.
+    //    lockAfter 초가 지나면 그때 자세를 그대로 얼린다. 그 뒤로는 아무것도
+    //    안 따라간다. 움직일 일이 없으니 틀릴 일도 없다.
+    //    ⚠️ 관객이 폰을 들고 보는 평소 전시에서는 반드시 0 이어야 한다.
+    if (this.locked) return;
+    const nowS = performance.now() / 1000;
+
     // 🔴 문턱 안쪽이면 아예 안 움직인다.
     //    포즈를 매 프레임 새로 푸니 손을 가만히 둬도 몇 mm 씩 흔들린다.
     //    저역 필터는 그 잡음을 계속 쫓아다니므로 "가만히 있어도 그래픽이
@@ -468,6 +482,7 @@ AFRAME.registerComponent("world-anchor", {
     }
 
     if (!this.started) {
+      this.startedAt = nowS;
       this.pos.copy(p);
       this.quat.copy(q);
       this.started = true;
@@ -484,5 +499,13 @@ AFRAME.registerComponent("world-anchor", {
     }
     obj.position.copy(this.pos);
     obj.quaternion.copy(this.quat);
+
+    // 자리를 잡고 나면 얼린다. 처음 몇 초는 평활이 가라앉을 시간이다.
+    if (ANCHOR.lockAfter > 0 && this.startedAt &&
+        nowS - this.startedAt > ANCHOR.lockAfter) {
+      this.locked = true;
+      console.info("[anchor] 자세를 얼렸습니다. 고정 카메라 모드 "
+                   + "(setcal --lock 0 으로 끕니다)");
+    }
   },
 });

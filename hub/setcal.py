@@ -21,6 +21,7 @@
    python3 setcal.py --scatter 1     흩뿌리기 켜기 (0 이면 샹들리에)
    python3 setcal.py --cubes 0       매단 큐브를 끄고 바닥 네 장만 쓴다
    python3 setcal.py --keep 0.25     띄울 크리스탈 비율 (낮출수록 성기다)
+   python3 setcal.py --lock 8        고정 카메라: 8초 뒤 자세를 얼린다 (0 이면 끔)
    python3 setcal.py --cscale 1.3    크리스탈 크기 배수
    python3 setcal.py --clear
 
@@ -38,7 +39,7 @@ KEYS = ["ped", "pedh", "floorceiling", "ceiling", "headroom", "msize", "mring", 
         # 떨림 관련. 전부 배포 없이 현장에서 맞춘다.
         "dead", "deadrot", "gyrosmooth", "gyrodead",
         # 매단 큐브를 통째로 끈다 (0 이면 바닥 네 장만 쓴다)
-        "cubes", "keep", "cscale"]
+        "cubes", "keep", "cscale", "lock"]
 
 
 def take(name, cast=float, many=False):

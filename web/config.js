@@ -1,4 +1,4 @@
-import { GYRO_TUNE } from "./gyro.js?v=1114e";
+import { GYRO_TUNE } from "./gyro.js?v=1114g";
 // =============================================================
 //  가상 샹들리에 (Playground 파생작) 설정
 //  여기 있는 값만 채우면 나머지 코드는 건드릴 필요가 없습니다.
@@ -655,6 +655,7 @@ export function applyRemoteCal(cal) {
   //    나오므로 이쪽도 현장에서 맞출 수 있어야 한다.
   take("gyrosmooth", (v) => { GYRO_TUNE.smooth = v; }, 0, 1);
   take("gyrodead", (v) => { GYRO_TUNE.dead = v; }, 0, 10);
+  take("lock", (v) => { ANCHOR.lockAfter = v; }, 0, 120);
   // 띄울 크리스탈 비율. 낮출수록 성기게 보인다.
   take("keep", (v) => { SCATTER.keep = v; }, 0.02, 1);
   take("cscale", (v) => { SCATTER.scale = v; }, 0.3, 4);
@@ -722,6 +723,11 @@ export const ANCHOR = {
   //    된다. 문턱 안쪽이면 아예 안 움직이는 쪽이 눈에 훨씬 편하다.
   deadMeters: num("dead", 0.03),     // 3cm
   deadDegrees: num("deadrot", 1.5),  // 1.5도
+  // 🔴 고정 카메라용. 이 초가 지나면 자세를 얼리고 그 뒤로 안 따라간다.
+  //    카메라도 마커도 안 움직이는 설치에서 떨림을 없애는 유일한 방법이다.
+  //    0 이면 끈다 (관객이 들고 보는 평소 전시는 0 이어야 한다).
+  lockAfter: num("lock", 0),
+
   maxMarkers: 4,       // 동시에 평균낼 바닥 마커 수
 
   // 마커들 사이에 조형물이 있어 4개가 한꺼번에 안 보일 수 있다.
