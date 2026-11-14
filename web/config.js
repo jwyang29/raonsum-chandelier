@@ -1,4 +1,4 @@
-import { GYRO_TUNE } from "./gyro.js?v=1114d";
+import { GYRO_TUNE } from "./gyro.js?v=1114e";
 // =============================================================
 //  가상 샹들리에 (Playground 파생작) 설정
 //  여기 있는 값만 채우면 나머지 코드는 건드릴 필요가 없습니다.
@@ -350,6 +350,16 @@ export const HAS_CEILING_MARKER = QS.get("ceilingmarker") === "1";
 //    ?scatter=0 으로 끄면 예전 링 모양으로 돌아간다.
 //    setcal --scatter 0 으로 배포 없이 못박을 수도 있다.
 export let SCATTER_ON = QS.get("scatter") !== "0";
+
+// 흩뿌릴 때 남길 비율과 키울 배수.
+// 🔴 chandelier.js 가 아니라 여기 둔다. 거기 두면 보정값으로 못 바꾼다.
+//    config 가 chandelier 를 불러오면 순환이 되므로 값이 이쪽에 있어야 한다.
+//    keep 0.5 는 올라온 것의 절반, 0.25 는 그 절반만 띄운다.
+//    어느 것을 남길지는 기록에서 뽑으므로 모든 폰이 같은 것을 본다.
+export const SCATTER = {
+  keep:  num("scatterkeep", 0.5),
+  scale: num("scatterscale", 1.3),
+};
 export function setScatter(v) { SCATTER_ON = !!v; }
 
 const R = GEOMETRY.markerRing;
@@ -645,6 +655,9 @@ export function applyRemoteCal(cal) {
   //    나오므로 이쪽도 현장에서 맞출 수 있어야 한다.
   take("gyrosmooth", (v) => { GYRO_TUNE.smooth = v; }, 0, 1);
   take("gyrodead", (v) => { GYRO_TUNE.dead = v; }, 0, 10);
+  // 띄울 크리스탈 비율. 낮출수록 성기게 보인다.
+  take("keep", (v) => { SCATTER.keep = v; }, 0.02, 1);
+  take("cscale", (v) => { SCATTER.scale = v; }, 0.3, 4);
   // 흩뿌리기. URL 로 준 것이 우선이다.
   if (!urlHas("scatter") && cal.scatter !== undefined) {
     setScatter(!!cal.scatter); hit.push("scatter=" + (cal.scatter ? 1 : 0));
