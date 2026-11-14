@@ -578,6 +578,23 @@ def _serial(text):
             pass
 
 
+# 🔴 같은 줄을 130번 찍으면 터미널을 못 읽는다. 배선을 고치는 중에 정작
+#    무엇이 바뀌었는지가 그 도배에 묻힌다. 같은 말은 한 번만 찍고 세기만 한다.
+_LAST = {"msg": None, "n": 0, "at": 0.0}
+
+
+def say_once(text, every=20.0):
+    now = time.time()
+    if text == _LAST["msg"] and now - _LAST["at"] < every:
+        _LAST["n"] += 1
+        return
+    if _LAST["msg"] == text and _LAST["n"]:
+        say(f"{text}   (같은 말 {_LAST['n']}번 더)")
+    else:
+        say(text)
+    _LAST.update(msg=text, n=0, at=now)
+
+
 def _note(text):
     """ESP32 가 스스로 하는 말 (# 으로 시작하는 줄)."""
     if NOTE_CB:
@@ -622,7 +639,7 @@ def find_esp32(seconds=2.0):
     ports = list_ports()
     if not ports:
         return None
-    print(f"[{VERSION}] 포트를 찾는 중: {', '.join(ports)}")
+    say_once(f"[{VERSION}] 포트를 찾는 중: {', '.join(ports)}", 15.0)
     for dev in ports:
         try:
             with serial.Serial(dev, BAUD, timeout=0.3) as ser:
@@ -661,7 +678,7 @@ def frames_from_serial(port=None, tracker=None, reconnect=True, stall=6.0):
                     f"[{VERSION}] ESP32 를 못 찾았습니다.\n"
                     f"  보이는 포트: {', '.join(list_ports()) or '없음'}\n"
                     f"  USB 를 꽂고 다시 돌리거나 --port 로 직접 적어 주세요.")
-            print(f"[{VERSION}] ESP32 가 안 보입니다. 2초 뒤 다시 찾습니다.")
+            say_once(f"[{VERSION}] ESP32 가 안 보입니다. 꽂으면 바로 잡습니다.", 15.0)
             time.sleep(2)
             continue
 
@@ -710,7 +727,7 @@ def frames_from_serial(port=None, tracker=None, reconnect=True, stall=6.0):
                     #    사이에 묻힌다. 실제로 그 바람에 한참 헤맸다.
                     last = time.time()
                     quiet = time.time()
-                    say(f"  esp32: {raw}")
+                    say_once(f"  esp32: {raw}")
                     _note(raw.lstrip("# ").strip())
                     _serial("말은 하는데 센서 값 없음")
                     continue
