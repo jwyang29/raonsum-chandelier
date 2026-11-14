@@ -19,6 +19,7 @@
    python3 setcal.py --gyrosmooth 0.12  자이로를 따라가는 비율
    python3 setcal.py --gyrodead 0.6     자이로가 이만큼(도) 안 돌면 무시
    python3 setcal.py --scatter 1     흩뿌리기 켜기 (0 이면 샹들리에)
+   python3 setcal.py --cubes 0       매단 큐브를 끄고 바닥 네 장만 쓴다
    python3 setcal.py --clear
 
 ⚠️ 적은 것만 바뀐다. 안 적은 것은 그대로 둔다.
@@ -33,7 +34,9 @@ hub_v1.load_env_file()
 KEYS = ["ped", "pedh", "floorceiling", "ceiling", "headroom", "msize", "mring", "devh",
         "fov", "gap", "smooth",
         # 떨림 관련. 전부 배포 없이 현장에서 맞춘다.
-        "dead", "deadrot", "gyrosmooth", "gyrodead"]
+        "dead", "deadrot", "gyrosmooth", "gyrodead",
+        # 매단 큐브를 통째로 끈다 (0 이면 바닥 네 장만 쓴다)
+        "cubes"]
 
 
 def take(name, cast=float, many=False):

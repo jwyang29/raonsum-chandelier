@@ -1,4 +1,4 @@
-import { GYRO_TUNE } from "./gyro.js?v=1114c";
+import { GYRO_TUNE } from "./gyro.js?v=1114d";
 // =============================================================
 //  가상 샹들리에 (Playground 파생작) 설정
 //  여기 있는 값만 채우면 나머지 코드는 건드릴 필요가 없습니다.
@@ -672,6 +672,18 @@ export function applyRemoteCal(cal) {
     });
     hit.push("cubeY");
   }
+  // 🔴 매단 큐브를 통째로 끈다. 떨어졌거나 믿을 수 없을 때 바닥 네 장만으로
+  //    간다. 마커를 아예 안 만들어야 한다. 남겨 두면 떨어진 큐브가 바닥에
+  //    뒹구는 채로 읽혀서 월드가 허공의 빈자리로 끌려간다.
+  //    배포 없이 setcal --cubes 0 으로 끈다.
+  if (!urlHas("cubes") && cal.cubes !== undefined && !Number(cal.cubes)) {
+    for (let i = MARKERS.length - 1; i >= 0; i--) {
+      if (MARKERS[i].kind === "cube") MARKERS.splice(i, 1);
+    }
+    CUBES.length = 0;
+    hit.push("cubes=0");
+  }
+
   // 돌아간 각. 매달고 보니 틀어졌을 때 배포 없이 고친다.
   if (!urlHas("cube") && Array.isArray(cal.cubeRot)) {
     cal.cubeRot.forEach((r, i) => {

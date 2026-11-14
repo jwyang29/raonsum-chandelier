@@ -737,7 +737,10 @@ def frames_from_serial(port=None, tracker=None, reconnect=True, stall=6.0):
                     dist = [int(v) for v in raw.split(",")[1:]]
                 except ValueError:
                     continue
-                last = time.time()
+                # 🔴 quiet 도 같이 민다. 안 밀면 값이 멀쩡히 오는데도 6초마다
+                #    "센서 값이 안 옵니다" 가 뜬다. 경고가 거짓말을 하면
+                #    진짜 문제일 때 아무도 안 믿는다.
+                last = quiet = time.time()
                 yield dist, time.time()
         except Exception as e:
             _serial("끊김")
