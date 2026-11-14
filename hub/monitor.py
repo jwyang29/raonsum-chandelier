@@ -47,6 +47,7 @@ class Feed:
         self.port = port
         self.lock = threading.Lock()
         self.crystals = deque(maxlen=RECENT)
+        self.notes = deque(maxlen=6)     # ESP32 가 스스로 하는 말
         self.serial = "여는 중"
         self.started = time.time()
 
@@ -57,6 +58,12 @@ class Feed:
                 "ok": bool(ok),
                 "data": c,
             })
+
+    def add_note(self, text):
+        """ESP32 의 # 줄. 배선이 틀렸을 때 여기에만 단서가 있다."""
+        with self.lock:
+            if not self.notes or self.notes[0]["t"] != text:
+                self.notes.appendleft({"t": text, "at": time.strftime("%H:%M:%S")})
 
     def set_serial(self, text):
         with self.lock:
@@ -70,6 +77,7 @@ class Feed:
         up = self.up
         with self.lock:
             crystals = list(self.crystals)
+            notes = list(self.notes)
             serial = self.serial
         return {
             "rate": round(s.get("rate") or 0, 1),
@@ -90,6 +98,7 @@ class Feed:
             "path": self.path,
             "serial": serial,
             "crystals": crystals,
+            "notes": notes,
             "uptime": int(time.time() - self.started),
         }
 
@@ -137,6 +146,11 @@ PAGE = r"""<!DOCTYPE html>
   * { box-sizing: border-box; }
   html, body { margin:0; height:100%; background:var(--bg); color:var(--fg);
     font:13px/1.5 -apple-system, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif; }
+  /* ESP32 가 스스로 하는 말. 배선이 틀렸을 때 여기에만 단서가 있다. */
+  #esp { margin:10px 14px 0; padding:9px 12px; border-radius:6px;
+         background:#3d201c; border:1px solid #6b3a33; color:#f0b9b1;
+         font:12px/1.6 ui-monospace, Menlo, monospace; white-space:pre-wrap; }
+  #esp b { color:#fff; display:block; margin-bottom:3px; font-family:inherit; }
   #top { display:flex; gap:14px; align-items:baseline; padding:10px 14px;
          border-bottom:1px solid var(--line); flex-wrap:wrap; }
   #top b { font-size:15px; letter-spacing:-.01em; }
@@ -204,6 +218,7 @@ PAGE = r"""<!DOCTYPE html>
   <span class="pill" id="p-conn">창 연결</span>
 </div>
 
+<div id="esp" style="display:none"></div>
 <div id="grid">
   <div class="card">
     <h2>1 · 센서</h2>
@@ -430,6 +445,13 @@ async function tick() {
     document.getElementById("fabsub").textContent =
       `천 ${s.fabric_cm}cm   점 ${(s.current || []).length}개`;
     drawSensors(s); drawFabric(s); drawLog(s);
+    const esp = document.getElementById("esp");
+    const notes = s.notes || [];
+    if (notes.length) {
+      esp.style.display = "";
+      esp.innerHTML = "<b>ESP32 가 보내는 말 (배선 문제는 여기에 나옵니다)</b>" +
+        notes.map(n => n.at + "  " + n.t).join("\n");
+    } else { esp.style.display = "none"; }
   } catch (e) {
     setPill("p-conn", "허브와 끊김", "bad");
   }

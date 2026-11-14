@@ -567,12 +567,22 @@ class Uploader:
 
 # 시리얼이 붙었나 끊겼나를 감시 창에 알린다. 없으면 아무 일도 안 한다.
 SERIAL_CB = None
+NOTE_CB = None
 
 
 def _serial(text):
     if SERIAL_CB:
         try:
             SERIAL_CB(text)
+        except Exception:
+            pass
+
+
+def _note(text):
+    """ESP32 가 스스로 하는 말 (# 으로 시작하는 줄)."""
+    if NOTE_CB:
+        try:
+            NOTE_CB(text)
         except Exception:
             pass
 
@@ -596,7 +606,13 @@ def list_ports():
 
 
 def find_esp32(seconds=2.0):
-    """ESP32 를 스스로 찾는다. D, 로 시작하는 줄을 보내는 포트가 그것이다.
+    """ESP32 를 스스로 찾는다. D, 또는 # 로 시작하는 줄을 보내는 포트다.
+
+    🔴 D, 만 인정하면 안 된다. 센서가 안 올라온 보드는 D, 를 한 줄도 안 보내고
+       "# FAIL ..." 만 되풀이한다. 그런데 그게 바로 원인을 말해 주는 줄이다.
+       D, 만 찾으면 그 보드를 영영 못 찾고, 허브는 "여는 중" 에 멈춘 채
+       2초마다 포트를 열었다 닫으며 그 메시지를 버린다. 실제로 그렇게
+       MCP23017 배선 문제를 한참 못 봤다. # 도 우리 펌웨어의 증거다.
 
     🔴 포트 이름을 외워서 치게 하면 안 된다. 케이블이나 칩이 바뀌면
        /dev/cu.usbserial-0001 이 wchusbserial 이나 SLAB_USBtoUART 가 된다.
@@ -613,8 +629,10 @@ def find_esp32(seconds=2.0):
                 end = time.time() + seconds
                 while time.time() < end:
                     raw = ser.readline().decode(errors="ignore").strip()
-                    if raw.startswith("D,"):
-                        print(f"[{VERSION}] ESP32 를 찾았습니다: {dev}")
+                    if raw.startswith("D,") or raw.startswith("#"):
+                        print(f"[{VERSION}] ESP32 를 찾았습니다: {dev}"
+                              + ("" if raw.startswith("D,")
+                                 else "  (지금은 센서 값 없이 메시지만 보냅니다)"))
                         return dev
         except Exception:
             continue
@@ -667,10 +685,17 @@ def frames_from_serial(port=None, tracker=None, reconnect=True, stall=6.0):
             if tracker is not None:
                 tracker.recalibrate()
 
-        last = time.time()
+        last = quiet = time.time()
         try:
             while True:
                 raw = ser.readline().decode(errors="ignore").strip()
+                # 🔴 센서 값(D,)이 없는 것과 포트가 죽은 것은 다른 일이다.
+                #    말은 하는데 값이 없으면 하드웨어가 안 올라온 것이므로
+                #    다시 연결해 봐야 소용없다. 그대로 두고 알리기만 한다.
+                if time.time() - quiet > stall and time.time() - last <= stall:
+                    quiet = time.time()
+                    say(f"[{VERSION}] ⚠️ ESP32 는 말하는데 센서 값(D,)이 안 옵니다. "
+                        f"위 esp32: 줄을 보세요. 배선 문제입니다.")
                 if time.time() - last > stall:
                     _serial("값 없음")
                     print(f"\n[{VERSION}] {stall:.0f}초 동안 센서 값이 없습니다. "
@@ -679,7 +704,15 @@ def frames_from_serial(port=None, tracker=None, reconnect=True, stall=6.0):
                 if not raw:
                     continue
                 if raw.startswith("#"):
-                    print(f"  esp32: {raw}")
+                    # 🔴 이건 "살아 있다" 는 증거다. 끊김으로 보면 안 된다.
+                    #    MCP23017 을 못 찾는다고 알려 주는 중인데 6초마다
+                    #    다시 연결해 버리면, 정작 읽어야 할 그 줄이 재연결
+                    #    사이에 묻힌다. 실제로 그 바람에 한참 헤맸다.
+                    last = time.time()
+                    quiet = time.time()
+                    say(f"  esp32: {raw}")
+                    _note(raw.lstrip("# ").strip())
+                    _serial("말은 하는데 센서 값 없음")
                     continue
                 if not raw.startswith("D,"):
                     continue
@@ -798,6 +831,8 @@ def main():
             url = monitor.start(feed, args.mport)
             global SERIAL_CB
             SERIAL_CB = feed.set_serial
+            global NOTE_CB
+            NOTE_CB = feed.add_note
             print(f"[{VERSION}] 감시 창: {url}")
             try:
                 import webbrowser
