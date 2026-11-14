@@ -565,6 +565,18 @@ class Uploader:
 #  입력: 시리얼 또는 녹화 재생
 # ---------------------------------------------------------------
 
+# 시리얼이 붙었나 끊겼나를 감시 창에 알린다. 없으면 아무 일도 안 한다.
+SERIAL_CB = None
+
+
+def _serial(text):
+    if SERIAL_CB:
+        try:
+            SERIAL_CB(text)
+        except Exception:
+            pass
+
+
 # 블루투스 가상 포트. ESP32 를 찾을 때 건너뛴다. 열면 몇 초씩 걸린다.
 SKIP_PORTS = ("Bluetooth", "debug-console", "BeoplayH9", "Earbuds", "AirPods")
 
@@ -644,6 +656,7 @@ def frames_from_serial(port=None, tracker=None, reconnect=True, stall=6.0):
             time.sleep(2)
             continue
 
+        _serial("연결됨 " + os.path.basename(dev))
         if first:
             print(f"[{VERSION}] {dev} 열었습니다. "
                   f"처음 2초는 천에서 손을 떼 주세요 (기준 거리 측정).")
@@ -659,6 +672,7 @@ def frames_from_serial(port=None, tracker=None, reconnect=True, stall=6.0):
             while True:
                 raw = ser.readline().decode(errors="ignore").strip()
                 if time.time() - last > stall:
+                    _serial("값 없음")
                     print(f"\n[{VERSION}] {stall:.0f}초 동안 센서 값이 없습니다. "
                           f"다시 연결합니다.")
                     break
@@ -676,6 +690,7 @@ def frames_from_serial(port=None, tracker=None, reconnect=True, stall=6.0):
                 last = time.time()
                 yield dist, time.time()
         except Exception as e:
+            _serial("끊김")
             print(f"\n[{VERSION}] 시리얼이 끊겼습니다 ({e}).")
         finally:
             try:
@@ -718,6 +733,9 @@ def main():
     ap.add_argument("--selftest", action="store_true",
                     help="센서만 본다. 아홉 개 거리를 실시간으로 찍고 올리지 않는다")
     ap.add_argument("--ports", action="store_true", help="보이는 시리얼 포트만 찍고 끝")
+    ap.add_argument("--monitor", action="store_true",
+                    help="노트북 브라우저에 감시 창을 띄운다 (센서 / 그림 / 입체 / 전송)")
+    ap.add_argument("--mport", type=int, default=8700, help="감시 창 포트")
     args = ap.parse_args()
     # 🔴 --path 는 모듈 전역을 갈아끼운다. _endpoint 와 --check 가 전부 이걸
     #    본다. 시험용 자리를 쓰면 화면에 크게 알린다. 전시용에 섞어 쓰면
@@ -758,13 +776,36 @@ def main():
     tracker = Tracker()
     strokes = 0
 
+    feed = None
+
     def on_clean(clean, feel):
         nonlocal strokes
         strokes += 1
         dur = (tracker.stroke_t1 - tracker.stroke_t0) if tracker.stroke_t0 else 0.0
-        up.send(build_crystal(clean, feel, dur))
+        c = build_crystal(clean, feel, dur)
+        up.send(c)
+        if feed is not None:
+            # 보내고 나서도 줄에 남아 있으면 못 올라간 것이다.
+            feed.add_crystal(c, c not in up.queue)
 
     tracker.on_clean = on_clean
+
+    if args.monitor:
+        # 🔴 감시 창은 보는 자리일 뿐이다. 못 띄워도 허브는 계속 돌아야 한다.
+        try:
+            import monitor
+            feed = monitor.Feed(tracker, up, RTDB_PATH, args.mport)   # noqa: F841
+            url = monitor.start(feed, args.mport)
+            global SERIAL_CB
+            SERIAL_CB = feed.set_serial
+            print(f"[{VERSION}] 감시 창: {url}")
+            try:
+                import webbrowser
+                webbrowser.open(url)
+            except Exception:
+                pass
+        except Exception as e:
+            print(f"[{VERSION}] ⚠️ 감시 창을 못 띄웠습니다 ({e}). 허브는 계속 갑니다.")
 
     frames = (frames_from_csv(args.mock, realtime=not args.fast) if args.mock
               else frames_from_serial(args.port, tracker=tracker))
