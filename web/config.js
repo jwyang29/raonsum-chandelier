@@ -1,4 +1,4 @@
-import { GYRO_TUNE } from "./gyro.js?v=1114i";
+import { GYRO_TUNE } from "./gyro.js?v=1115a";
 // =============================================================
 //  가상 샹들리에 (Playground 파생작) 설정
 //  여기 있는 값만 채우면 나머지 코드는 건드릴 필요가 없습니다.
@@ -356,6 +356,12 @@ export let SCATTER_ON = QS.get("scatter") !== "0";
 //    config 가 chandelier 를 불러오면 순환이 되므로 값이 이쪽에 있어야 한다.
 //    keep 0.5 는 올라온 것의 절반, 0.25 는 그 절반만 띄운다.
 //    어느 것을 남길지는 기록에서 뽑으므로 모든 폰이 같은 것을 본다.
+// 화면에 뜨는 안내. 보정값으로 바꾼다.
+export const UI = {
+  // 방금 태어난 크리스탈의 판독창을 몇 초 띄울지. 0 이면 안 띄운다.
+  bornShow: num("bornshow", 10),
+};
+
 export const SCATTER = {
   keep:  num("scatterkeep", 0.5),
   scale: num("scatterscale", 1.3),
@@ -656,6 +662,8 @@ export function applyRemoteCal(cal) {
   take("gyrosmooth", (v) => { GYRO_TUNE.smooth = v; }, 0, 1);
   take("gyrodead", (v) => { GYRO_TUNE.dead = v; }, 0, 10);
   take("lock", (v) => { ANCHOR.lockAfter = v; }, 0, 120);
+  take("rise", (v) => { MOTION.riseSeconds = v; }, 2, 180);
+  take("bornshow", (v) => { UI.bornShow = v; }, 0, 60);
   // 띄울 크리스탈 비율. 낮출수록 성기게 보인다.
   take("keep", (v) => { SCATTER.keep = v; }, 0.02, 1);
   take("cscale", (v) => { SCATTER.scale = v; }, 0.3, 4);
@@ -774,7 +782,13 @@ export const MOTION = {
   // 천에서 그날 링까지 올라가는 시간.
   // 올라가는 동안이 크리스탈을 누르기 가장 좋은 구간이다. 링에 매달리고 나면
   // 좁은 반경에 몰려서 개별 선택이 어렵다. 그래서 넉넉하게 둔다.
-  riseSeconds: 60,
+  // 천에서 태어나 제 자리까지 올라가는 시간.
+  // 🔴 60초는 샹들리에가 천장(2.3m)에 있을 때의 값이다. 고정 카메라를 위해
+  //    크리스탈을 0.75m 로 내린 뒤로는 올라갈 거리가 50cm 남짓이라, 60초로는
+  //    10초에 4cm 씩 움직여 거의 멈춰 보인다. 판독창이 떠 있는 동안 눈에
+  //    보이게 올라가야 "내가 그은 것이 떠오른다" 가 읽힌다.
+  //    setcal --rise 로 현장에서 맞춘다.
+  riseSeconds: num("rise", 14),
   spiralTurns: 1.5,     // 올라가면서 도는 횟수
   spiralRadius: 0.18,   // 나선 반지름
   swayAmplitude: 0.012, // 매달린 뒤 흔들림 크기

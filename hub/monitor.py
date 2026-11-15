@@ -162,34 +162,39 @@ PAGE = r"""<!DOCTYPE html>
   /* 🔴 minmax(0,1fr) 이어야 한다. 그냥 1fr 은 minmax(auto,1fr) 이라 칸이
      내용보다 작아지지 못한다. 캔버스가 커지면 칸이 따라 커지고 캔버스가
      또 커지는 되먹임이 생긴다. 실제로 4800px 까지 부풀어 다른 칸을 밀어냈다. */
-  #grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px;
-          padding:12px; height:calc(100% - 46px); }
-  @media (max-width:1100px) { #grid { grid-template-columns:repeat(2,minmax(0,1fr));
-                                      height:auto; } }
+  /* 🔴 읽힌 그림과 태어난 입체가 주인공이다. 그 둘을 보려고 띄우는 창이다.
+     센서와 전송은 숫자만 확인하면 되므로 옆 기둥으로 보낸다. */
+  #grid { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr) 250px;
+          gap:12px; padding:12px; height:calc(100% - 46px); }
+  #side { display:grid; grid-template-rows:auto 1fr; gap:12px; min-height:0; }
+  @media (max-width:1000px) { #grid { grid-template-columns:minmax(0,1fr);
+                                      height:auto; }
+                              #side { grid-template-rows:auto auto; } }
   .card { background:var(--card); border:1px solid var(--line); border-radius:8px;
           padding:11px 12px; display:flex; flex-direction:column;
           min-height:0; min-width:0; overflow:hidden; }
+  .card.big h2 { font-size:12px; letter-spacing:.2em; }
   .card h2 { margin:0 0 9px; font:600 11px/1 ui-monospace, Menlo, monospace;
              letter-spacing:.16em; color:var(--mute); text-transform:uppercase; }
   .card .sub { font-size:11px; color:var(--mute); margin:-5px 0 9px; }
 
   /* 1 센서 */
-  #sensors { display:grid; grid-template-columns:repeat(3,1fr); gap:7px; }
+  #sensors { display:grid; grid-template-columns:repeat(3,1fr); gap:5px; }
   .s { background:#0e1319; border:1px solid var(--line); border-radius:5px;
        padding:7px 6px; text-align:center; }
   .s.dead { border-color:#5a2a24; background:#1d1210; }
   .s .n { font:600 9px/1 ui-monospace,Menlo,monospace; color:var(--mute); }
-  .s .d { font:600 17px/1.25 ui-monospace,Menlo,monospace; font-variant-numeric:tabular-nums; }
+  .s .d { font:600 15px/1.2 ui-monospace,Menlo,monospace; font-variant-numeric:tabular-nums; }
   .s.dead .d { color:var(--bad); font-size:14px; }
   .s .bar { height:4px; background:#1b2029; border-radius:2px; margin-top:5px; }
   .s .bar i { display:block; height:100%; background:var(--ok); border-radius:2px; width:0; }
 
   /* 2 그림 */
-  #fabricWrap { position:relative; flex:1; min-height:220px; display:grid; place-items:center; }
+  #fabricWrap { position:relative; flex:1; min-height:320px; display:grid; place-items:center; }
   #fabric { background:#0e1319; border:1px solid var(--line); border-radius:4px; }
 
   /* 3 입체 */
-  #stage { flex:1; min-height:220px; background:#0e1319; border:1px solid var(--line);
+  #stage { flex:1; min-height:320px; background:#0e1319; border:1px solid var(--line);
            border-radius:4px; position:relative; overflow:hidden; }
   /* 캔버스 크기는 CSS 가 쥔다. three 가 style 을 건드리면 위의 되먹임이 돈다. */
   #stage canvas { display:block; width:100% !important; height:100% !important; }
@@ -220,30 +225,31 @@ PAGE = r"""<!DOCTYPE html>
 
 <div id="esp" style="display:none"></div>
 <div id="grid">
-  <div class="card">
-    <h2>1 · 센서</h2>
-    <div class="sub">천에서 손을 떼면 기준 거리에 가까워집니다</div>
-    <div id="sensors"></div>
-  </div>
-
-  <div class="card">
-    <h2>2 · 읽힌 그림</h2>
+  <div class="card big">
+    <h2>읽힌 그림</h2>
     <div class="sub" id="fabsub">천 33cm</div>
-    <div id="fabricWrap"><canvas id="fabric" width="300" height="300"></canvas></div>
+    <div id="fabricWrap"><canvas id="fabric" width="480" height="480"></canvas></div>
   </div>
 
-  <div class="card">
-    <h2>3 · 태어난 입체</h2>
+  <div class="card big">
+    <h2>태어난 입체</h2>
     <div class="sub">관객 화면과 같은 코드로 그립니다</div>
     <div id="stage"><div id="noxtal">아직 없습니다.<br>천에 한 번 그어 보세요.</div></div>
     <div id="feat"></div>
   </div>
 
-  <div class="card">
-    <h2>4 · 웹 전송</h2>
-    <div class="sub" id="dest"></div>
-    <div id="log"></div>
-    <div id="counts"></div>
+  <div id="side">
+    <div class="card">
+      <h2>센서</h2>
+      <div class="sub">손을 떼면 기준에 가까워집니다</div>
+      <div id="sensors"></div>
+    </div>
+    <div class="card">
+      <h2>웹 전송</h2>
+      <div class="sub" id="dest"></div>
+      <div id="log"></div>
+      <div id="counts"></div>
+    </div>
   </div>
 </div>
 
@@ -329,7 +335,20 @@ function showFeatures(d) {
 // ── 2 그림 ────────────────────────────────────────────────
 const cv = document.getElementById("fabric");
 const ctx = cv.getContext("2d");
+// 🔴 캔버스 크기를 CSS 로만 늘리면 흐려진다. 픽셀 수를 같이 올린다.
+function fitFabric() {
+  const host = document.getElementById("fabricWrap");
+  const d = Math.max(240, Math.min(host.clientWidth, host.clientHeight));
+  const r = Math.min(2, devicePixelRatio || 1);
+  if (cv.width === Math.round(d * r)) return;
+  cv.width = cv.height = Math.round(d * r);
+  cv.style.width = cv.style.height = d + "px";
+}
+addEventListener("resize", fitFabric);
+try { new ResizeObserver(fitFabric).observe(document.getElementById("fabricWrap")); } catch (e) {}
+fitFabric();
 function drawFabric(s) {
+  fitFabric();
   const W = cv.width, H = cv.height, F = s.field || 150;
   const px = (v) => (v / F * 0.5 + 0.5) * W;
   const py = (v) => (0.5 - v / F * 0.5) * H;
@@ -338,7 +357,7 @@ function drawFabric(s) {
   // 센서 아홉 자리 (-100, 0, +100)
   ctx.fillStyle = "#1e2732";
   for (const gx of [-100, 0, 100]) for (const gy of [-100, 0, 100]) {
-    ctx.beginPath(); ctx.arc(px(gx), py(gy), 3, 0, 7); ctx.fill();
+    ctx.beginPath(); ctx.arc(px(gx), py(gy), W / 140, 0, 7); ctx.fill();
   }
   ctx.strokeStyle = "#1b2029"; ctx.lineWidth = 1;
   ctx.strokeRect(px(-100), py(100), px(100) - px(-100), py(-100) - py(100));
@@ -348,18 +367,18 @@ function drawFabric(s) {
   cl.forEach((line, i) => {
     const a = 0.18 + 0.2 * (i / Math.max(1, cl.length - 1));
     ctx.strokeStyle = `rgba(127,212,193,${a})`;
-    ctx.lineWidth = 2; stroke(line);
+    ctx.lineWidth = W / 150; stroke(line);
   });
 
   // 지금 긋는 선
   if (s.current && s.current.length > 1) {
-    ctx.strokeStyle = "#7fd4c1"; ctx.lineWidth = 3; stroke(s.current);
+    ctx.strokeStyle = "#7fd4c1"; ctx.lineWidth = W / 90; stroke(s.current);
   }
   // 손가락
   if (s.finger) {
     const [x, y, d] = s.finger;
     ctx.fillStyle = "#e9f6f2";
-    ctx.beginPath(); ctx.arc(px(x), py(y), 4 + Math.min(9, (d || 0) * 0.35), 0, 7);
+    ctx.beginPath(); ctx.arc(px(x), py(y), (W / 100) + Math.min(W / 36, (d || 0) * W / 1000), 0, 7);
     ctx.fill();
   }
   function stroke(pts) {

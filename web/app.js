@@ -11,18 +11,18 @@
 //   ?debug=1    마커 수, 크리스탈 수, 품질 단계, fps, 월드 원점을 표시한다
 //   ?rate=1200  가짜 크리스탈 생성 간격 (ms)
 
-import "./marker_anchor.js?v=1114i";
+import "./marker_anchor.js?v=1115a";
 import { MARKERS, GEOMETRY, PEDESTAL, SCHEDULE, CAL_KEY, AR_SOURCE, ANCHOR,
          MAX_CRYSTALS, DESK, FIREBASE, applyRemoteCal,
-         refreshPedestal, refreshMarkers, SCATTER_ON } from "./config.js?v=1114i";
-import { Chandelier, RING_GAP, recomputeHeights, ringY } from "./chandelier.js?v=1114i";
-import { startFeed, mockData } from "./feed.js?v=1114i";
-import { Detector } from "./detect.js?v=1114i";
-import { pickCamera, isDesktop } from "./campick.js?v=1114i";
-import { loadBlobs } from "./crystal.js?v=1114i";
-import { Guide } from "./guide.js?v=1114i";
+         refreshPedestal, refreshMarkers, SCATTER_ON, UI } from "./config.js?v=1115a";
+import { Chandelier, RING_GAP, recomputeHeights, ringY } from "./chandelier.js?v=1115a";
+import { startFeed, mockData } from "./feed.js?v=1115a";
+import { Detector } from "./detect.js?v=1115a";
+import { pickCamera, isDesktop } from "./campick.js?v=1115a";
+import { loadBlobs } from "./crystal.js?v=1115a";
+import { Guide } from "./guide.js?v=1115a";
 
-const VERSION = "build 1114i";   // 고칠 때마다 올린다. 폰이 옛 파일을 쓰고 있는지 이걸로 안다
+const VERSION = "build 1115a";   // 고칠 때마다 올린다. 폰이 옛 파일을 쓰고 있는지 이걸로 안다
 const params = new URLSearchParams(location.search);
 const DEBUG = params.get("debug") === "1";
 
@@ -765,23 +765,19 @@ if (CAL) {
 //    관객은 자기가 그은 것이 어떻게 조각이 됐는지 그 순간에 가장 궁금하다.
 //    누르면 볼 수 있지만 누를 수 있다는 것을 아무도 모른다.
 //    ⚠️ 처음 접속할 때 오는 뭉치에는 안 띄운다 (feed 의 fresh 참고).
-// ⚠️ app.js 에는 config 의 num 헬퍼가 없다. 여기서 직접 읽는다.
-const BORN_SHOW = (() => {
-  const v = parseFloat(params.get("bornshow"));
-  return Number.isFinite(v) ? v : 7;      // 몇 초 띄울지. 0 이면 안 띄운다
-})();
+// 몇 초 띄울지는 config.js 의 UI 에 있다 (보정값으로 바꾼다).
 
 function onCrystal(data, fresh) {
   if (pending) { pending.push(data); return; }
   const mesh = chandelier.add(data, fresh);
-  if (!fresh || !mesh || BORN_SHOW <= 0) return;
+  if (!fresh || !mesh || UI.bornShow <= 0) return;
   const d = driver && driver.detector;
   if (!d) return;
   d.select(mesh);
   clearTimeout(onCrystal.timer);
   onCrystal.timer = setTimeout(() => {
     if (d.picked === mesh) d.select(null);
-  }, BORN_SHOW * 1000);
+  }, UI.bornShow * 1000);
 }
 
 startFeed(onCrystal, (msg) => { console.log(`[feed] ${msg}`); });
